@@ -23,16 +23,17 @@ import PowerAuth2
 public class PowerAuthSecureDataStore: SecureDataStore {
     
     /// The default keychain identifier.
-    public static let defaultKeychainIdentifier = "io.getlime.PowerAuthKeychain.WultraCertStore"
+    public static let defaultKeychainIdentifier = "com.wultra.WultraCertStore"
     
     /// Underlying keychain object used for data storage.
     private let keychain: PA2Keychain
     
-    /// Constructs
-    public init(
-        keychainIdentifier: String = PowerAuthSecureDataStore.defaultKeychainIdentifier,
-        accessGroup: String? = nil)
-    {
+    /// Initializes secure data store based on PowerAuth keychain services. You can check `PA2Keychain`
+    /// object documentation for more details.
+    ///
+    /// - Parameter keychainIdentifier: Identifier of the service
+    /// - Parameter accessGroup: Access group for the Keychain Sharing
+    public init(keychainIdentifier: String = PowerAuthSecureDataStore.defaultKeychainIdentifier, accessGroup: String? = nil) {
         keychain = PA2Keychain(identifier: keychainIdentifier, accessGroup: accessGroup)
     }
     
