@@ -17,8 +17,7 @@
 import Foundation
 
 
-/// The `GetFingerprintsResponse` structure defines response received from the server,
-/// when CertStore
+/// The `GetFingerprintsResponse` structure defines JSON response received from the server.
 internal struct GetFingerprintsResponse: Decodable {
 
     struct Entry: Decodable {

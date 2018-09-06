@@ -26,6 +26,7 @@ public protocol SecureDataStore: class {
     /// - Parameter data: Data to be saved
     /// - Parameter key: Identifier for stored data
     /// - Returns: true if data has been properly saved
+    @discardableResult
     func save(data: Data, for key: String) -> Bool
     
     /// Loads data previously stored for given key.

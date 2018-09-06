@@ -46,7 +46,7 @@ extension CachedData {
         }
     }
     
-    /// Returns number of certificates which are not expired.
+    /// Returns number of certificates which are currently not expired.
     var numberOfValidCertificates: Int {
         var result = 0
         for info in certificates {

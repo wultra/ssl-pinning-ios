@@ -35,7 +35,7 @@ internal extension CertStore {
         guard let encodedData = try? jsonEncoder().encode(data) else {
             return
         }
-        _ = secureDataStore.save(data: encodedData, for: self.instanceIdentifier)
+        secureDataStore.save(data: encodedData, for: self.instanceIdentifier)
     }
     
     /// Loads fallback certificate from configuration provided in CertStore initialization.
