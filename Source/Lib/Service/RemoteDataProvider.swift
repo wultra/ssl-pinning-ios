@@ -23,5 +23,5 @@ import Foundation
 internal protocol RemoteDataProvider: class {
     
     /// Gets data containing fingerprints from the remote location.
-    func getFingerprints(completion: @escaping (Data?, Error?) -> Void) -> Void
+    func getFingerprints(completion: @escaping (Result<Data>) -> Void) -> Void
 }

@@ -13,6 +13,7 @@
 		BF7DD3EA21403E2A00766D03 /* PowerAuth2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BF7DD3E921403E2900766D03 /* PowerAuth2.framework */; };
 		BF7DD3EB21403E3E00766D03 /* PowerAuth2.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BF7DD3E921403E2900766D03 /* PowerAuth2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		BF7DD3F2214183D800766D03 /* WultraSSLPinning.h in Headers */ = {isa = PBXBuildFile; fileRef = BFCB816F213D96F300615ADA /* WultraSSLPinning.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		BF7DD3F62141970900766D03 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF7DD3F52141970900766D03 /* Result.swift */; };
 		BF8BB76F213EFC100097315B /* CertStore+Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8BB76E213EFC100097315B /* CertStore+Storage.swift */; };
 		BF8BB771213F03510097315B /* RemoteDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8BB770213F03510097315B /* RemoteDataProvider.swift */; };
 		BF8BB774213F05B40097315B /* RestAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8BB773213F05B40097315B /* RestAPI.swift */; };
@@ -61,6 +62,7 @@
 		BF7DD3CF21402B3900766D03 /* HexadecimalHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexadecimalHelper.swift; sourceTree = "<group>"; };
 		BF7DD3E921403E2900766D03 /* PowerAuth2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PowerAuth2.framework; path = Carthage/Build/iOS/PowerAuth2.framework; sourceTree = "<group>"; };
 		BF7DD3F3214183F900766D03 /* Cartfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Cartfile; sourceTree = "<group>"; };
+		BF7DD3F52141970900766D03 /* Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
 		BF8BB76E213EFC100097315B /* CertStore+Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CertStore+Storage.swift"; sourceTree = "<group>"; };
 		BF8BB770213F03510097315B /* RemoteDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteDataProvider.swift; sourceTree = "<group>"; };
 		BF8BB773213F05B40097315B /* RestAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestAPI.swift; sourceTree = "<group>"; };
@@ -235,6 +237,7 @@
 			children = (
 				BFCB8176213D9F8400615ADA /* CryptoProvider.swift */,
 				BFCB8178213D9FEB00615ADA /* SecureDataStore.swift */,
+				BF7DD3F52141970900766D03 /* Result.swift */,
 			);
 			path = Protocols;
 			sourceTree = "<group>";
@@ -376,6 +379,7 @@
 				BFCB8193213EB59700615ADA /* CertificateInfo.swift in Sources */,
 				BFCB817E213DA71100615ADA /* PowerAuthSecureDataStore.swift in Sources */,
 				BFCB818A213EAD1300615ADA /* CertStoreConfiguration.swift in Sources */,
+				BF7DD3F62141970900766D03 /* Result.swift in Sources */,
 				BFCB8188213EAC1300615ADA /* CertStore.swift in Sources */,
 				BFE92F46213EC6C00078E2A1 /* CertStore+Validation.swift in Sources */,
 				BFE92F48213ECE5F0078E2A1 /* CertStore+Update.swift in Sources */,

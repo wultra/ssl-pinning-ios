@@ -15,6 +15,9 @@
 //
 
 import Foundation
+@testable import WultraSSLPinning
+
+typealias AsyncHelperResult = Result 
 
 /// AsyncHelper allows you to linearize execution of any asynchronous operation.
 /// The typical usage pattern for this class looks like this:
@@ -93,47 +96,6 @@ class AsyncHelper<Result> {
             return .failure(AsyncHelperError.resultNotProvided)
         }
         return result
-    }
-}
-
-/// Enum represent whether the was successful or encountered an error.
-enum AsyncHelperResult<Result> {
-    /// Case for success result
-    case success(Result)
-    /// Case for error result
-    case failure(Error)
-    
-    /// Contains true if operation did succeed.
-    var isSuccess: Bool {
-        switch self {
-        case .success:
-            return true
-        case .failure:
-            return false
-        }
-    }
-    
-    /// Contains true if operation did fail.
-    var isFailure: Bool {
-        return !isSuccess
-    }
-    
-    var value: Result? {
-        switch self {
-        case .success(let value):
-            return value
-        case .failure:
-            return nil
-        }
-    }
-    
-    var error: Error? {
-        switch self {
-        case .success:
-            return nil
-        case .failure(let error):
-            return error
-        }
     }
 }
 

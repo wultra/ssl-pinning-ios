@@ -30,7 +30,12 @@ internal class RestAPI: RemoteDataProvider {
         self.executionQueue = DispatchQueue(label: "WultraCertStoreNetworking")
     }
     
-    func getFingerprints(completion: @escaping (Data?, Error?) -> Void) {
+    enum NetworkError: Error {
+        // Error returned in case of neither data nor error were provided.
+        case noDataProvided
+    }
+    
+    func getFingerprints(completion: @escaping (Result<Data>) -> Void) {
         executionQueue.async { [weak self] in
             guard let this = self else {
                 return
@@ -39,7 +44,13 @@ internal class RestAPI: RemoteDataProvider {
             request.addValue("application/json", forHTTPHeaderField: "Accept")
             request.httpMethod = "GET"
             this.session.dataTask(with: request) { (data, response, error) in
-                completion(data, error)
+                if let data = data {
+                    completion(.success(data))
+                } else if let error = error {
+                    completion(.failure(error))
+                } else {
+                    completion(.failure(NetworkError.noDataProvided))
+                }
             }.resume()
         }
     }

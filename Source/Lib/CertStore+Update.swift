@@ -18,6 +18,21 @@ import Foundation
 
 public extension CertStore {
     
+    /// Defines modes of update request
+    public enum UpdateMode {
+        
+        /// The default mode keeps periodicity of handling on the CertStore
+        case `default`
+        
+        /// The forced update tells the `CertStore` that is should update certificates right
+        /// now. You should use this mode only if `validate()` method returns "empty" validation
+        /// result, otherwise the `.default` is always recommended.
+        ///
+        /// Note that in "forced" mode the completion block is called always after the update
+        /// is finished.
+        case forced
+    }
+    
     /// Result from update certificates request.
     public enum UpdateResult {
         
@@ -27,9 +42,9 @@ public extension CertStore {
         /// The update request succeeded, but the result is still an empty list of certificates.
         /// This may happen when the loading & validating of remote data succeeded, but all loaded
         /// certificates are already expired.
-        case empty
+        case storeIsEmpty
         
-        /// The update request failed on network error.
+        /// The update request failed on a network communication.
         case networkError
         
         /// The update request returned an invalid data from the server.
@@ -39,8 +54,32 @@ public extension CertStore {
         case invalidSignature
     }
     
-    /// Updates
-    public func update(completionQueue: DispatchQueue = .main, completion: @escaping (UpdateResult)->Void) -> Void {
+    /// Tells `CertStore` to update its database of certificates from the remote location.
+    ///
+    /// ## Discussion
+    ///
+    /// The update operation basically works in three modes, depending on whether the database of certificates
+    /// is empty, or not.
+    /// 1. If database of certificates is empty, the the **"immediate"** update is enforced and the "completion" block
+    ///    is called after the update is finished. This basically means that the application has to wait for
+    ///    certificate fetch.
+    ///
+    /// 2. If there are some certificates, but some is expire soon, then the **"silent"** update mode is applied
+    ///    and the `completion` block is immediately scheduled to the `completionQueue` with `ok` result.
+    ///    The update of certificates is performed silently by the library. The silent update is also performed
+    ///    periodically, once per week by default.
+    ///
+    /// 3. If there are some certificates and none is closing to its expiration date, then the `completion`
+    ///    block is immediately scheduled to the `completionQueue` with `ok` result.
+    ///
+    ///
+    ///
+    /// - Parameter mode: Mode of update operation (`.default` is recommended)
+    /// - Parameter completionQueue: The completion queue for scheduling the completion block callback. The default is `.main`.
+    /// - Parameter completion: The completion closure called at the end of operation, with following parameters:
+    /// - Parameter result: Resut of the update operation
+    /// - Parameter error: An optional error, returned in case that operation failed on communication with the remote location.
+    public func update(mode: UpdateMode = .default, completionQueue: DispatchQueue = .main, completion: @escaping (_ result: UpdateResult, _ error: Error?)->Void) -> Void {
         
         // Acquire whole cached data structure
         let cachedData = getCachedData()
@@ -51,13 +90,12 @@ public extension CertStore {
         if let cachedData = cachedData {
             // Check whether there's still some valid certificate. If not, then we have to perform
             // immediate update and application must wait for the result.
-            needsDirectUpdate = cachedData.numberOfValidCertificates == 0
+            needsDirectUpdate = cachedData.numberOfValidCertificates == 0 || mode == .forced
             if needsDirectUpdate == false {
                 // If direct update is not required, then check whether we should perform a silent one
                 needsSilentUpdate = cachedData.nextUpdate.timeIntervalSinceNow < 0
             }
         }
-        
         if needsDirectUpdate {
             // Perform direct update and wait for the result
             doUpdate(completionQueue: completionQueue, completion: completion)
@@ -70,22 +108,23 @@ public extension CertStore {
             }
             // Returns "OK" result to the completion queue
             completionQueue.async {
-                completion(.ok)
+                completion(.ok, nil)
             }
         }
     }
     
-    private func doUpdate(completionQueue: DispatchQueue?, completion: ((UpdateResult)->Void)?) -> Void {
+    /// Private function implemens the update operation.
+    private func doUpdate(completionQueue: DispatchQueue?, completion: ((UpdateResult, Error?)->Void)?) -> Void {
         // Fetch fingerprints data from the remote data provider
-        remoteDataProvider.getFingerprints { (data, error) in
+        remoteDataProvider.getFingerprints { response in
             let result: UpdateResult
-            if let data = data {
+            if let data = response.value {
                 result = self.processReceivedData(data)
             } else {
                 result = .networkError
             }
             completionQueue?.async {
-                completion?(result)
+                completion?(result, response.error)
             }
         }
     }
@@ -141,6 +180,11 @@ public extension CertStore {
                 newCertificates.append(newCI)
             }
             
+            /// Check whether there's at least one certificate.
+            if newCertificates.isEmpty {
+                result = .storeIsEmpty
+            }
+            
             guard result == .ok else {
                 // Returning nil here means that we're not modifying cached data. This typically means
                 // that next call to "update" will force the next data load.
@@ -161,7 +205,7 @@ public extension CertStore {
     }
     
     /// The private function imports EC public key from `CertStoreConfiguration`. The function
-    /// may crash when invalid key is provided.
+    /// may crash on fatal error, when invalid key is provided in the configuration.
     private func importECPublicKey() -> ECPublicKey {
         guard let publicKeyData = Data(base64Encoded: configuration.publicKey),
             let publicKey = cryptoProvider.importECPublicKey(publicKey: publicKeyData) else {

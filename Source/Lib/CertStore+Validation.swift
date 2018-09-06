@@ -22,9 +22,15 @@ public extension CertStore {
     public enum ValidationResult {
         /// The challenged server certificate is trusted (e.g. its fingerprint is in database)
         case trusted
+        
         /// The challenged server certificate is not trusted.
         case untrusted
-        /// The fingerprints database is empty. The store is unable to validate fingerprint.
+        
+        /// The fingerprints database is empty, or there's no fingerprint for validated common name.
+        /// For both situations, the store is basically unable to validate the fingerprint.
+        ///
+        /// The "empty" validation result typically means that the application should update
+        /// list of certificates immediately.
         case empty
     }
     
@@ -45,6 +51,8 @@ public extension CertStore {
             return .empty
         }
         
+        /// Match attempt
+        var matchAttempts = 0
         // Interate over all entries and look for common name & entry
         // We don't care about expiration here. The expiration date is only
         // for caching purposes and indicates that we need to update list of certs.
@@ -53,9 +61,17 @@ public extension CertStore {
                 if info.fingerprint == fingerprint {
                     return .trusted
                 }
+                matchAttempts += 1
             }
         }
-        return .untrusted
+        // If matchAttempts is greater than 0, then it means that we have certificate for
+        // a requested common name, but none matched. In this case, the result is "untrusted".
+        //
+        // On opposite to that, if no fingerprint comparison was performed, then it means
+        // that the database has some certificates, but none for requested common name.
+        // That's basically means that we cannot determine validity of the certificate
+        // and therefore the "empty" result is returned.
+        return matchAttempts > 0 ? .untrusted : .empty
     }
     
     /// Validates whether provided certificate data in DER format is valid for given common name.

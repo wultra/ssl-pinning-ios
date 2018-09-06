@@ -24,7 +24,8 @@ public struct CertStoreConfiguration {
     public let serviceUrl: URL
     
     /// Required property, contains ECC public key which will be used validating data received from the server.
-    /// The BASE64 string is expected.
+    /// The BASE64 string is expected. If the invalid key is provided, then the libray will crash on fatal error
+    /// on the first attempt to use the public key.
     public let publicKey: String
     
     /// Defines instance identifier for case that your application requires more than one instance of CertStore.
