@@ -1,0 +1,40 @@
+//
+// Copyright 2018 Wultra s.r.o.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions
+// and limitations under the License.
+//
+
+import Foundation
+
+/// The `SecureDataStore` protocol defines interface for saving to, and loading data
+/// from the underlying secure storage. The implementing class should store data as
+/// secure as possible. On iOS that typically means that iOS Keychain should be used.
+public protocol SecureDataStore: class {
+    
+    /// Save data to the secure data store.
+    ///
+    /// - Parameter data: Data to be saved
+    /// - Parameter key: Identifier for stored data
+    /// - Returns: true if data has been properly saved
+    func save(data: Data, for key: String) -> Bool
+    
+    /// Loads data previously stored for given key.
+    ///
+    /// - Parameter key: Identifier for stored data
+    /// - Returns: Data object if secure store contains previously stored data, otherwise `nil`
+    func load(dataFor key: String) -> Data?
+    
+    /// Removes data previosly stored for given key. If there is no such data stored, then
+    /// returns without a failure.
+    func remove(dataFor key: String)
+}
