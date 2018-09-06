@@ -136,6 +136,7 @@ public extension CertStore {
         // Try decode data to response object
         guard let response = try? jsonDecoder().decode(GetFingerprintsResponse.self, from: data) else {
             // Failed to decode JSON to our model object
+            WultraDebug.error("CertStore: Failed to parse JSON received from the server.")
             return .invalidData
         }
         // Import public key (may crash in fatalError for invalid configuration)
@@ -169,10 +170,12 @@ public extension CertStore {
                 guard let signedData = entry.dataForSignatureValidation else {
                     // Failed to construct bytes for signature validation. I think this may
                     // never happen, unless "entry.name" contains some invalid UTF8 chars.
+                    WultraDebug.error("CertStore: Failed to prepare data for signature validation.")
                     result = .invalidData
                     break
                 }
                 guard cryptoProvider.ecdsaValidateSignatures(signedData: signedData, publicKey: publicKey) else {
+                    WultraDebug.error("CertStore: Invalid signature detected. CN = '\(entry.name)'")
                     result = .invalidSignature
                     break
                 }
@@ -182,6 +185,7 @@ public extension CertStore {
             
             /// Check whether there's at least one certificate.
             if newCertificates.isEmpty {
+                WultraDebug.warning("CertStore: Database is still empty after update.")
                 result = .storeIsEmpty
             }
             

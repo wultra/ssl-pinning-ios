@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BF026B022141CC9700A47E90 /* WultraDebug.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF026B012141CC9700A47E90 /* WultraDebug.swift */; };
 		BF7DD3CB214022FC00766D03 /* AsyncHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF7DD3C9214022FA00766D03 /* AsyncHelper.swift */; };
 		BF7DD3CE21402A3100766D03 /* PowerAuthCryptoProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF7DD3CC214029FA00766D03 /* PowerAuthCryptoProviderTests.swift */; };
 		BF7DD3D121402B5000766D03 /* HexadecimalHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF7DD3CF21402B3900766D03 /* HexadecimalHelper.swift */; };
@@ -57,6 +58,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		BF026B012141CC9700A47E90 /* WultraDebug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WultraDebug.swift; sourceTree = "<group>"; };
 		BF7DD3C9214022FA00766D03 /* AsyncHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncHelper.swift; sourceTree = "<group>"; };
 		BF7DD3CC214029FA00766D03 /* PowerAuthCryptoProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerAuthCryptoProviderTests.swift; sourceTree = "<group>"; };
 		BF7DD3CF21402B3900766D03 /* HexadecimalHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexadecimalHelper.swift; sourceTree = "<group>"; };
@@ -132,6 +134,7 @@
 			children = (
 				BF8BB770213F03510097315B /* RemoteDataProvider.swift */,
 				BF8BB773213F05B40097315B /* RestAPI.swift */,
+				BF026B012141CC9700A47E90 /* WultraDebug.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -381,6 +384,7 @@
 				BFCB818A213EAD1300615ADA /* CertStoreConfiguration.swift in Sources */,
 				BF7DD3F62141970900766D03 /* Result.swift in Sources */,
 				BFCB8188213EAC1300615ADA /* CertStore.swift in Sources */,
+				BF026B022141CC9700A47E90 /* WultraDebug.swift in Sources */,
 				BFE92F46213EC6C00078E2A1 /* CertStore+Validation.swift in Sources */,
 				BFE92F48213ECE5F0078E2A1 /* CertStore+Update.swift in Sources */,
 				BFCB8177213D9F8400615ADA /* CryptoProvider.swift in Sources */,

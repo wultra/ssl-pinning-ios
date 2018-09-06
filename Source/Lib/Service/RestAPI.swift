@@ -45,10 +45,12 @@ internal class RestAPI: RemoteDataProvider {
             var request = URLRequest(url: this.baseURL)
             request.addValue("application/json", forHTTPHeaderField: "Accept")
             request.httpMethod = "GET"
+            
             this.session.dataTask(with: request) { (data, response, error) in
                 if let data = data {
                     completion(.success(data))
                 } else if let error = error {
+                    WultraDebug.print("RestAPI: HTTP request failed with error: \(error)")
                     completion(.failure(error))
                 } else {
                     completion(.failure(NetworkError.noDataProvided))

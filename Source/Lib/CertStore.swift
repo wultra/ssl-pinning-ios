@@ -61,6 +61,9 @@ public class CertStore {
     /// If you reset the cache, then all `validate()` functions will return "empty" result,
     /// so you need to update certificates afterwards.
     public func reset() {
+        
+        WultraDebug.warning("CertStore: reset() hould not be used in production build.")
+        
         semaphore.wait()
         defer { semaphore.signal() }
         
