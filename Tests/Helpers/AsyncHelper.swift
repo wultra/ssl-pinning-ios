@@ -19,6 +19,7 @@ import Foundation
 
 typealias AsyncHelperResult = Result 
 
+///
 /// AsyncHelper allows you to linearize execution of any asynchronous operation.
 /// The typical usage pattern for this class looks like this:
 /// ```
@@ -33,9 +34,10 @@ typealias AsyncHelperResult = Result
 /// print("Operation ended with: \(result)");   // Will print: "Operation ended with: SUCCESS"
 ///```
 ///
-/// ## WARNING
+/// ## ⚠️ WARNING
 /// Do not use this class in the production application. The internal implementation is
 /// sufficient for the testing purposes, but it's still kind of multithread anti-pattern.
+///
 class AsyncHelper<Result> {
 
     /// Creates a new instance of `AsyncHelper` internally and immediately executes the provided block.
@@ -99,8 +101,9 @@ class AsyncHelper<Result> {
     }
 }
 
-
+///
 /// Errors produced by AsyncHelper
+///
 enum AsyncHelperError: Error {
     /// Waiting for asynchronous operation did time out. The default waiting time is 10 seconds.
     case timedOut

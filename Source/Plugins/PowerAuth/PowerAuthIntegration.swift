@@ -14,15 +14,14 @@
 // and limitations under the License.
 //
 
-import Foundation
 import PowerAuth2
 
 public extension CertStore {
     
     /// Returns validation strategy object which can be used in `PA2ClientConfiguration`.
     /// The constructed validation strategy object will use this instance of `CertStore` for server certificate
-    /// validation. Note that function always constructs a new object, so it's effective to create just one instance
-    /// of the validator per `CertStore` instance.
+    /// validation. Note that the function always constructs new object, so it's effective to create just one instance
+    /// of the validator per `CertStore`.
     public func powerAuthSslValidationStrategy() -> PA2ClientSslValidationStrategy {
         return PowerAuthSslPinningValidationStrategy(certStore: self)
     }
@@ -52,11 +51,12 @@ public extension CertStore {
     }
 }
 
+///
 /// The `PowerAuthSslPinningValidationStrategy` implements SSL pinning with fingerprints, stored in
 /// the CertStore. The object implements `PA2ClientSslValidationStrategy` protocol, so it can be used
 /// to protect the communication initiated from the PowerAuth SDK itself. To do this, you can simply
 /// create an instance of this object and assign it to the `PA2ClientConfiguration` before you construct
-/// your `PowerAuthSDK` instance.
+/// your `PowerAuthSDK` object.
 ///
 /// For example, this is how the configuration sequence may looks like if you want to use both
 /// `PowerAuthSDK` and `CertStore` as singletons:
@@ -89,6 +89,7 @@ public extension CertStore {
 ///     }
 /// }
 /// ```
+///
 public class PowerAuthSslPinningValidationStrategy: NSObject, PA2ClientSslValidationStrategy {
     
     /// `CertStore` object which actually implements the SSL pinning.

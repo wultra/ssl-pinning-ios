@@ -16,9 +16,11 @@
 
 import Foundation
 
+///
 /// The `CertificateInfo` structure holds all important information about
 /// the stored certificate's fingerprint. Unlike the object received from
 /// the server, this structure doesn't contain signature data.
+///
 internal struct CertificateInfo: Codable {
     
     /// Certificate's common name

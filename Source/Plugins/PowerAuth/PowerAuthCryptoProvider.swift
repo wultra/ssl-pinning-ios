@@ -14,10 +14,11 @@
 // and limitations under the License.
 //
 
-import Foundation
 import PowerAuth2
 
 public class PowerAuthCryptoProvider: CryptoProvider {
+    
+    // MARK: - CryptoProvider protocol
     
     public func ecdsaValidateSignatures(signedData: SignedData, publicKey: ECPublicKey) -> Bool {
         // Cast abstract interface to PA2ECPublicKey

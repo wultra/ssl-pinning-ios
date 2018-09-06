@@ -16,8 +16,11 @@
 
 import Foundation
 
+///
 /// The `CertStore` class implements dynamic SSL certificate fingerprint validation.
-/// For more information, please read our documentation.
+///
+/// For more information, please read our [online documentation](https://github.com/wultra/ssl-pinning-ios/blob/develop/README.md).
+///
 public class CertStore {
     
     // MARK: - Public interface
@@ -52,7 +55,7 @@ public class CertStore {
     
     /// Removes all cached data from the memory and the persistent storage.
     ///
-    /// ## WARNING
+    /// ## ⚠️ WARNING
     ///
     /// It's recommended to use this function only for testing or debugging purposes.
     /// If you reset the cache, then all `validate()` functions will return "empty" result,

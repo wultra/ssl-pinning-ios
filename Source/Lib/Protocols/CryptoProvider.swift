@@ -16,8 +16,10 @@
 
 import Foundation
 
+///
 /// The `CryptoProvider` protocol defines interface for performing several
 /// cryptographic primitives, required by this library.
+///
 public protocol CryptoProvider: class {
     
     /// Validates whether data has not been modified.

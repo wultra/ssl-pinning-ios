@@ -16,7 +16,9 @@
 
 import Foundation
 
+///
 /// Enum represent whether the generic operation was successful or encountered an error.
+///
 public enum Result<T> {
     
     /// Case for success result

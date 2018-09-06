@@ -16,10 +16,12 @@
 
 import Foundation
 
+///
 /// The `RemoteDataProvider` protocol defines an interface for getting
 /// fingerprints from remote data location.
 /// The protocol is currently implemented by `RestAPI` class and by
-/// several dummy implementations used for unit testing.
+/// several dummy implementations used for the unit testing.
+///
 internal protocol RemoteDataProvider: class {
     
     /// Gets data containing fingerprints from the remote location.

@@ -16,9 +16,11 @@
 
 import Foundation
 
+///
 /// The `SecureDataStore` protocol defines interface for saving to, and loading data
 /// from the underlying secure storage. The implementing class should store data as
 /// secure as possible. On iOS that typically means that iOS Keychain should be used.
+///
 public protocol SecureDataStore: class {
     
     /// Save data to the secure data store.

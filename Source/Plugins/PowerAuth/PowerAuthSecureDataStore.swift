@@ -14,18 +14,12 @@
 // and limitations under the License.
 //
 
-import Foundation
 import PowerAuth2
 
 /// The `PowerAuthSecureDataStore` implements `SecureDataStore` interface with using
 /// `PowerAuth2.PA2Keychain` as underlying data storage. To initialize the data store,
 /// you have to provide keychain identifier and optionally access group, if the cached
 /// data has to be stored across multiple applications.
-///
-/// To use this class, you have to add following line into your `Podfile`:
-/// ```
-/// pod 'WultraSSLPinning/PowerAuthIntegration'
-/// ```
 public class PowerAuthSecureDataStore: SecureDataStore {
     
     /// The default keychain identifier.

@@ -16,8 +16,10 @@
 
 import Foundation
 
+///
 /// The `CachedData` structure is a model for (de)serializing
 /// all persistent data to secure data store.
+///
 internal struct CachedData: Codable {
     
     /// Array of certificate info structures

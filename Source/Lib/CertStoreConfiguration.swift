@@ -16,14 +16,16 @@
 
 import Foundation
 
+///
 /// The `CertStoreConfiguration` structure contains configuration for the `CertStore` class.
-/// You need to construct this structure with at least following properties: `serviceUrl`, `publicKey`.
+/// You need to construct this structure with at least `serviceUrl` and `publicKey` properties.
+///
 public struct CertStoreConfiguration {
     
     /// Required property, defines URL for getting certificate fingerprints.
     public let serviceUrl: URL
     
-    /// Required property, contains ECC public key which will be used validating data received from the server.
+    /// Required property, contains ECC public key which will be used for validating data received from the server.
     /// The BASE64 string is expected. If the invalid key is provided, then the libray will crash on fatal error
     /// on the first attempt to use the public key.
     public let publicKey: String
@@ -76,7 +78,7 @@ public struct CertStoreConfiguration {
     /// The default value is 12 hours.
     public let periodicUpdateIntervalDuringExpiration: TimeInterval
     
-    
+    /// Default constructor.
     public init(
         serviceUrl: URL,
         publicKey: String,

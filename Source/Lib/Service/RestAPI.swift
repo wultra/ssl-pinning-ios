@@ -16,8 +16,10 @@
 
 import Foundation
 
+///
 /// The `RestAPI` class implements downloading list of certificates
 /// from a remote server. The class is used internally in the CertStore.
+///
 internal class RestAPI: RemoteDataProvider {
     
     private let baseURL: URL

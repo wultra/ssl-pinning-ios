@@ -245,8 +245,8 @@
 		BFCB818F213EB4AF00615ADA /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				BFCB8192213EB59700615ADA /* CertificateInfo.swift */,
 				BF8BB775213FDA420097315B /* CachedData.swift */,
+				BFCB8192213EB59700615ADA /* CertificateInfo.swift */,
 				BFCB8190213EB4D100615ADA /* GetFingerprintsResponse.swift */,
 			);
 			path = Model;
