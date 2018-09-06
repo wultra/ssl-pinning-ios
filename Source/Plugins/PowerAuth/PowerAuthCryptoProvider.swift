@@ -16,6 +16,11 @@
 
 import PowerAuth2
 
+///
+/// The `PowerAuthCryptoProvider` implements `CryptoProvider` interface with using
+/// functions provided by the PowerAuth SDK. If your application is already using
+/// PowerAuth, then this is the recommended implementation for you.
+///
 public class PowerAuthCryptoProvider: CryptoProvider {
     
     // MARK: - CryptoProvider protocol
@@ -39,4 +44,5 @@ public class PowerAuthCryptoProvider: CryptoProvider {
 }
 
 extension PA2ECPublicKey: ECPublicKey {
+    // Makes `PA2ECPublicKey` compatible with `ECPublicKey` interface
 }
