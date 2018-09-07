@@ -135,7 +135,8 @@ extension Thread {
         } while closure()
     }
     
-    static func measureEllapsedTime(closure: ()->Void) -> TimeInterval {
+    /// Returns how much time elepased during the closure execution.
+    static func measureElapsedTime(closure: ()->Void) -> TimeInterval {
         let start = Date()
         closure()
         return -start.timeIntervalSinceNow

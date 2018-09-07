@@ -62,7 +62,7 @@ class CertStoreTests_Update: XCTestCase {
 
         var updateResult: Result<CertStore.UpdateResult>
         var validationResult: CertStore.ValidationResult
-        var ellapsed: TimeInterval
+        var elapsed: TimeInterval
         
         prepareStore(with: .testConfig)
         
@@ -93,7 +93,7 @@ class CertStoreTests_Update: XCTestCase {
         remoteDataProvider.setLatency(.testLatency_ForSilentUpdate)
         remoteDataProvider.interceptor = .clean
         
-        ellapsed = Thread.measureEllapsedTime {
+        elapsed = Thread.measureElapsedTime {
             updateResult = AsyncHelper.wait { completion in
                 self.certStore.update { (result, error) in
                     completion.complete(with: result)
@@ -101,7 +101,7 @@ class CertStoreTests_Update: XCTestCase {
             }
             XCTAssertEqual(updateResult.value, .ok)
         }
-        XCTAssertTrue(ellapsed < .testLatency_ForFastUpdate)                        // ellapsed must be very short
+        XCTAssertTrue(elapsed < .testLatency_ForFastUpdate)                        // ellapsed must be very short
         XCTAssertTrue(remoteDataProvider.interceptor.called_getFingerprints == 0)   // no remote update was called
         
         // Now wait for a while, to get a closer to expiration threshold, but not too close to trigger periodic update.
@@ -112,7 +112,7 @@ class CertStoreTests_Update: XCTestCase {
         //         There's no reason for that, no certificate is going to expire soon.
         //
         remoteDataProvider.interceptor = .clean
-        ellapsed = Thread.measureEllapsedTime {
+        elapsed = Thread.measureElapsedTime {
             updateResult = AsyncHelper.wait { completion in
                 self.certStore.update { (result, error) in
                     completion.complete(with: result)
@@ -120,7 +120,7 @@ class CertStoreTests_Update: XCTestCase {
             }
             XCTAssertEqual(updateResult.value, .ok)
         }
-        XCTAssertTrue(ellapsed < .testLatency_ForFastUpdate)
+        XCTAssertTrue(elapsed < .testLatency_ForFastUpdate)
         XCTAssertTrue(remoteDataProvider.interceptor.called_getFingerprints == 0)
         
         // Wait once more time, to get closer to the expiration point
@@ -129,7 +129,7 @@ class CertStoreTests_Update: XCTestCase {
         //
         // [ 3 ] This update should call remote server, but on the background.
         //       The periodic update did trigger background update
-        ellapsed = Thread.measureEllapsedTime {
+        elapsed = Thread.measureElapsedTime {
             updateResult = AsyncHelper.wait { completion in
                 self.certStore.update { (result, error) in
                     completion.complete(with: result)
@@ -137,7 +137,7 @@ class CertStoreTests_Update: XCTestCase {
             }
             XCTAssertEqual(updateResult.value, .ok)
         }
-        XCTAssertTrue(ellapsed < .testLatency_ForFastUpdate)
+        XCTAssertTrue(elapsed < .testLatency_ForFastUpdate)
         XCTAssertTrue(remoteDataProvider.interceptor.called_getFingerprints == 1)
         
         //
@@ -145,7 +145,7 @@ class CertStoreTests_Update: XCTestCase {
         //         It's too close to previous update
         //
         remoteDataProvider.interceptor = .clean
-        ellapsed = Thread.measureEllapsedTime {
+        elapsed = Thread.measureElapsedTime {
             updateResult = AsyncHelper.wait { completion in
                 self.certStore.update { (result, error) in
                     completion.complete(with: result)
@@ -153,7 +153,7 @@ class CertStoreTests_Update: XCTestCase {
             }
             XCTAssertEqual(updateResult.value, .ok)
         }
-        XCTAssertTrue(ellapsed < .testLatency_ForFastUpdate)
+        XCTAssertTrue(elapsed < .testLatency_ForFastUpdate)
         XCTAssertTrue(remoteDataProvider.interceptor.called_getFingerprints == 0)
         
         // Append updated certfificate
