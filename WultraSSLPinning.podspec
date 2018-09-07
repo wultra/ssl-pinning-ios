@@ -25,7 +25,7 @@ Pod::Spec.new do |s|
   s.subspec 'PowerAuthIntegration' do |sub|
     sub.source_files = 'Source/Plugins/PowerAuth/*.swift'
     sub.dependency 'WultraSSLPinning/Lib'
-    sub.dependency 'PowerAuth2'
+    sub.dependency 'PowerAuth2', '>= 0.19.1'
   end
 
 end
