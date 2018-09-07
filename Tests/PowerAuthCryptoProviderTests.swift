@@ -20,8 +20,7 @@ import XCTest
 class PowerAuthCryptoProviderTests: XCTestCase {
     
     func testSha256() {
-        let cp = PowerAuthCryptoProvider()
-        
+        // Prepare test data
         let vectors = [
             (   "abc",
                 "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
@@ -36,7 +35,8 @@ class PowerAuthCryptoProviderTests: XCTestCase {
                 "cf5b16a778af8380036ce59e7b0492370b249b11e8f07a51afac45037afee9d1"
             )
         ]
-        
+        // Validate expected results
+        let cp = PowerAuthCryptoProvider()
         vectors.forEach { (input, hash) in
             guard let inputBytes = input.data(using: .utf8) else {
                 XCTFail("Wrong test data")
@@ -49,11 +49,10 @@ class PowerAuthCryptoProviderTests: XCTestCase {
             let calculated = cp.hashSha256(data: inputBytes)
             XCTAssertEqual(expected, calculated)
         }
-
     }
     
     func testEcdsaSignatureValidation() {
-        let cp = PowerAuthCryptoProvider()
+        // Prepare data
         let commonName  = "www.google.com"
         let timestamp   = "1540280280000"
         let fingerprint = "nu1DOBz31Y5FY6lRNkJV/HdnB6BDVCp7mX0nxkbub7Y="
@@ -65,6 +64,8 @@ class PowerAuthCryptoProviderTests: XCTestCase {
             XCTFail("Invalid test data")
             return
         }
+        // Validate signature
+        let cp = PowerAuthCryptoProvider()
         guard let publicKey = cp.importECPublicKey(publicKey: publicKeyData) else {
             XCTFail("Invalid test data")
             return

@@ -29,15 +29,17 @@ public protocol SecureDataStore: class {
     /// - Parameter key: Identifier for stored data
     /// - Returns: true if data has been properly saved
     @discardableResult
-    func save(data: Data, for key: String) -> Bool
+    func save(data: Data, forKey key: String) -> Bool
     
     /// Loads data previously stored for given key.
     ///
     /// - Parameter key: Identifier for stored data
     /// - Returns: Data object if secure store contains previously stored data, otherwise `nil`
-    func load(dataFor key: String) -> Data?
+    func loadData(forKey key: String) -> Data?
     
     /// Removes data previosly stored for given key. If there is no such data stored, then
     /// returns without a failure.
-    func remove(dataFor key: String)
+    ///
+    /// - Parameter key: Identifier for stored data
+    func removeData(forKey key: String)
 }

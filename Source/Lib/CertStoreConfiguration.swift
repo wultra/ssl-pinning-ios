@@ -30,10 +30,14 @@ public struct CertStoreConfiguration {
     /// on the first attempt to use the public key.
     public let publicKey: String
     
+    /// Optional property, defines the set of common names which are expected in certificate validation. By setting
+    /// this propery, you tell the store to treat all certificates issued for other common names as untrusted.
+    public let expectedCommonNames: [String]?
+    
     /// Defines instance identifier for case that your application requires more than one instance of CertStore.
-    /// The identifier is then used for persistent data storage identification.
+    /// The identifier is then used for data identification in the underlying persistend data storage.
     ///
-    /// If `nil` is provided, then CertStore will use "default" string constant for such identification.
+    /// If `nil` is provided, then `CertStore` will use "default" string constant for such identification.
     public let identifier: String?
     
     /// Defines JSON data with a fallback certificate fingerprint.
@@ -53,9 +57,8 @@ public struct CertStoreConfiguration {
     /// """.data(using: .ascii)
     /// ```
     ///
-    /// Then, the fallback certificate info will be used at the end of the fingerprint validation loop.
+    /// Then, the fallback certificate will be used at the end of the fingerprints validation loop.
     public let fallbackCertificateData: Data?
-    
     
     // MARK: - Tweaks
     
@@ -82,6 +85,7 @@ public struct CertStoreConfiguration {
     public init(
         serviceUrl: URL,
         publicKey: String,
+        expectedCommonNames: [String]? = nil,
         identifier: String? = nil,
         fallbackCertificateData: Data? = nil,
         periodicUpdateInterval: TimeInterval = 7*24*60*60,
@@ -90,10 +94,53 @@ public struct CertStoreConfiguration {
     {
         self.serviceUrl = serviceUrl
         self.publicKey = publicKey
+        self.expectedCommonNames = expectedCommonNames
         self.identifier = identifier
         self.fallbackCertificateData = fallbackCertificateData
         self.periodicUpdateInterval = periodicUpdateInterval
         self.expirationUpdateTreshold = expirationUpdateTreshold
         self.periodicUpdateIntervalDuringExpiration = periodicUpdateIntervalDuringExpiration
+    }
+}
+
+
+
+// MARK: - Internal validation
+
+extension CertStoreConfiguration {
+    
+    /// Performs configuration validation. The result is typically "fatal error" in case that
+    /// configuration contains data which cannot be used for `CertStore` operation, or warning
+    /// printed to the debug output.
+    func validate(cryptoProvider: CryptoProvider) {
+        // Check "http"
+        if serviceUrl.absoluteString.hasPrefix("http:") {
+            WultraDebug.warning("CertStore: '.serviceUrl' should point to 'https' server.")
+        }
+        // Validate fallback certificate data
+        if let fallback = fallbackCertificateData {
+            let decoder = JSONDecoder()
+            decoder.dataDecodingStrategy = .base64
+            decoder.dateDecodingStrategy = .secondsSince1970
+            if let fallbackEntry = try? decoder.decode(GetFingerprintsResponse.Entry.self, from: fallback) {
+                if let expectedCNs = expectedCommonNames {
+                    if !expectedCNs.contains(fallbackEntry.name) {
+                        WultraDebug.warning("CertStore: '.fallbackCertificateData' is issued for common name, which is not included in 'expectedCommonNames'.")
+                    }
+                }
+                if fallbackEntry.expires.timeIntervalSinceNow < 0 {
+                    WultraDebug.warning("CertStore: '.fallbackCertificateData' is already expired.")
+                }
+            } else {
+                WultraDebug.error("CertStore: '.fallbackCertificateData' contains invalid JSON.")
+            }
+        }
+        // Validate EC public key (will crash on fatal error, for invalid key)
+        _ = cryptoProvider.importECPublicKey(publicKeyBase64: publicKey)
+        
+        // Negative TimeIntervals are always fatal
+        if periodicUpdateInterval < 0 || expirationUpdateTreshold < 0 || periodicUpdateIntervalDuringExpiration < 0 {
+            fatalError("CertStoreConfiguration contains negative TimeInterval.")
+        }
     }
 }

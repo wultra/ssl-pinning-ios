@@ -38,13 +38,16 @@ internal struct CachedData: Codable {
 
 extension CachedData {
     
-    /// Sorts certificates stored in CachedData structure.
+    /// Sorts certificates stored in CachedData structure. Entries are alphabetically sorted
+    /// by the common name. For entries with the same common name, the entries with expiration
+    /// in more distant future will be first. This order allows to have more recent certs at first positions,
+    /// so we can more easily calculate when the next silent update will be scheduled.
     mutating func sortCertificates() {
         certificates.sort { (lhs, rhs) -> Bool in
             if lhs.commonName == rhs.commonName {
                 return lhs.expires > rhs.expires
             }
-            return lhs.commonName > rhs.commonName
+            return lhs.commonName < rhs.commonName
         }
     }
     

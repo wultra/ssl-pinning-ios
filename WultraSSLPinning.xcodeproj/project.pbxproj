@@ -15,11 +15,20 @@
 		BF7DD3EB21403E3E00766D03 /* PowerAuth2.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BF7DD3E921403E2900766D03 /* PowerAuth2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		BF7DD3F2214183D800766D03 /* WultraSSLPinning.h in Headers */ = {isa = PBXBuildFile; fileRef = BFCB816F213D96F300615ADA /* WultraSSLPinning.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		BF7DD3F62141970900766D03 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF7DD3F52141970900766D03 /* Result.swift */; };
+		BF7DD3FF2142878000766D03 /* DataExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF7DD3FD2142874200766D03 /* DataExtension.swift */; };
+		BF7DD4002142878800766D03 /* TestingCryptoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF7DD3F721427B6800766D03 /* TestingCryptoProvider.swift */; };
+		BF7DD4012142878B00766D03 /* TestingSecureDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF7DD3F921427CF500766D03 /* TestingSecureDataStore.swift */; };
+		BF7DD4022142878E00766D03 /* TestingRemoteDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF7DD3FB214281B500766D03 /* TestingRemoteDataProvider.swift */; };
+		BF7DD40521428EC900766D03 /* ResponseGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF7DD40321428E9100766D03 /* ResponseGenerator.swift */; };
+		BF7DD40A21429DC300766D03 /* CertStoreTests_Basics.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF7DD40621429CBA00766D03 /* CertStoreTests_Basics.swift */; };
+		BF7DD40D21429EEE00766D03 /* CertStoreTestConfigs.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF7DD40B21429EDC00766D03 /* CertStoreTestConfigs.swift */; };
+		BF7DD40F2142A16E00766D03 /* Expiration.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF7DD40E2142A16E00766D03 /* Expiration.swift */; };
+		BF7DD4112142A25A00766D03 /* JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF7DD4102142A25A00766D03 /* JSON.swift */; };
 		BF8BB76F213EFC100097315B /* CertStore+Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8BB76E213EFC100097315B /* CertStore+Storage.swift */; };
 		BF8BB771213F03510097315B /* RemoteDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8BB770213F03510097315B /* RemoteDataProvider.swift */; };
 		BF8BB774213F05B40097315B /* RestAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8BB773213F05B40097315B /* RestAPI.swift */; };
 		BF8BB776213FDA420097315B /* CachedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8BB775213FDA420097315B /* CachedData.swift */; };
-		BF8BB77E214021EF0097315B /* WultraSSLPinningTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8BB77D214021EF0097315B /* WultraSSLPinningTests.swift */; };
+		BF8BB77E214021EF0097315B /* CertStoreTests_Update.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8BB77D214021EF0097315B /* CertStoreTests_Update.swift */; };
 		BF8BB780214021EF0097315B /* WultraSSLPinning.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BFCB8151213D917600615ADA /* WultraSSLPinning.framework */; };
 		BFCB8177213D9F8400615ADA /* CryptoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB8176213D9F8400615ADA /* CryptoProvider.swift */; };
 		BFCB8179213D9FEB00615ADA /* SecureDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB8178213D9FEB00615ADA /* SecureDataStore.swift */; };
@@ -32,6 +41,7 @@
 		BFCB8193213EB59700615ADA /* CertificateInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB8192213EB59700615ADA /* CertificateInfo.swift */; };
 		BFE92F46213EC6C00078E2A1 /* CertStore+Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE92F45213EC6C00078E2A1 /* CertStore+Validation.swift */; };
 		BFE92F48213ECE5F0078E2A1 /* CertStore+Update.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE92F47213ECE5F0078E2A1 /* CertStore+Update.swift */; };
+		BFEA9AEB2142C569008D9EE4 /* CertStoreTests_LoadSave.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFEA9AE92142C531008D9EE4 /* CertStoreTests_LoadSave.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,12 +75,21 @@
 		BF7DD3E921403E2900766D03 /* PowerAuth2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PowerAuth2.framework; path = Carthage/Build/iOS/PowerAuth2.framework; sourceTree = "<group>"; };
 		BF7DD3F3214183F900766D03 /* Cartfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Cartfile; sourceTree = "<group>"; };
 		BF7DD3F52141970900766D03 /* Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
+		BF7DD3F721427B6800766D03 /* TestingCryptoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestingCryptoProvider.swift; sourceTree = "<group>"; };
+		BF7DD3F921427CF500766D03 /* TestingSecureDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestingSecureDataStore.swift; sourceTree = "<group>"; };
+		BF7DD3FB214281B500766D03 /* TestingRemoteDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestingRemoteDataProvider.swift; sourceTree = "<group>"; };
+		BF7DD3FD2142874200766D03 /* DataExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataExtension.swift; sourceTree = "<group>"; };
+		BF7DD40321428E9100766D03 /* ResponseGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseGenerator.swift; sourceTree = "<group>"; };
+		BF7DD40621429CBA00766D03 /* CertStoreTests_Basics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertStoreTests_Basics.swift; sourceTree = "<group>"; };
+		BF7DD40B21429EDC00766D03 /* CertStoreTestConfigs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertStoreTestConfigs.swift; sourceTree = "<group>"; };
+		BF7DD40E2142A16E00766D03 /* Expiration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expiration.swift; sourceTree = "<group>"; };
+		BF7DD4102142A25A00766D03 /* JSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSON.swift; sourceTree = "<group>"; };
 		BF8BB76E213EFC100097315B /* CertStore+Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CertStore+Storage.swift"; sourceTree = "<group>"; };
 		BF8BB770213F03510097315B /* RemoteDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteDataProvider.swift; sourceTree = "<group>"; };
 		BF8BB773213F05B40097315B /* RestAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestAPI.swift; sourceTree = "<group>"; };
 		BF8BB775213FDA420097315B /* CachedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CachedData.swift; sourceTree = "<group>"; };
 		BF8BB77B214021EF0097315B /* WultraSSLPinningTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WultraSSLPinningTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		BF8BB77D214021EF0097315B /* WultraSSLPinningTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WultraSSLPinningTests.swift; sourceTree = "<group>"; };
+		BF8BB77D214021EF0097315B /* CertStoreTests_Update.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertStoreTests_Update.swift; sourceTree = "<group>"; };
 		BF8BB77F214021EF0097315B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BFCB8151213D917600615ADA /* WultraSSLPinning.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WultraSSLPinning.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BFCB8163213D931200615ADA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -90,6 +109,7 @@
 		BFCB8192213EB59700615ADA /* CertificateInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateInfo.swift; sourceTree = "<group>"; };
 		BFE92F45213EC6C00078E2A1 /* CertStore+Validation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CertStore+Validation.swift"; sourceTree = "<group>"; };
 		BFE92F47213ECE5F0078E2A1 /* CertStore+Update.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CertStore+Update.swift"; sourceTree = "<group>"; };
+		BFEA9AE92142C531008D9EE4 /* CertStoreTests_LoadSave.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertStoreTests_LoadSave.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,7 +144,10 @@
 			isa = PBXGroup;
 			children = (
 				BF7DD3C9214022FA00766D03 /* AsyncHelper.swift */,
+				BF7DD3FD2142874200766D03 /* DataExtension.swift */,
 				BF7DD3CF21402B3900766D03 /* HexadecimalHelper.swift */,
+				BF7DD40E2142A16E00766D03 /* Expiration.swift */,
+				BF7DD4102142A25A00766D03 /* JSON.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -142,8 +165,12 @@
 		BF8BB77C214021EF0097315B /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				BFD52C312142A33700D7F396 /* Providers */,
 				BF7DD3EE21414AAA00766D03 /* Helpers */,
-				BF8BB77D214021EF0097315B /* WultraSSLPinningTests.swift */,
+				BF7DD40B21429EDC00766D03 /* CertStoreTestConfigs.swift */,
+				BF7DD40621429CBA00766D03 /* CertStoreTests_Basics.swift */,
+				BFEA9AE92142C531008D9EE4 /* CertStoreTests_LoadSave.swift */,
+				BF8BB77D214021EF0097315B /* CertStoreTests_Update.swift */,
 				BF7DD3CC214029FA00766D03 /* PowerAuthCryptoProviderTests.swift */,
 				BF8BB77F214021EF0097315B /* Info.plist */,
 			);
@@ -253,6 +280,17 @@
 				BFCB8190213EB4D100615ADA /* GetFingerprintsResponse.swift */,
 			);
 			path = Model;
+			sourceTree = "<group>";
+		};
+		BFD52C312142A33700D7F396 /* Providers */ = {
+			isa = PBXGroup;
+			children = (
+				BF7DD3F721427B6800766D03 /* TestingCryptoProvider.swift */,
+				BF7DD3F921427CF500766D03 /* TestingSecureDataStore.swift */,
+				BF7DD3FB214281B500766D03 /* TestingRemoteDataProvider.swift */,
+				BF7DD40321428E9100766D03 /* ResponseGenerator.swift */,
+			);
+			path = Providers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -365,10 +403,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BF7DD4012142878B00766D03 /* TestingSecureDataStore.swift in Sources */,
+				BF7DD4112142A25A00766D03 /* JSON.swift in Sources */,
+				BF7DD4022142878E00766D03 /* TestingRemoteDataProvider.swift in Sources */,
+				BF7DD40D21429EEE00766D03 /* CertStoreTestConfigs.swift in Sources */,
+				BF7DD40A21429DC300766D03 /* CertStoreTests_Basics.swift in Sources */,
 				BF7DD3CB214022FC00766D03 /* AsyncHelper.swift in Sources */,
 				BF7DD3CE21402A3100766D03 /* PowerAuthCryptoProviderTests.swift in Sources */,
-				BF8BB77E214021EF0097315B /* WultraSSLPinningTests.swift in Sources */,
+				BF7DD4002142878800766D03 /* TestingCryptoProvider.swift in Sources */,
+				BFEA9AEB2142C569008D9EE4 /* CertStoreTests_LoadSave.swift in Sources */,
+				BF8BB77E214021EF0097315B /* CertStoreTests_Update.swift in Sources */,
 				BF7DD3D121402B5000766D03 /* HexadecimalHelper.swift in Sources */,
+				BF7DD40521428EC900766D03 /* ResponseGenerator.swift in Sources */,
+				BF7DD40F2142A16E00766D03 /* Expiration.swift in Sources */,
+				BF7DD3FF2142878000766D03 /* DataExtension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -14,13 +14,19 @@
 // and limitations under the License.
 //
 
-import XCTest
+import Foundation
 
-class WultraSSLPinningTests: XCTestCase {
+extension Data {
     
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+    /// Returns requested number of random bytes.
+    static func random(count: Int) -> Data {
+        var data = Data(count: count)
+        let result = data.withUnsafeMutableBytes { (mutableBytes: UnsafeMutablePointer<UInt8>) -> Int32 in
+            SecRandomCopyBytes(kSecRandomDefault, count, mutableBytes)
+        }
+        guard result == errSecSuccess else {
+            fatalError("Cannot generate random bytes")
+        }
+        return data
     }
-    
 }

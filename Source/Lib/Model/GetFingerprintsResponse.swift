@@ -18,9 +18,9 @@ import Foundation
 
 
 /// The `GetFingerprintsResponse` structure defines JSON response received from the server.
-internal struct GetFingerprintsResponse: Decodable {
+internal struct GetFingerprintsResponse: Codable {
 
-    struct Entry: Decodable {
+    struct Entry: Codable {
         /// Common name
         let name: String
         

@@ -31,6 +31,7 @@ public class CertStore {
     /// - Parameter cryptoProvider: Instance of `CryptoProvider` object
     /// - Parameter secureDataStore: Instance of `SecureDataStore` object
     public init(configuration: CertStoreConfiguration, cryptoProvider: CryptoProvider, secureDataStore: SecureDataStore) {
+        configuration.validate(cryptoProvider: cryptoProvider)
         self.configuration = configuration
         self.cryptoProvider = cryptoProvider
         self.secureDataStore = secureDataStore
@@ -39,6 +40,7 @@ public class CertStore {
     
     /// Internal constructor, suitable for unit tests.
     internal init(configuration: CertStoreConfiguration, cryptoProvider: CryptoProvider, secureDataStore: SecureDataStore, remoteDataProvider: RemoteDataProvider) {
+        configuration.validate(cryptoProvider: cryptoProvider)
         self.configuration = configuration
         self.cryptoProvider = cryptoProvider
         self.secureDataStore = secureDataStore
@@ -68,7 +70,7 @@ public class CertStore {
         defer { semaphore.signal() }
         
         cachedData = nil
-        secureDataStore.remove(dataFor: self.instanceIdentifier)
+        secureDataStore.removeData(forKey: self.instanceIdentifier)
     }
     
     // MARK: - Internal members

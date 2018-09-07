@@ -72,8 +72,6 @@ public extension CertStore {
     /// 3. If there are some certificates and none is closing to its expiration date, then the `completion`
     ///    block is immediately scheduled to the `completionQueue` with `ok` result.
     ///
-    ///
-    ///
     /// - Parameter mode: Mode of update operation (`.default` is recommended)
     /// - Parameter completionQueue: The completion queue for scheduling the completion block callback. The default is `.main`.
     /// - Parameter completion: The completion closure called at the end of operation, with following parameters:
@@ -140,7 +138,7 @@ public extension CertStore {
             return .invalidData
         }
         // Import public key (may crash in fatalError for invalid configuration)
-        let publicKey = importECPublicKey()
+        let publicKey = cryptoProvider.importECPublicKey(publicKeyBase64: configuration.publicKey)
         
         // Try to update cached data with the newly received objects.
         // The `updateCachedData` method guarantees atomicity of the operation.
@@ -170,7 +168,7 @@ public extension CertStore {
                 guard let signedData = entry.dataForSignatureValidation else {
                     // Failed to construct bytes for signature validation. I think this may
                     // never happen, unless "entry.name" contains some invalid UTF8 chars.
-                    WultraDebug.error("CertStore: Failed to prepare data for signature validation.")
+                    WultraDebug.error("CertStore: Failed to prepare data for signature validation. CN = '\(entry.name)'")
                     result = .invalidData
                     break
                 }
@@ -179,13 +177,21 @@ public extension CertStore {
                     result = .invalidSignature
                     break
                 }
+                if let expectedCN = self.configuration.expectedCommonNames {
+                    if !expectedCN.contains(newCI.commonName) {
+                        // CertStore will store this CI, but validation will ignore this entry, due to fact, that it's not
+                        // in "expectedCommonNames" list.
+                        WultraDebug.warning("CertStore: Loaded data contains name, which will not be trusted. CN = '\(entry.name)'")
+                    }
+                }
                 // Everything looks fine, just append newCI to the list of new certificates.
                 newCertificates.append(newCI)
             }
             
             /// Check whether there's at least one certificate.
             if newCertificates.isEmpty {
-                WultraDebug.warning("CertStore: Database is still empty after update.")
+                // Looks like it's time to update list of certificates stored on the server.
+                WultraDebug.warning("CertStore: Database after update is still empty.")
                 result = .storeIsEmpty
             }
             
@@ -207,12 +213,15 @@ public extension CertStore {
         //
         return result
     }
+}
+
+extension CryptoProvider {
     
-    /// The private function imports EC public key from `CertStoreConfiguration`. The function
-    /// may crash on fatal error, when invalid key is provided in the configuration.
-    private func importECPublicKey() -> ECPublicKey {
-        guard let publicKeyData = Data(base64Encoded: configuration.publicKey),
-            let publicKey = cryptoProvider.importECPublicKey(publicKey: publicKeyData) else {
+    /// Convenience method for importing EC public key from provided BASE64 string.
+    /// The function may crash on fatal error, when the key is not valid.
+    func importECPublicKey(publicKeyBase64: String) -> ECPublicKey {
+        guard let publicKeyData = Data(base64Encoded: publicKeyBase64),
+            let publicKey = importECPublicKey(publicKey: publicKeyData) else {
                 fatalError("CertStoreConfiguration contains invalid public key.")
         }
         return publicKey

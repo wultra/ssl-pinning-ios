@@ -21,7 +21,7 @@ internal extension CertStore {
     /// Loads cached data from the underlying persistent storage.
     /// Returns nil if no such data is stored.
     internal func loadCachedData() -> CachedData? {
-        guard let encodedData = secureDataStore.load(dataFor: self.instanceIdentifier) else {
+        guard let encodedData = secureDataStore.loadData(forKey: self.instanceIdentifier) else {
             return nil
         }
         guard let cachedData = try? jsonDecoder().decode(CachedData.self, from: encodedData) else {
@@ -35,7 +35,7 @@ internal extension CertStore {
         guard let encodedData = try? jsonEncoder().encode(data) else {
             return
         }
-        secureDataStore.save(data: encodedData, for: self.instanceIdentifier)
+        secureDataStore.save(data: encodedData, forKey: self.instanceIdentifier)
     }
     
     /// Loads fallback certificate from configuration provided in CertStore initialization.

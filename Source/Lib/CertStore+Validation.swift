@@ -20,17 +20,39 @@ public extension CertStore {
     
     /// The result of fingerprint validation
     public enum ValidationResult {
-        /// The challenged server certificate is trusted (e.g. its fingerprint is in database)
+        
+        /// The challenged server certificate is trusted.
+        ///
+        /// The right response on this situation is to continue with the ongoing TLS handshake (e.g. report
+        /// [.performDefaultHandling](https://developer.apple.com/documentation/foundation/urlsession/authchallengedisposition)
+        /// to the completion callback)
         case trusted
         
         /// The challenged server certificate is not trusted.
+        ///
+        /// ## Discussion
+        ///
+        /// The untrusted result means that CertStore has some fingerprints stored in its
+        /// database, but none matches the value you requested for validation. The right
+        /// response on this situation is to always cancel the ongoing TLS handshake (e.g. report
+        /// [.cancelAuthenticationChallenge](https://developer.apple.com/documentation/foundation/urlsession/authchallengedisposition)
+        /// to the completion callback)
         case untrusted
         
         /// The fingerprints database is empty, or there's no fingerprint for validated common name.
-        /// For both situations, the store is basically unable to validate the fingerprint.
+        /// For both situations, the store is basically unable to determine whether the server
+        /// can be trusted or not.
         ///
-        /// The "empty" validation result typically means that the application should update
-        /// list of certificates immediately.
+        /// ## Discussion
+        ///
+        /// The "empty" validation result typically means that the `CertStore` should update
+        /// the list of certificates immediately. Before you do this, you should check whether
+        /// the requested common name is what's you're expecting. You can also set the list
+        /// of expected common names in `CertStoreConfiguration`.
+        ///
+        /// For all situations, the right response on this situation is to always cancel the ongoing
+        /// TLS handshake (e.g. report [.cancelAuthenticationChallenge](https://developer.apple.com/documentation/foundation/urlsession/authchallengedisposition)
+        /// to the completion callback)
         case empty
     }
     
@@ -43,6 +65,14 @@ public extension CertStore {
     ///
     /// - Returns: validation result
     public func validate(commonName: String, fingerprint: Data) -> ValidationResult {
+        
+        // Check expected common names
+        if let expected = configuration.expectedCommonNames {
+            guard expected.contains(commonName) else {
+                return .untrusted
+            }
+        }
+        
         // Gets list of fingerprint entries (which is thread safe operation)
         let certificates = getCertificates()
         

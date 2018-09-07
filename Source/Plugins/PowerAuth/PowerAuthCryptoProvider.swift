@@ -23,6 +23,9 @@ import PowerAuth2
 ///
 public class PowerAuthCryptoProvider: CryptoProvider {
     
+    /// Public constructor
+    public init() {}
+    
     // MARK: - CryptoProvider protocol
     
     public func ecdsaValidateSignatures(signedData: SignedData, publicKey: ECPublicKey) -> Bool {

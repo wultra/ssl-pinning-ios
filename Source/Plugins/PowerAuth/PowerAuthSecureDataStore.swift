@@ -41,7 +41,7 @@ public class PowerAuthSecureDataStore: SecureDataStore {
     
     // MARK: - SecureDataStore protocol
     
-    public func save(data: Data, for key: String) -> Bool {
+    public func save(data: Data, forKey key: String) -> Bool {
         if keychain.containsData(forKey: key) {
             return keychain.updateValue(data, forKey: key) == .ok
         } else {
@@ -49,11 +49,11 @@ public class PowerAuthSecureDataStore: SecureDataStore {
         }
     }
     
-    public func load(dataFor key: String) -> Data? {
+    public func loadData(forKey key: String) -> Data? {
         return keychain.data(forKey: key, status: nil)
     }
     
-    public func remove(dataFor key: String) {
+    public func removeData(forKey key: String) {
         keychain.deleteData(forKey: key)
     }
 }

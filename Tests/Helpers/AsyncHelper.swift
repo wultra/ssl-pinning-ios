@@ -14,7 +14,6 @@
 // and limitations under the License.
 //
 
-import Foundation
 @testable import WultraSSLPinning
 
 typealias AsyncHelperResult = Result 
@@ -35,11 +34,12 @@ typealias AsyncHelperResult = Result
 ///```
 ///
 /// ## ⚠️ WARNING
+///
 /// Do not use this class in the production application. The internal implementation is
 /// sufficient for the testing purposes, but it's still kind of multithread anti-pattern.
 ///
 class AsyncHelper<Result> {
-
+    
     /// Creates a new instance of `AsyncHelper` internally and immediately executes the provided block.
     /// In the block, you can start any asynchronous operation with any completion, but once
     /// you exit the `block` closure, the execution ends in a waiting RunLoop. You have to call
@@ -109,4 +109,35 @@ enum AsyncHelperError: Error {
     case timedOut
     /// The result object was not provided by the asynchronous operation.
     case resultNotProvided
+}
+
+
+extension Thread {
+    
+    /// Helper function just wait for given time interval. The run loop can process
+    /// messages received during this period of time.
+    static func waitFor(interval: TimeInterval) {
+        WultraDebug.print("Waiting for \(interval) seconds... ")
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: interval))
+    }
+    
+    /// Helper function waits in run loop, until the closure is returning true.
+    /// The loop is automatically
+    static func waitUntil(closure: ()->Bool) throws {
+        var safeCounter = 0
+        repeat {
+            RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.125))
+            safeCounter += 1
+            // Throw an exception after 30 seconds
+            if safeCounter > 240 {
+                throw AsyncHelperError.timedOut
+            }
+        } while closure()
+    }
+    
+    static func measureEllapsedTime(closure: ()->Void) -> TimeInterval {
+        let start = Date()
+        closure()
+        return -start.timeIntervalSinceNow
+    }
 }
