@@ -42,7 +42,9 @@ extension GetFingerprintsResponse.Entry {
     
     /// Returns normalized data which can be used for the signature validation.
     var dataForSignatureValidation: SignedData? {
-        guard let signedBytes = "\(name)&\(fingerprint.base64EncodedString())&\(expires)".data(using: .utf8) else {
+        let expirationTimestamp = String(format: "%.0f", ceil(expires.timeIntervalSince1970))
+        let signedString = "\(name)&\(fingerprint.base64EncodedString())&\(expirationTimestamp)"
+        guard let signedBytes = signedString.data(using: .utf8) else {
             return nil
         }
         return SignedData(data: signedBytes, signature: signature)
