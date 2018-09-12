@@ -65,7 +65,7 @@ The current version of library depends on [PowerAuth2](https://github.com/wultra
 
 *Note that Carthage integration is experimental. We don't provide support for this type of installation.*
 
-[Carthage](https://github.com/Carthage/Carthage) is a decentralized dependency manager that builds your dependencies and provides you with binary frameworks. You can install Carthage with [Homebrew](https://brew.sh)using the following command:
+[Carthage](https://github.com/Carthage/Carthage) is a decentralized dependency manager that builds your dependencies and provides you with binary frameworks. You can install Carthage with [Homebrew](https://brew.sh) using the following command:
 
 ```bash
 $ brew update
@@ -159,7 +159,7 @@ extension CertStore {
 
 ## Update fingerprints
 
-To update list of fingerprints from remote location, use the following code:
+To update list of fingerprints from the remote server, use the following code:
 ```swift
 certStore.update { (result, error) in
    if result == .ok {
@@ -176,12 +176,12 @@ certStore.update { (result, error) in
 }
 ```
 
-You typically call the update on your application's startup, before you open the connection which has to be protected with the certificate pinning. The update works in two basic modes:
+You have to typically call the update on your application's startup, before you initiate the secure HTTP request to the server, which certificate's expected to be validated with the pinning. The update function works in two basic modes:
 
 - **Blocking mode**, when your application has to wait for downloading the list of certificates. This typically happens when all certificate fingerprints did expire, or on the application's first start (e.g. there's no list of certificates)
 - **Silent update mode**, when the callback is queued immediately to the completion queue, but the `CertStore` performs the update on the background. The purpose of the silent update is to do not block your app's startup, but still guarantee that the list of fingerprints is up to date. The periodicity of the updates are determined automatically by the `CertStore`, but don't worry, we don't want to eat your users' data plan:)
 
-You can optionally provide the completion dispatch queue for scheduling the completion block. This may be useful for situations, that you're calling update from another, than "main" thread (for example, from your own networking code). The default queue is `.main`.
+You can optionally provide the completion dispatch queue for scheduling the completion block. This may be useful for situations, that you're calling update from another, than "main" thread (for example, from your own networking code). The default queue for completion is `.main`.
 
 ## Fingerprint validation
 
@@ -225,8 +225,8 @@ Each `validate` methods returns `CertStore.ValidationResult` enumeration with fo
 
   The "empty" validation result typically means that the `CertStore` should update
   the list of certificates immediately. Before you do this, you should check whether
-  the requested common name is what's you're expecting. You can also set the list
-  of expected common names in `CertStoreConfiguration` and treat all others as untrusted.
+  the requested common name is what's you're expecting. To simplify this step, you can set 
+  the list of expected common names in the `CertStoreConfiguration` and treat all others as untrusted.
     
   For all situations, the right response on this situation is to always cancel the ongoing
   TLS handshake (e.g. report [.cancelAuthenticationChallenge](https://developer.apple.com/documentation/foundation/urlsession/authchallengedisposition)
@@ -236,7 +236,7 @@ Each `validate` methods returns `CertStore.ValidationResult` enumeration with fo
 The full challenge handling in your app may look like this:
 
 ```swift
-class YourSessionDelegate: URLSessionDelegate {
+class YourUrlSessionDelegate: NSObject, URLSessionDelegate {
     
     let certStore: CertStore
     
@@ -259,7 +259,7 @@ class YourSessionDelegate: URLSessionDelegate {
 
 ## PowerAuth integration
 
-The `WultraSSLPinning/PowerAuthIntegration` cocoapod sub-spec provides a several additional classes which enhances the PowerAuth SDK functionality. The most important one is the `PowerAuthSslPinningValidationStrategy` class, which implements SSL pinning with using fingerprints, stored in the `CertStore`. You can simply instantiate this object from the existing `CertStore` and set it to the `PA2ClientConfiguration`. Then the class will provide SSL pinning for PowerAuth internal communication.
+The `WultraSSLPinning/PowerAuthIntegration` cocoapod sub-spec provides a several additional classes which enhances the PowerAuth SDK functionality. The most important one is the `PowerAuthSslPinningValidationStrategy` class, which implements SSL pinning with using fingerprints, stored in the `CertStore`. You can simply instantiate this object from the existing `CertStore` and set it to the `PA2ClientConfiguration`. Then the class will provide SSL pinning for all communication initiated from the PowerAuth SDK.
 
 For example, this is how the configuration sequence may looks like if you want to use both, `PowerAuthSDK` and `CertStore`, as singletons:
 
