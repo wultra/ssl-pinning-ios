@@ -232,6 +232,72 @@ class CertStoreTests_Basics: XCTestCase {
         }
     }
     
+    func testEmptyStore_UpdateFails() {
+        allConfigs().forEach { (configData) in
+            
+            print("Running 'testEmptyStore_UpdateFails' for \(configData.name)")
+            
+            var updateResult: Result<CertStore.UpdateResult>
+            var reportedError: Error? = nil
+            
+            prepareStore(with: configData.config)
+            
+            // Test network error handling
+            
+            remoteDataProvider
+                .setNoLatency()
+                .setReportError(true)
+            
+            updateResult = AsyncHelper.wait { completion in
+                certStore.update { (result, error) in
+                    reportedError = error
+                    completion.complete(with: result)
+                }
+            }
+            XCTAssertTrue(updateResult.value == .networkError)
+            XCTAssertNotNil(reportedError)
+            
+            // Test invalid signature handling
+            
+            remoteDataProvider
+                .setNoLatency()
+                .setReportError(false)
+                .reportData = responseGenerator
+                    .removeAll()
+                    .append(commonName: .testCommonName_1, expiration: .valid, fingerprint: .testFingerprint_1)
+                    .data()
+            
+            cryptoProvider.failureOnEcdsaValidation = true
+            
+            updateResult = AsyncHelper.wait { completion in
+                certStore.update { (result, error) in
+                    reportedError = error
+                    completion.complete(with: result)
+                }
+            }
+            XCTAssertTrue(updateResult.value == .invalidSignature)
+            XCTAssertNil(reportedError)
+            
+            // Test complete invalid data
+            
+            remoteDataProvider
+                .setNoLatency()
+                .setReportError(false)
+                .reportData = "UNEXPECTED SERVER ERROR".data(using: .ascii)
+            
+            cryptoProvider.failureOnEcdsaValidation = false
+            
+            updateResult = AsyncHelper.wait { completion in
+                certStore.update { (result, error) in
+                    reportedError = error
+                    completion.complete(with: result)
+                }
+            }
+            XCTAssertTrue(updateResult.value == .invalidData)
+            XCTAssertNil(reportedError)
+        }
+    }
+    
     // MARK: - Error handling
     
     // TODO: make test for network error

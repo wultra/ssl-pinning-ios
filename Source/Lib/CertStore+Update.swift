@@ -189,7 +189,7 @@ public extension CertStore {
             }
             
             /// Check whether there's at least one certificate.
-            if newCertificates.isEmpty {
+            if result == .ok && newCertificates.isEmpty {
                 // Looks like it's time to update list of certificates stored on the server.
                 WultraDebug.warning("CertStore: Database after update is still empty.")
                 result = .storeIsEmpty

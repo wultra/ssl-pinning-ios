@@ -101,7 +101,7 @@ class CertStoreTests_Update: XCTestCase {
             }
             XCTAssertEqual(updateResult.value, .ok)
         }
-        XCTAssertTrue(elapsed < .testLatency_ForFastUpdate)                        // ellapsed must be very short
+        XCTAssertTrue(elapsed < .testLatency_ForFastUpdate)                         // ellapsed must be very short
         XCTAssertTrue(remoteDataProvider.interceptor.called_getFingerprints == 0)   // no remote update was called
         
         // Now wait for a while, to get a closer to expiration threshold, but not too close to trigger periodic update.

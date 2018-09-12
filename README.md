@@ -1,4 +1,4 @@
-# Dynamic SSL pinning
+# Dynamic SSL pinning for iOS
 
 `WultraSSLPinning` is library implementing dynamic SSL pinning, written in Swift.  
 
@@ -309,12 +309,12 @@ extension PowerAuthSDK {
 
 iOS is using TLS cache for all secure connections to the remote servers. The cache keeps already established connection alive for a while, to speedup the next HTTPS request (see [Apple's Technical Q&A](https://developer.apple.com/library/archive/qa/qa1727/_index.html) for more information). Unfortunately, you don't have the direct control on that cache, so you cannot close already established connection. That unfortunately, opens a small door for the attacker. Imagine this scenario:
 
-1. The connection to get the remote list of fingerprints should not be protected with pinning. The list must be accessed for all costs, so protecting it with the pinning may cause the cert store to deadlock itself (or simply move it to the next level, where you need to update the fingerprint which must protect getting the new list of fingerprints)
+1. The connection to get the remote list of fingerprints should not be protected with pinning. The list must be accessed for all costs, so protecting it with the pinning may cause the cert store to deadlock itself (or simply move it to the next level, where you need to update the fingerprint which must protect getting the list of new fingerprints)
 2. You usually need to update the list of fingerprints at the application's startup, before everything else. 
 3. Due to step 1., the attacker can trick your app to get the list of certificates with using his rogue CA. This will not allow him to insert a new entry to the list, but that's not the point.
 4. If your API is on the same domain, then your app's connection will reuse the already established connection (opened in step 2. or 3.), via the MitM. And that's it.
 
-Well, not everything's lost. If you're using `URLSession` (probably yes), then you can re-create a new `URLSession`, because it has its own TLS cache. But all this is not well documented, so that's why we recommend to put the list of fingerprints on the different domain, to avoid conflicts in the TLS cache at all.
+Well, not everything's lost. If you're using `URLSession` (probably yes), then you can re-create a new `URLSession`, because it has its own TLS cache. But all this is not well documented, so that's why we recommend to put the list of fingerprints on the different domain, to avoid this kind of conflicts in the TLS cache at all.
 
 
 ### Can library provide more debug information?

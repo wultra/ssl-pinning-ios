@@ -39,6 +39,12 @@ class TestingRemoteDataProvider: RemoteDataProvider {
     var dataGenerator: (()->Data?)?
     
     @discardableResult
+    func setReportError(_ enabled: Bool) -> TestingRemoteDataProvider {
+        reportError = enabled
+        return self
+    }
+    
+    @discardableResult
     func setNoLatency() -> TestingRemoteDataProvider {
         simulateResponseTime = 0
         simulateResponseTimeVariability = 0
