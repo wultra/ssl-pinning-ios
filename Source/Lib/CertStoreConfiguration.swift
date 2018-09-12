@@ -75,12 +75,6 @@ public struct CertStoreConfiguration {
     /// The default value is 2 weeks.
     public let expirationUpdateTreshold: TimeInterval
     
-    /// Defines how often will CertStore check the server for new certificates
-    /// when some cached certificate is going to expire soon.
-    ///
-    /// The default value is 12 hours.
-    public let periodicUpdateIntervalDuringExpiration: TimeInterval
-    
     /// Default constructor.
     public init(
         serviceUrl: URL,
@@ -89,8 +83,7 @@ public struct CertStoreConfiguration {
         identifier: String? = nil,
         fallbackCertificateData: Data? = nil,
         periodicUpdateInterval: TimeInterval = 7*24*60*60,
-        expirationUpdateTreshold: TimeInterval = 14*24*60*60,
-        periodicUpdateIntervalDuringExpiration: TimeInterval = 12*60*60)
+        expirationUpdateTreshold: TimeInterval = 14*24*60*60)
     {
         self.serviceUrl = serviceUrl
         self.publicKey = publicKey
@@ -99,7 +92,6 @@ public struct CertStoreConfiguration {
         self.fallbackCertificateData = fallbackCertificateData
         self.periodicUpdateInterval = periodicUpdateInterval
         self.expirationUpdateTreshold = expirationUpdateTreshold
-        self.periodicUpdateIntervalDuringExpiration = periodicUpdateIntervalDuringExpiration
     }
 }
 
@@ -139,7 +131,7 @@ extension CertStoreConfiguration {
         _ = cryptoProvider.importECPublicKey(publicKeyBase64: publicKey)
         
         // Negative TimeIntervals are always fatal
-        if periodicUpdateInterval < 0 || expirationUpdateTreshold < 0 || periodicUpdateIntervalDuringExpiration < 0 {
+        if periodicUpdateInterval < 0 || expirationUpdateTreshold < 0 {
             fatalError("CertStoreConfiguration contains negative TimeInterval.")
         }
     }

@@ -25,8 +25,7 @@ extension CertStoreConfiguration {
             identifier: nil,
             fallbackCertificateData: nil,
             periodicUpdateInterval: .testUpdateInterval_PeriodicUpdate,
-            expirationUpdateTreshold: .testUpdateInterval_ExpirationThreshold,
-            periodicUpdateIntervalDuringExpiration: .testUpdateInterval_ExpirationUpdate
+            expirationUpdateTreshold: .testUpdateInterval_ExpirationThreshold
         )
     }
 
@@ -43,8 +42,7 @@ extension CertStoreConfiguration {
             identifier: nil,
             fallbackCertificateData: fallbackData,
             periodicUpdateInterval: .testUpdateInterval_PeriodicUpdate,
-            expirationUpdateTreshold: .testUpdateInterval_ExpirationThreshold,
-            periodicUpdateIntervalDuringExpiration: .testUpdateInterval_ExpirationUpdate
+            expirationUpdateTreshold: .testUpdateInterval_ExpirationThreshold
         )
     }
     
@@ -56,8 +54,7 @@ extension CertStoreConfiguration {
             identifier: nil,
             fallbackCertificateData: nil,
             periodicUpdateInterval: .testUpdateInterval_PeriodicUpdate,
-            expirationUpdateTreshold: .testUpdateInterval_ExpirationThreshold,
-            periodicUpdateIntervalDuringExpiration: .testUpdateInterval_ExpirationUpdate
+            expirationUpdateTreshold: .testUpdateInterval_ExpirationThreshold
         )
     }
 }
@@ -88,9 +85,8 @@ extension TimeInterval {
     static let testLatency_ForSilentUpdate: TimeInterval            = 1.0
     static let testLatency_ForFastUpdate: TimeInterval              = 0.5       // We need to count with polling loops, it's in fact very quick
     
-    static let testUpdateInterval_ExpirationThreshold: TimeInterval = 10.0      // --> cfg.periodicUpdateInterval
-    static let testUpdateInterval_PeriodicUpdate: TimeInterval      = 5.0       // --> cfg.expirationUpdateTreshold
-    static let testUpdateInterval_ExpirationUpdate: TimeInterval    = 1.0       // --> cfg.periodicUpdateIntervalDuringExpiration
+    static let testUpdateInterval_ExpirationThreshold: TimeInterval = 10.0      // --> cfg.expirationUpdateTreshold
+    static let testUpdateInterval_PeriodicUpdate: TimeInterval      = 5.0       // --> cfg.periodicUpdateInterval
     
     // Intervals for "Expiration" enum
     static let testExpiration_Soon: TimeInterval  = 20.0

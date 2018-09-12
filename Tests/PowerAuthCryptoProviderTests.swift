@@ -51,7 +51,7 @@ class PowerAuthCryptoProviderTests: XCTestCase {
         }
     }
     
-    func testEcdsaSignatureValidation() {
+    func testEcdsaSignatureValidation1() {
         // Prepare data
         let commonName  = "www.google.com"
         let timestamp   = "1540280280000"
@@ -63,6 +63,30 @@ class PowerAuthCryptoProviderTests: XCTestCase {
         else {
             XCTFail("Invalid test data")
             return
+        }
+        // Validate signature
+        let cp = PowerAuthCryptoProvider()
+        guard let publicKey = cp.importECPublicKey(publicKey: publicKeyData) else {
+            XCTFail("Invalid test data")
+            return
+        }
+        let signedDataObject = SignedData(data: signedData, signature: signature)
+        let result = cp.ecdsaValidateSignatures(signedData: signedDataObject, publicKey: publicKey)
+        XCTAssertTrue(result)
+    }
+    
+    func testEcdsaSignatureValidation2() {
+        // Prepare data
+        let commonName  = "github.com"
+        let timestamp   = "1591185600000"
+        let fingerprint = "MRFQDEpmASza4zPsP8ocnd5FyVREDn7kE3Fr/zZjwHQ="
+        guard
+            let publicKeyData = Data(base64Encoded: "BC3kV9OIDnMuVoCdDR9nEA/JidJLTTDLuSA2TSZsGgODSshfbZg31MS90WC/HdbU/A5WL5GmyDkE/iks6INv+XE="),
+            let signedData = "\(commonName)&\(fingerprint)&\(timestamp)".data(using: .utf8),
+            let signature = Data(base64Encoded: "MEYCIQDoeBkao6W8wOqLGcicPzjQdzcA2y6ZXMdqQ+rgw7dSCQIhAN+CaYIizKRYQFc8OfQ84OEGiBjjfVqPVrnKFfUuVebr")
+            else {
+                XCTFail("Invalid test data")
+                return
         }
         // Validate signature
         let cp = PowerAuthCryptoProvider()

@@ -30,6 +30,8 @@
 		BF8BB776213FDA420097315B /* CachedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8BB775213FDA420097315B /* CachedData.swift */; };
 		BF8BB77E214021EF0097315B /* CertStoreTests_Update.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8BB77D214021EF0097315B /* CertStoreTests_Update.swift */; };
 		BF8BB780214021EF0097315B /* WultraSSLPinning.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BFCB8151213D917600615ADA /* WultraSSLPinning.framework */; };
+		BFABCD5321482CF000A9221F /* CertStoreTests_Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFABCD5121482CAF00A9221F /* CertStoreTests_Network.swift */; };
+		BFABCD56214831D500A9221F /* TestingSessionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFABCD5421482F6D00A9221F /* TestingSessionDelegate.swift */; };
 		BFCB8177213D9F8400615ADA /* CryptoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB8176213D9F8400615ADA /* CryptoProvider.swift */; };
 		BFCB8179213D9FEB00615ADA /* SecureDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB8178213D9FEB00615ADA /* SecureDataStore.swift */; };
 		BFCB817E213DA71100615ADA /* PowerAuthSecureDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB817D213DA71100615ADA /* PowerAuthSecureDataStore.swift */; };
@@ -91,6 +93,8 @@
 		BF8BB77B214021EF0097315B /* WultraSSLPinningTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WultraSSLPinningTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BF8BB77D214021EF0097315B /* CertStoreTests_Update.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertStoreTests_Update.swift; sourceTree = "<group>"; };
 		BF8BB77F214021EF0097315B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		BFABCD5121482CAF00A9221F /* CertStoreTests_Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertStoreTests_Network.swift; sourceTree = "<group>"; };
+		BFABCD5421482F6D00A9221F /* TestingSessionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestingSessionDelegate.swift; sourceTree = "<group>"; };
 		BFCB8151213D917600615ADA /* WultraSSLPinning.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WultraSSLPinning.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BFCB8163213D931200615ADA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BFCB8164213D931200615ADA /* WultraSSLPinning.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = WultraSSLPinning.podspec; sourceTree = "<group>"; };
@@ -171,6 +175,7 @@
 				BF7DD40621429CBA00766D03 /* CertStoreTests_Basics.swift */,
 				BFEA9AE92142C531008D9EE4 /* CertStoreTests_LoadSave.swift */,
 				BF8BB77D214021EF0097315B /* CertStoreTests_Update.swift */,
+				BFABCD5121482CAF00A9221F /* CertStoreTests_Network.swift */,
 				BF7DD3CC214029FA00766D03 /* PowerAuthCryptoProviderTests.swift */,
 				BF8BB77F214021EF0097315B /* Info.plist */,
 			);
@@ -288,6 +293,7 @@
 				BF7DD3F721427B6800766D03 /* TestingCryptoProvider.swift */,
 				BF7DD3F921427CF500766D03 /* TestingSecureDataStore.swift */,
 				BF7DD3FB214281B500766D03 /* TestingRemoteDataProvider.swift */,
+				BFABCD5421482F6D00A9221F /* TestingSessionDelegate.swift */,
 				BF7DD40321428E9100766D03 /* ResponseGenerator.swift */,
 			);
 			path = Providers;
@@ -406,6 +412,7 @@
 				BF7DD4012142878B00766D03 /* TestingSecureDataStore.swift in Sources */,
 				BF7DD4112142A25A00766D03 /* JSON.swift in Sources */,
 				BF7DD4022142878E00766D03 /* TestingRemoteDataProvider.swift in Sources */,
+				BFABCD56214831D500A9221F /* TestingSessionDelegate.swift in Sources */,
 				BF7DD40D21429EEE00766D03 /* CertStoreTestConfigs.swift in Sources */,
 				BF7DD40A21429DC300766D03 /* CertStoreTests_Basics.swift in Sources */,
 				BF7DD3CB214022FC00766D03 /* AsyncHelper.swift in Sources */,
@@ -415,6 +422,7 @@
 				BF8BB77E214021EF0097315B /* CertStoreTests_Update.swift in Sources */,
 				BF7DD3D121402B5000766D03 /* HexadecimalHelper.swift in Sources */,
 				BF7DD40521428EC900766D03 /* ResponseGenerator.swift in Sources */,
+				BFABCD5321482CF000A9221F /* CertStoreTests_Network.swift in Sources */,
 				BF7DD40F2142A16E00766D03 /* Expiration.swift in Sources */,
 				BF7DD3FF2142878000766D03 /* DataExtension.swift in Sources */,
 			);
@@ -465,7 +473,6 @@
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = Tests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -474,7 +481,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.getlime.lib.WultraSSLPinningTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -488,7 +494,6 @@
 					"$(PROJECT_DIR)/Carthage/Build/iOS",
 				);
 				INFOPLIST_FILE = Tests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.4;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -497,7 +502,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = io.getlime.lib.WultraSSLPinningTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};

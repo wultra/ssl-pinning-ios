@@ -53,6 +53,10 @@ class CertStoreTests_Basics: XCTestCase {
     
     // MARK: - Unit tests
     
+    static override func setUp() {
+        WultraDebug.verboseLevel = .all
+    }
+    
     func testEmptyStore_UpdateNoRemoteData() {
         allConfigs().forEach { (configData) in
             

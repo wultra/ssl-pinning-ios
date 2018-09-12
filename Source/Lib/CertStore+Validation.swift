@@ -48,7 +48,7 @@ public extension CertStore {
         /// The "empty" validation result typically means that the `CertStore` should update
         /// the list of certificates immediately. Before you do this, you should check whether
         /// the requested common name is what's you're expecting. You can also set the list
-        /// of expected common names in `CertStoreConfiguration`.
+        /// of expected common names in `CertStoreConfiguration` and treat all others as untrusted.
         ///
         /// For all situations, the right response on this situation is to always cancel the ongoing
         /// TLS handshake (e.g. report [.cancelAuthenticationChallenge](https://developer.apple.com/documentation/foundation/urlsession/authchallengedisposition)

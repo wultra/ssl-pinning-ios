@@ -71,10 +71,6 @@ class ResponseGenerator {
     
     /// Generates response data from fingerprints.
     func data() -> Data {
-        let response = GetFingerprintsResponse(fingerprints: fingerprints)
-        guard let data = try? JSON.encoder.encode(response) else {
-            fatalError("Cannot serialize response")
-        }
-        return data
+        return GetFingerprintsResponse(fingerprints: fingerprints).toJSON()
     }
 }

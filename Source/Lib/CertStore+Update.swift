@@ -201,17 +201,42 @@ public extension CertStore {
                 return nil
             }
             
-            // In case that some CI is going to expire soon, we should trigger the next silent update sooner
-            let shorterWaitForSilentUpdate = newCertificates.filter { $0.expires.timeIntervalSinceNow < configuration.expirationUpdateTreshold }.count > 0
-            let nextUpdate = Date(timeIntervalSinceNow: shorterWaitForSilentUpdate ? 60*60 : configuration.periodicUpdateInterval)
-            
+            // Sort new certificates by name & expiration date
+            newCertificates.sortCertificates()
+            // Schedule the next update date
+            let nextUpdate = self.scheduleNextUpdate(certificates: newCertificates)
             // Finally, construct a new cached data.
-            var newData = CachedData(certificates: newCertificates, nextUpdate: nextUpdate)
-            newData.sortCertificates()
-            return newData
+            return CachedData(certificates: newCertificates, nextUpdate: nextUpdate)
         }
         //
         return result
+    }
+    
+    /// Function schedules the
+    private func scheduleNextUpdate(certificates: [CertificateInfo]) -> Date {
+        // At first, we will look for expired certificate with closest expiration date.
+        // We will also ignore older entries for the same common name. We don't need to update frequently
+        // once the replacement certificate is in database.
+        var processedCommonName = Set<String>()
+        // Set nextExpired to approximately +10 years since now. We need just some big, but valid date
+        var nextExpired = Date(timeIntervalSinceNow: 10*365*24*60*60)
+        for ci in certificates {
+            if processedCommonName.contains(ci.commonName) {
+                continue
+            }
+            processedCommonName.insert(ci.commonName)
+            nextExpired = min(nextExpired, ci.expires)
+        }
+        // Convert expires date to time interval since now
+        var nextExpiredInterval = nextExpired.timeIntervalSinceNow
+        if nextExpiredInterval < configuration.expirationUpdateTreshold {
+            // If we're below the threshold, then don't wait to certificate expire and ask server
+            // more often for the update.
+            nextExpiredInterval *= 0.25
+        }
+        // Finally, choose between periodic update or 
+        nextExpiredInterval = min(nextExpiredInterval, configuration.periodicUpdateInterval)
+        return Date(timeIntervalSinceNow: nextExpiredInterval)
     }
 }
 

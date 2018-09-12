@@ -19,7 +19,7 @@ import Foundation
 ///
 /// The `CertStore` class implements dynamic SSL certificate fingerprint validation.
 ///
-/// For more information, please read our [online documentation](https://github.com/wultra/ssl-pinning-ios/blob/develop/README.md).
+/// For more information, please read our [online documentation](https://github.com/wultra/ssl-pinning-ios).
 ///
 public class CertStore {
     
