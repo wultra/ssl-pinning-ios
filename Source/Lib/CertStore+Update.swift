@@ -79,6 +79,18 @@ public extension CertStore {
     /// - Parameter error: An optional error, returned in case that operation failed on communication with the remote location.
     public func update(mode: UpdateMode = .default, completionQueue: DispatchQueue = .main, completion: @escaping (_ result: UpdateResult, _ error: Error?)->Void) -> Void {
         
+        // Capture the current date.
+        //
+        // We'll use this date as the reference date for "now", for the whole update operation.
+        // This allows you to debug this function, just pointing the breakpoint after the date is captured.
+        // The technique also filters weird situations, when some certificate expires just during the update.
+        let now = Date()
+        
+        CertStore.counter += 1
+        if CertStore.counter == 4 {
+            WultraDebug.print("Now stop!")
+        }
+        
         // Acquire whole cached data structure
         let cachedData = getCachedData()
         
@@ -88,21 +100,21 @@ public extension CertStore {
         if let cachedData = cachedData {
             // Check whether there's still some valid certificate. If not, then we have to perform
             // immediate update and application must wait for the result.
-            needsDirectUpdate = cachedData.numberOfValidCertificates == 0 || mode == .forced
+            needsDirectUpdate = cachedData.numberOfValidCertificates(forDate: now) == 0 || mode == .forced
             if needsDirectUpdate == false {
                 // If direct update is not required, then check whether we should perform a silent one
-                needsSilentUpdate = cachedData.nextUpdate.timeIntervalSinceNow < 0
+                needsSilentUpdate = cachedData.nextUpdate < now
             }
         }
         if needsDirectUpdate {
             // Perform direct update and wait for the result
-            doUpdate(completionQueue: completionQueue, completion: completion)
+            doUpdate(currentDate: now, completionQueue: completionQueue, completion: completion)
             //
         } else {
             // If silent update is required, then start that update now
             // and report "OK" result to completion queue
             if needsSilentUpdate {
-                doUpdate(completionQueue: nil, completion: nil)
+                doUpdate(currentDate: now, completionQueue: nil, completion: nil)
             }
             // Returns "OK" result to the completion queue
             completionQueue.async {
@@ -111,13 +123,15 @@ public extension CertStore {
         }
     }
     
+    static var counter = 0
+    
     /// Private function implemens the update operation.
-    private func doUpdate(completionQueue: DispatchQueue?, completion: ((UpdateResult, Error?)->Void)?) -> Void {
+    private func doUpdate(currentDate: Date, completionQueue: DispatchQueue?, completion: ((UpdateResult, Error?)->Void)?) -> Void {
         // Fetch fingerprints data from the remote data provider
         remoteDataProvider.getFingerprints { response in
             let result: UpdateResult
             if let data = response.value {
-                result = self.processReceivedData(data)
+                result = self.processReceivedData(data, currentDate: currentDate)
             } else {
                 result = .networkError
             }
@@ -129,7 +143,7 @@ public extension CertStore {
     
     /// Private function processes the received data and returns update result.
     /// The function also updates list of cached certificates, when there's a change in the data.
-    private func processReceivedData(_ data: Data) -> UpdateResult {
+    private func processReceivedData(_ data: Data, currentDate: Date) -> UpdateResult {
         
         // Try decode data to response object
         guard let response = try? jsonDecoder().decode(GetFingerprintsResponse.self, from: data) else {
@@ -148,13 +162,13 @@ public extension CertStore {
             //
             // This closure is called while internal thread lock is acquired.
             //
-            var newCertificates = (cachedData?.certificates ?? []).filter { !$0.isExpired }
+            var newCertificates = (cachedData?.certificates ?? []).filter { !$0.isExpired(forDate: currentDate) }
             
             // Iterate over all entries in the response
             for entry in response.fingerprints {
                 // Convert entry to CI
                 let newCI = CertificateInfo(from: entry)
-                if newCI.isExpired {
+                if newCI.isExpired(forDate: currentDate) {
                     // Received entry is already expired, just skip it.
                     continue
                 }
@@ -203,40 +217,19 @@ public extension CertStore {
             
             // Sort new certificates by name & expiration date
             newCertificates.sortCertificates()
-            // Schedule the next update date
-            let nextUpdate = self.scheduleNextUpdate(certificates: newCertificates)
+            
+            // Schedule the next update
+            let scheduler = UpdateScheduler(
+                periodicUpdateInterval: configuration.periodicUpdateInterval,
+                expirationUpdateTreshold: configuration.expirationUpdateTreshold,
+                thresholdMultiplier: 0.125)
+            let nextUpdate = scheduler.scheduleNextUpdate(certificates: newCertificates, currentDate: currentDate)
+            
             // Finally, construct a new cached data.
             return CachedData(certificates: newCertificates, nextUpdate: nextUpdate)
         }
         //
         return result
-    }
-    
-    /// Function schedules the
-    private func scheduleNextUpdate(certificates: [CertificateInfo]) -> Date {
-        // At first, we will look for expired certificate with closest expiration date.
-        // We will also ignore older entries for the same common name. We don't need to update frequently
-        // once the replacement certificate is in database.
-        var processedCommonName = Set<String>()
-        // Set nextExpired to approximately +10 years since now. We need just some big, but valid date
-        var nextExpired = Date(timeIntervalSinceNow: 10*365*24*60*60)
-        for ci in certificates {
-            if processedCommonName.contains(ci.commonName) {
-                continue
-            }
-            processedCommonName.insert(ci.commonName)
-            nextExpired = min(nextExpired, ci.expires)
-        }
-        // Convert expires date to time interval since now
-        var nextExpiredInterval = nextExpired.timeIntervalSinceNow
-        if nextExpiredInterval < configuration.expirationUpdateTreshold {
-            // If we're below the threshold, then don't wait to certificate expire and ask server
-            // more often for the update.
-            nextExpiredInterval *= 0.25
-        }
-        // Finally, choose between periodic update or 
-        nextExpiredInterval = min(nextExpiredInterval, configuration.periodicUpdateInterval)
-        return Date(timeIntervalSinceNow: nextExpiredInterval)
     }
 }
 

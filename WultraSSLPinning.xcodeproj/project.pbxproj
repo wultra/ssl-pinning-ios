@@ -32,6 +32,9 @@
 		BF8BB780214021EF0097315B /* WultraSSLPinning.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BFCB8151213D917600615ADA /* WultraSSLPinning.framework */; };
 		BFABCD5321482CF000A9221F /* CertStoreTests_Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFABCD5121482CAF00A9221F /* CertStoreTests_Network.swift */; };
 		BFABCD56214831D500A9221F /* TestingSessionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFABCD5421482F6D00A9221F /* TestingSessionDelegate.swift */; };
+		BFABCD5A2149804A00A9221F /* UpdateScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFABCD592149804A00A9221F /* UpdateScheduler.swift */; };
+		BFABCD5D2149830600A9221F /* UpdateSchedulerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFABCD5B214982E000A9221F /* UpdateSchedulerTests.swift */; };
+		BFABCD6021498E0500A9221F /* CertificateInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFABCD5E21498DF400A9221F /* CertificateInfoTests.swift */; };
 		BFCB8177213D9F8400615ADA /* CryptoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB8176213D9F8400615ADA /* CryptoProvider.swift */; };
 		BFCB8179213D9FEB00615ADA /* SecureDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB8178213D9FEB00615ADA /* SecureDataStore.swift */; };
 		BFCB817E213DA71100615ADA /* PowerAuthSecureDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB817D213DA71100615ADA /* PowerAuthSecureDataStore.swift */; };
@@ -95,6 +98,9 @@
 		BF8BB77F214021EF0097315B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BFABCD5121482CAF00A9221F /* CertStoreTests_Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertStoreTests_Network.swift; sourceTree = "<group>"; };
 		BFABCD5421482F6D00A9221F /* TestingSessionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestingSessionDelegate.swift; sourceTree = "<group>"; };
+		BFABCD592149804A00A9221F /* UpdateScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateScheduler.swift; sourceTree = "<group>"; };
+		BFABCD5B214982E000A9221F /* UpdateSchedulerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateSchedulerTests.swift; sourceTree = "<group>"; };
+		BFABCD5E21498DF400A9221F /* CertificateInfoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateInfoTests.swift; sourceTree = "<group>"; };
 		BFCB8151213D917600615ADA /* WultraSSLPinning.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = WultraSSLPinning.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BFCB8163213D931200615ADA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BFCB8164213D931200615ADA /* WultraSSLPinning.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = WultraSSLPinning.podspec; sourceTree = "<group>"; };
@@ -159,9 +165,10 @@
 		BF8BB772213F05350097315B /* Service */ = {
 			isa = PBXGroup;
 			children = (
+				BF026B012141CC9700A47E90 /* WultraDebug.swift */,
 				BF8BB770213F03510097315B /* RemoteDataProvider.swift */,
 				BF8BB773213F05B40097315B /* RestAPI.swift */,
-				BF026B012141CC9700A47E90 /* WultraDebug.swift */,
+				BFABCD592149804A00A9221F /* UpdateScheduler.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -176,6 +183,8 @@
 				BFEA9AE92142C531008D9EE4 /* CertStoreTests_LoadSave.swift */,
 				BF8BB77D214021EF0097315B /* CertStoreTests_Update.swift */,
 				BFABCD5121482CAF00A9221F /* CertStoreTests_Network.swift */,
+				BFABCD5B214982E000A9221F /* UpdateSchedulerTests.swift */,
+				BFABCD5E21498DF400A9221F /* CertificateInfoTests.swift */,
 				BF7DD3CC214029FA00766D03 /* PowerAuthCryptoProviderTests.swift */,
 				BF8BB77F214021EF0097315B /* Info.plist */,
 			);
@@ -412,11 +421,13 @@
 				BF7DD4012142878B00766D03 /* TestingSecureDataStore.swift in Sources */,
 				BF7DD4112142A25A00766D03 /* JSON.swift in Sources */,
 				BF7DD4022142878E00766D03 /* TestingRemoteDataProvider.swift in Sources */,
+				BFABCD5D2149830600A9221F /* UpdateSchedulerTests.swift in Sources */,
 				BFABCD56214831D500A9221F /* TestingSessionDelegate.swift in Sources */,
 				BF7DD40D21429EEE00766D03 /* CertStoreTestConfigs.swift in Sources */,
 				BF7DD40A21429DC300766D03 /* CertStoreTests_Basics.swift in Sources */,
 				BF7DD3CB214022FC00766D03 /* AsyncHelper.swift in Sources */,
 				BF7DD3CE21402A3100766D03 /* PowerAuthCryptoProviderTests.swift in Sources */,
+				BFABCD6021498E0500A9221F /* CertificateInfoTests.swift in Sources */,
 				BF7DD4002142878800766D03 /* TestingCryptoProvider.swift in Sources */,
 				BFEA9AEB2142C569008D9EE4 /* CertStoreTests_LoadSave.swift in Sources */,
 				BF8BB77E214021EF0097315B /* CertStoreTests_Update.swift in Sources */,
@@ -432,6 +443,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BFABCD5A2149804A00A9221F /* UpdateScheduler.swift in Sources */,
 				BFCB8179213D9FEB00615ADA /* SecureDataStore.swift in Sources */,
 				BFCB818C213EAE0900615ADA /* PowerAuthIntegration.swift in Sources */,
 				BF8BB774213F05B40097315B /* RestAPI.swift in Sources */,

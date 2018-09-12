@@ -38,11 +38,11 @@ internal struct CachedData: Codable {
 
 extension CachedData {
 
-    /// Returns number of certificates which are currently not expired.
-    var numberOfValidCertificates: Int {
+    /// Returns number of certificates which are currently not expired to provided date.
+    func numberOfValidCertificates(forDate date: Date) -> Int {
         var result = 0
         for info in certificates {
-            if !info.isExpired {
+            if !info.isExpired(forDate: date) {
                 result += 1
             }
         }

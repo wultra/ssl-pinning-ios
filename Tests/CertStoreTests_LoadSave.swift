@@ -68,6 +68,7 @@ class CertStoreTests_LoadSave: XCTestCase {
                 .append(commonName: .testCommonName_1, expiration: .valid, fingerprint: .testFingerprint_Fallback)
                 .append(commonName: .testCommonName_1, expiration: .never, fingerprint: .testFingerprint_1)
                 .append(commonName: .testCommonName_2, expiration: .never, fingerprint: .testFingerprint_2)
+                .appendLast()   // duplicit entry, to test filtering
                 .data()
         let updateResult: Result<CertStore.UpdateResult> = AsyncHelper.wait { completion in
             certStore.update { (result, error) in

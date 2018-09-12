@@ -59,8 +59,8 @@ extension CertificateInfo {
         expires = responseEntry.expires
     }
     
-    /// Returns true if certificate is expired. (e.g. "expires" date is lesser than the current date).
-    var isExpired: Bool {
-        return expires.timeIntervalSinceNow < 0
+    /// Returns true if certificate is expired. (e.g. "expires" date is lesser than the provided date).
+    func isExpired(forDate date: Date) -> Bool {
+        return expires.timeIntervalSince(date) < 0
     }
 }
