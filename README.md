@@ -22,7 +22,7 @@
 
 The SSL pinning (or [public key, or certificate pinning](https://en.wikipedia.org/wiki/Transport_Layer_Security#Certificate_pinning)) is a technique mitigating [Man-in-the-middle attacks](https://en.wikipedia.org/wiki/Man-in-the-middle_attack) against the secure HTTP communication. The typical iOS solution is to bundle the hash of the certificate, or the exact data of the certificate to the application and validate the incoming challenge in the `URLSessionDelegate`. This in general works well, but it has, unfortunately, one major drawback of the certificate's expiration date. The certificate expiration forces you to update your application regularly before the certificate expires, but still, some percentage of the users don't update their apps automatically. So, the users on the older version, will not be able to contact the application servers.
 
-The solution to this problem is the dynamic SSL pinning, where the list of certificate fingerprints are securely downloaded from the remote server. The `WultraSSLPinning` library does precisely thist:
+The solution to this problem is the dynamic SSL pinning, where the list of certificate fingerprints are securely downloaded from the remote server. The `WultraSSLPinning` library does precisely this:
 
 - Manages the dynamic list of certificates, downloaded from the remote server
 - All entries in the list are signed with your private key and validated in the library with using the public key (we're using ECDSA-SHA-256 algorithm)
