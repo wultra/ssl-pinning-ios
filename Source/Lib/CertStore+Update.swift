@@ -85,12 +85,7 @@ public extension CertStore {
         // This allows you to debug this function, just pointing the breakpoint after the date is captured.
         // The technique also filters weird situations, when some certificate expires just during the update.
         let now = Date()
-        
-        CertStore.counter += 1
-        if CertStore.counter == 4 {
-            WultraDebug.print("Now stop!")
-        }
-        
+
         // Acquire whole cached data structure
         let cachedData = getCachedData()
         
@@ -122,9 +117,7 @@ public extension CertStore {
             }
         }
     }
-    
-    static var counter = 0
-    
+
     /// Private function implemens the update operation.
     private func doUpdate(currentDate: Date, completionQueue: DispatchQueue?, completion: ((UpdateResult, Error?)->Void)?) -> Void {
         // Fetch fingerprints data from the remote data provider

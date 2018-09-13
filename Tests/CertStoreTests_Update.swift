@@ -63,6 +63,7 @@ class CertStoreTests_Update: XCTestCase {
         var updateResult: Result<CertStore.UpdateResult>
         var validationResult: CertStore.ValidationResult
         var elapsed: TimeInterval
+        let refDate = Date()
         
         prepareStore(with: .testConfig)
         
@@ -70,6 +71,7 @@ class CertStoreTests_Update: XCTestCase {
         // [ 1 ] Prepare data for initial cert, which will be expired soon.
         //       The data can be loaded instantly in this phase of test.
         //
+        WultraDebug.print(" [ 1   ] Elapsed time: \(-refDate.timeIntervalSinceNow)")
         remoteDataProvider
             .setNoLatency()
             .reportData = responseGenerator
@@ -85,11 +87,13 @@ class CertStoreTests_Update: XCTestCase {
         XCTAssertTrue(updateResult.value == .ok)
         validationResult = certStore.validate(commonName: .testCommonName_1, fingerprint: .testFingerprint_1)
         XCTAssertTrue(validationResult == .trusted)
-
+        
         //
         // [ 2 ] This update should not call the remote server,
         //       It's too close to last update.
         //
+        WultraDebug.print(" [ 2   ] Elapsed time: \(-refDate.timeIntervalSinceNow)")
+        
         remoteDataProvider.setLatency(.testLatency_ForSilentUpdate)
         remoteDataProvider.interceptor = .clean
         
@@ -111,6 +115,9 @@ class CertStoreTests_Update: XCTestCase {
         // [ 2.1 ] This update must not call the remote server.
         //         There's no reason for that, no certificate is going to expire soon.
         //
+        WultraDebug.print(" [ 2.1 ] Elapsed time: \(-refDate.timeIntervalSinceNow)")
+        WultraDebug.print("         Next update : \(certStore.getCachedData()?.nextUpdate.timeIntervalSince(refDate) ?? -1)")
+        
         remoteDataProvider.interceptor = .clean
         elapsed = Thread.measureElapsedTime {
             updateResult = AsyncHelper.wait { completion in
@@ -129,6 +136,31 @@ class CertStoreTests_Update: XCTestCase {
         //
         // [ 3 ] This update should call remote server, but on the background.
         //       The periodic update did trigger background update
+        WultraDebug.print(" [ 3   ] Elapsed time: \(-refDate.timeIntervalSinceNow)")
+        WultraDebug.print("         Next update : \(certStore.getCachedData()?.nextUpdate.timeIntervalSince(refDate) ?? -1)")
+        
+        elapsed = Thread.measureElapsedTime {
+            updateResult = AsyncHelper.wait { completion in
+                self.certStore.update { (result, error) in
+                    completion.complete(with: result)
+                }
+            }
+            XCTAssertEqual(updateResult.value, .ok)
+        }
+        
+        // Wait to complete bg update (otherwise there will be race in accessing to interceptor)
+        Thread.waitFor(interval: .testLatency_ForFastUpdate)
+        
+        XCTAssertTrue(elapsed < .testLatency_ForFastUpdate)
+        XCTAssertTrue(remoteDataProvider.interceptor.called_getFingerprints == 1)
+        
+        //
+        // [ 3.1 ] This update must not call the remote server.
+        //         It's too close to previous update.
+        WultraDebug.print(" [ 3.1 ] Elapsed time: \(-refDate.timeIntervalSinceNow)")
+        WultraDebug.print("         Next update : \(certStore.getCachedData()?.nextUpdate.timeIntervalSince(refDate) ?? -1)")
+        
+        remoteDataProvider.interceptor = .clean
         elapsed = Thread.measureElapsedTime {
             updateResult = AsyncHelper.wait { completion in
                 self.certStore.update { (result, error) in
@@ -140,10 +172,15 @@ class CertStoreTests_Update: XCTestCase {
         XCTAssertTrue(elapsed < .testLatency_ForFastUpdate)
         XCTAssertTrue(remoteDataProvider.interceptor.called_getFingerprints == 1)
         
+        // Now wait for the next periodic update
+        Thread.waitFor(interval: .testUpdateInterval_PeriodicUpdate)
+        
         //
-        // [ 3.1 ] This update must not call the remote server.
-        //         It's too close to previous update
-        //
+        // [ 3.2 ] This update must call the remote server.
+        //         It's triggered by the periodic update.
+        WultraDebug.print(" [ 3.2 ] Elapsed time: \(-refDate.timeIntervalSinceNow)")
+        WultraDebug.print("         Next update : \(certStore.getCachedData()?.nextUpdate.timeIntervalSince(refDate) ?? -1)")
+        
         remoteDataProvider.interceptor = .clean
         elapsed = Thread.measureElapsedTime {
             updateResult = AsyncHelper.wait { completion in
@@ -153,14 +190,136 @@ class CertStoreTests_Update: XCTestCase {
             }
             XCTAssertEqual(updateResult.value, .ok)
         }
-        XCTAssertTrue(elapsed < .testLatency_ForFastUpdate)
-        XCTAssertTrue(remoteDataProvider.interceptor.called_getFingerprints == 0)
         
-        // Append updated certfificate
+        // Wait to complete bg update (otherwise there will be race in accessing to interceptor)
+        Thread.waitFor(interval: .testLatency_ForFastUpdate)
+        WultraDebug.print("         Next update : \(certStore.getCachedData()?.nextUpdate.timeIntervalSince(refDate) ?? -1)")
+        
+        XCTAssertTrue(elapsed < .testLatency_ForFastUpdate)
+        XCTAssertTrue(remoteDataProvider.interceptor.called_getFingerprints == 1)
+        
+        // Now wait for the next periodic update
+        Thread.waitFor(interval: .testUpdateInterval_PeriodicUpdate)
+        
+        //
+        // [ 3.3 ] This update must call the remote server.
+        //         It's triggered by the periodic update.
+        WultraDebug.print(" [ 3.3 ] Elapsed time: \(-refDate.timeIntervalSinceNow)")
+        WultraDebug.print("         Next update : \(certStore.getCachedData()?.nextUpdate.timeIntervalSince(refDate) ?? -1)")
+        
+        remoteDataProvider.interceptor = .clean
+        elapsed = Thread.measureElapsedTime {
+            updateResult = AsyncHelper.wait { completion in
+                self.certStore.update { (result, error) in
+                    completion.complete(with: result)
+                }
+            }
+            XCTAssertEqual(updateResult.value, .ok)
+        }
+        
+        // Wait to complete bg update (otherwise there will be race in accessing to interceptor)
+        Thread.waitFor(interval: .testLatency_ForFastUpdate)
+        WultraDebug.print("         Next update : \(certStore.getCachedData()?.nextUpdate.timeIntervalSince(refDate) ?? -1)")
+        
+        XCTAssertTrue(elapsed < .testLatency_ForFastUpdate)
+        XCTAssertTrue(remoteDataProvider.interceptor.called_getFingerprints == 1)
+        
+        // At this point, we should be in the window, which may trigger update based on
+        // the expiration date. So, we need to wait for once more time
+        
+        Thread.waitFor(interval: .testUpdateInterval_PeriodicUpdate)
+        
+        //
+        // [ 3.4 ] This update must call the remote server.
+        //         It's triggered by the periodic update.
+        WultraDebug.print(" [ 3.4 ] Elapsed time: \(-refDate.timeIntervalSinceNow)")
+        WultraDebug.print("         Next update : \(certStore.getCachedData()?.nextUpdate.timeIntervalSince(refDate) ?? -1)")
+        
+        remoteDataProvider.interceptor = .clean
+        elapsed = Thread.measureElapsedTime {
+            updateResult = AsyncHelper.wait { completion in
+                self.certStore.update { (result, error) in
+                    completion.complete(with: result)
+                }
+            }
+            XCTAssertEqual(updateResult.value, .ok)
+        }
+        
+        // Wait to complete bg update (otherwise there will be race in accessing to interceptor)
+        Thread.waitFor(interval: .testLatency_ForFastUpdate)
+        
+        XCTAssertTrue(elapsed < .testLatency_ForFastUpdate)
+        XCTAssertTrue(remoteDataProvider.interceptor.called_getFingerprints == 1)
+        
+        // Now wait for a bit shorter time interval, to test, whether the silent update is triggered sooner
+        Thread.waitFor(interval: 1.0)
+        
+        //
+        // [ 4.0 ] This update must call the remote server.
+        //         It's triggered by the certificate's expiration date.
+        WultraDebug.print(" [ 4.0 ] Elapsed time: \(-refDate.timeIntervalSinceNow)")
+        WultraDebug.print("         Next update : \(certStore.getCachedData()?.nextUpdate.timeIntervalSince(refDate) ?? -1)")
+        
+        remoteDataProvider.interceptor = .clean
+        elapsed = Thread.measureElapsedTime {
+            updateResult = AsyncHelper.wait { completion in
+                self.certStore.update { (result, error) in
+                    completion.complete(with: result)
+                }
+            }
+            XCTAssertEqual(updateResult.value, .ok)
+        }
+        
+        // Wait to complete bg update (otherwise there will be race in accessing to interceptor)
+        Thread.waitFor(interval: .testLatency_ForFastUpdate)
+        
+        XCTAssertTrue(elapsed < .testLatency_ForFastUpdate)
+        XCTAssertTrue(remoteDataProvider.interceptor.called_getFingerprints == 1)
+        
+        // Now wait for certificate expiration...
+        
+        Thread.waitFor(interval: .testUpdateInterval_PeriodicUpdate)
+        WultraDebug.print(" [ 4.1 ] Elapsed time: \(-refDate.timeIntervalSinceNow)")
+        Thread.waitFor(interval: .testUpdateInterval_PeriodicUpdate, message: "Don't worry. This suffering will end someday!")
+        WultraDebug.print(" [ 4.2 ] Elapsed time: \(-refDate.timeIntervalSinceNow)")
+        Thread.waitFor(interval: .testUpdateInterval_PeriodicUpdate, message: "We're almost there...")
+        WultraDebug.print(" [ 4.4 ] Elapsed time: \(-refDate.timeIntervalSinceNow)")
+        Thread.waitFor(interval: 2, message: "Just a second!")
+        
+        // Ok, now the certificate is expired. The remote update must return the empty store.
+        
+        //
+        // [ 5.0 ] This update must be blocking. All certificates are expired.
+        //         It's triggered by the certificate's expiration date.
+        WultraDebug.print(" [ 5.0 ] Elapsed time: \(-refDate.timeIntervalSinceNow)")
+        WultraDebug.print("         Next update : \(certStore.getCachedData()?.nextUpdate.timeIntervalSince(refDate) ?? -1)")
+        
+        remoteDataProvider.interceptor = .clean
+        elapsed = Thread.measureElapsedTime {
+            updateResult = AsyncHelper.wait { completion in
+                self.certStore.update { (result, error) in
+                    completion.complete(with: result)
+                }
+            }
+            XCTAssertEqual(updateResult.value, .storeIsEmpty)
+        }
+        XCTAssertTrue(elapsed > .testLatency_ForFastUpdate)
+        XCTAssertTrue(remoteDataProvider.interceptor.called_getFingerprints == 1)
+        
+        // The previous certificate is still trusted. We don't update the database in case of update error
+        validationResult = certStore.validate(commonName: .testCommonName_1, fingerprint: .testFingerprint_1)
+        XCTAssertTrue(validationResult == .trusted)
+        
         remoteDataProvider
             .reportData = responseGenerator
                 .append(commonName: .testCommonName_1, expiration: .valid, fingerprint: .testFingerprint_2)
                 .data()
+        
+        //
+        // [ 5.0 ] This update must be blocking. All certificates are expired.
+        //         It's triggered by the certificate's expiration date.
+        WultraDebug.print(" [ 5.1 ] Elapsed time: \(-refDate.timeIntervalSinceNow)")
+        WultraDebug.print("         Next update : \(certStore.getCachedData()?.nextUpdate.timeIntervalSince(refDate) ?? -1)")
         
         updateResult = AsyncHelper.wait { completion in
             certStore.update { (result, error) in
@@ -168,7 +327,12 @@ class CertStoreTests_Update: XCTestCase {
             }
         }
         XCTAssertTrue(updateResult.value == .ok)
-
+        // Check whether outdated cert was removed
+        XCTAssertTrue(certStore.getCachedData()?.certificates.count == 1)
+        
+        // Now try to validate
+        validationResult = certStore.validate(commonName: .testCommonName_1, fingerprint: .testFingerprint_2)
+        XCTAssertTrue(validationResult == .trusted)
         
     }
 }

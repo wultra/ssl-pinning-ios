@@ -89,7 +89,7 @@ extension TimeInterval {
     static let testUpdateInterval_PeriodicUpdate: TimeInterval      = 5.0       // --> cfg.periodicUpdateInterval
     
     // Intervals for "Expiration" enum
-    static let testExpiration_Soon: TimeInterval  = 20.0
-    static let testExpiration_Valid: TimeInterval = 2 * .testExpiration_Soon
+    static let testExpiration_Soon: TimeInterval  = 30.0
+    static let testExpiration_Valid: TimeInterval = 60.0
     static let testExpiration_Never: TimeInterval = 365*24*60*60
 }

@@ -71,7 +71,7 @@ class TestingRemoteDataProvider: RemoteDataProvider {
         interceptor.called_getFingerprints += 1
         DispatchQueue.global().async {
             if self.simulateResponseTime > 0 {
-                let interval: TimeInterval = 0.200 + self.simulateResponseTimeVariability * 0.01 * TimeInterval(arc4random_uniform(100))
+                let interval: TimeInterval = self.simulateResponseTime + self.simulateResponseTimeVariability * 0.01 * TimeInterval(arc4random_uniform(100))
                 Thread.sleep(forTimeInterval: interval)
             }
             // Now generate the result

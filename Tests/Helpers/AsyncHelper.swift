@@ -116,8 +116,8 @@ extension Thread {
     
     /// Helper function just wait for given time interval. The run loop can process
     /// messages received during this period of time.
-    static func waitFor(interval: TimeInterval) {
-        WultraDebug.print("Waiting for \(interval) seconds... ")
+    static func waitFor(interval: TimeInterval, message: String = "") {
+        WultraDebug.print("Waiting for \(interval) seconds... \(message)")
         RunLoop.current.run(until: Date(timeIntervalSinceNow: interval))
     }
     
