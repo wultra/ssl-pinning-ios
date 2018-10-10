@@ -67,4 +67,9 @@ public class WultraDebug {
         }
         #endif
     }
+    
+    /// Throws a fatal error without revealing developer's build path in "file:" parameter.
+    public static func fatalError(_ message: @autoclosure ()->String) -> Never {
+        Swift.fatalError(message, file: "", line: 1)
+    }
 }

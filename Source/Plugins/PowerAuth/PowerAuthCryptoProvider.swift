@@ -31,7 +31,7 @@ public class PowerAuthCryptoProvider: CryptoProvider {
     public func ecdsaValidateSignatures(signedData: SignedData, publicKey: ECPublicKey) -> Bool {
         // Cast abstract interface to PA2ECPublicKey
         guard let ecKey = publicKey as? PA2ECPublicKey else {
-            fatalError("Invalid ECPublicKey object.")
+            WultraDebug.fatalError("Invalid ECPublicKey object.")
         }
         return PA2CryptoUtils.ecdsaValidateSignature(signedData.signature, for: signedData.data, for: ecKey)
     }

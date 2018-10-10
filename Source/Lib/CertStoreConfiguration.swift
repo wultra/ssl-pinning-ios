@@ -132,7 +132,7 @@ extension CertStoreConfiguration {
         
         // Negative TimeIntervals are always fatal
         if periodicUpdateInterval < 0 || expirationUpdateTreshold < 0 {
-            fatalError("CertStoreConfiguration contains negative TimeInterval.")
+            WultraDebug.fatalError("CertStoreConfiguration contains negative TimeInterval.")
         }
     }
 }

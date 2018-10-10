@@ -233,7 +233,7 @@ extension CryptoProvider {
     func importECPublicKey(publicKeyBase64: String) -> ECPublicKey {
         guard let publicKeyData = Data(base64Encoded: publicKeyBase64),
             let publicKey = importECPublicKey(publicKey: publicKeyData) else {
-                fatalError("CertStoreConfiguration contains invalid public key.")
+                WultraDebug.fatalError("CertStoreConfiguration contains invalid public key.")
         }
         return publicKey
     }
