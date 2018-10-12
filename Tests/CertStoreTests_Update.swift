@@ -308,7 +308,7 @@ class CertStoreTests_Update: XCTestCase {
         
         // The previous certificate is still trusted. We don't update the database in case of update error
         validationResult = certStore.validate(commonName: .testCommonName_1, fingerprint: .testFingerprint_1)
-        XCTAssertTrue(validationResult == .trusted)
+        XCTAssertTrue(validationResult == .empty)
         
         remoteDataProvider
             .reportData = responseGenerator

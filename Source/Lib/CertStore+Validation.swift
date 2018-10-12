@@ -81,12 +81,18 @@ public extension CertStore {
             return .empty
         }
         
-        /// Match attempt
+        // Current date
+        let now = Date()
+        // Match attempts counts whether we tested at least one certificate.
+        // If not, then the store is empty for the requested common name.
         var matchAttempts = 0
         // Interate over all entries and look for common name & entry
         // We don't care about expiration here. The expiration date is only
         // for caching purposes and indicates that we need to update list of certs.
         for info in certificates {
+            if info.isExpired(forDate: now) {
+                continue
+            }
             if info.commonName == commonName {
                 if info.fingerprint == fingerprint {
                     return .trusted
