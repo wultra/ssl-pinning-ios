@@ -43,11 +43,11 @@ class CertStoreTests_Basics: XCTestCase {
         )
     }
     
-    func allConfigs() -> [(config: CertStoreConfiguration, name: String, hasFallback: Bool)] {
+    func allConfigs() -> [(config: CertStoreConfiguration, name: String, hasFallback: Bool, expiredFallback: Bool)] {
         return [
-            (.testConfig, "Without Fallback", false),
-            (.testConfigWithFallbackCertificate(expiration: .valid), "Valid Fallback", true),
-            (.testConfigWithFallbackCertificate(expiration: .expired), "Expired Fallback", true),
+            (.testConfig, "Without Fallback", false, false),
+            (.testConfigWithFallbackCertificate(expiration: .valid), "Valid Fallback", true, false),
+            (.testConfigWithFallbackCertificate(expiration: .expired), "Expired Fallback", true, true),
         ]
     }
     
@@ -126,13 +126,15 @@ class CertStoreTests_Basics: XCTestCase {
             XCTAssertTrue(remoteDataProvider.interceptor.called_getFingerprints == 0)   // No access to remote data
             
             validationResult = certStore.validate(commonName: .testCommonName_Fallback, fingerprint: .testFingerprint_Fallback)
-            XCTAssertTrue(validationResult == (configData.hasFallback ? .trusted : .empty))
+            var expected: CertStore.ValidationResult = configData.hasFallback ? (configData.expiredFallback ? .empty : .trusted) : .empty
+            XCTAssertTrue(validationResult == expected)
             XCTAssertTrue(cryptoProvider.interceptor.called_importECPublicKey == 1)     // Initial config validation
             XCTAssertTrue(dataStore.interceptor.called_loadData == 1)                   // No more loads
             XCTAssertTrue(remoteDataProvider.interceptor.called_getFingerprints == 0)   // No access to remote data
             
             validationResult = certStore.validate(commonName: .testCommonName_Fallback, fingerprint: .testFingerprint_Unknown)
-            XCTAssertTrue(validationResult == (configData.hasFallback ? .untrusted : .empty))
+            expected = configData.hasFallback ? (configData.expiredFallback ? .empty : .untrusted) : .empty
+            XCTAssertTrue(validationResult == expected)
             XCTAssertTrue(cryptoProvider.interceptor.called_importECPublicKey == 1)     // Initial config validation
             XCTAssertTrue(dataStore.interceptor.called_loadData == 1)                   // No more loads
             XCTAssertTrue(remoteDataProvider.interceptor.called_getFingerprints == 0)   // No access to remote data
@@ -179,9 +181,11 @@ class CertStoreTests_Basics: XCTestCase {
             
             // Validate against fallback
             validationResult = certStore.validate(commonName: .testCommonName_Fallback, fingerprint: .testFingerprint_Fallback)
-            XCTAssertTrue(validationResult == (configData.hasFallback ? .trusted : .empty))
+            var expected: CertStore.ValidationResult = configData.hasFallback ? (configData.expiredFallback ? .empty : .trusted) : .empty
+            XCTAssertTrue(validationResult == expected)
             validationResult = certStore.validate(commonName: .testCommonName_Fallback, fingerprint: .testFingerprint_Unknown)
-            XCTAssertTrue(validationResult == (configData.hasFallback ? .untrusted : .empty))
+            expected = configData.hasFallback ? (configData.expiredFallback ? .empty : .untrusted) : .empty
+            XCTAssertTrue(validationResult == expected)
         }
     }
     
@@ -226,9 +230,11 @@ class CertStoreTests_Basics: XCTestCase {
             
             // Validate against fallback
             validationResult = certStore.validate(commonName: .testCommonName_Fallback, fingerprint: .testFingerprint_Fallback)
-            XCTAssertTrue(validationResult == (configData.hasFallback ? .trusted : .empty))
+            var expected: CertStore.ValidationResult = configData.hasFallback ? (configData.expiredFallback ? .empty : .trusted) : .empty
+            XCTAssertTrue(validationResult == expected)
             validationResult = certStore.validate(commonName: .testCommonName_Fallback, fingerprint: .testFingerprint_Unknown)
-            XCTAssertTrue(validationResult == (configData.hasFallback ? .untrusted : .empty))
+            expected = configData.hasFallback ? (configData.expiredFallback ? .empty : .untrusted) : .empty
+            XCTAssertTrue(validationResult == expected)
         }
     }
     
