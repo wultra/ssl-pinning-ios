@@ -87,8 +87,7 @@ public extension CertStore {
         // If not, then the store is empty for the requested common name.
         var matchAttempts = 0
         // Interate over all entries and look for common name & entry
-        // We don't care about expiration here. The expiration date is only
-        // for caching purposes and indicates that we need to update list of certs.
+        // Also filter an alread expired certificates (including the fallback one)
         for info in certificates {
             if info.isExpired(forDate: now) {
                 continue
