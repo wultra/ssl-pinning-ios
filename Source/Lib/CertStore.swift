@@ -64,7 +64,7 @@ public class CertStore {
     /// so you need to update certificates afterwards.
     public func reset() {
         
-        WultraDebug.warning("CertStore: reset() hould not be used in production build.")
+        WultraDebug.warning("CertStore: reset() should not be used in production build.")
         
         semaphore.wait()
         defer { semaphore.signal() }
