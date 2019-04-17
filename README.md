@@ -342,8 +342,8 @@ All sources are licensed using Apache 2.0 license. You can use them with no rest
 
 ## Contact
 
-If you need any assistance, do not hesitate to drop us a line at hello@wultra.com or our official [gitter.im/wultra](https://gitter.im/wultra) channel.
+If you need any assistance, do not hesitate to drop us a line at [hello@wultra.com](mailto:hello@wultra.com) or our official [gitter.im/wultra](https://gitter.im/wultra) channel.
 
 ### Security Disclosure
 
-If you believe you have identified a security vulnerability with WultraSSLPinning, you should report it as soon as possible via email to support@wultra.com. Please do not post it to a public issue tracker.
+If you believe you have identified a security vulnerability with WultraSSLPinning, you should report it as soon as possible via email to [support@wultra.com](mailto:support@wultra.com). Please do not post it to a public issue tracker.
