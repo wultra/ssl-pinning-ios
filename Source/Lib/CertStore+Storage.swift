@@ -20,7 +20,7 @@ internal extension CertStore {
     
     /// Loads cached data from the underlying persistent storage.
     /// Returns nil if no such data is stored.
-    internal func loadCachedData() -> CachedData? {
+    func loadCachedData() -> CachedData? {
         guard let encodedData = secureDataStore.loadData(forKey: self.instanceIdentifier) else {
             return nil
         }
@@ -31,7 +31,7 @@ internal extension CertStore {
     }
     
     /// Saves cached data to the underlying persistent storage.
-    internal func saveDataToCache(data: CachedData) {
+    func saveDataToCache(data: CachedData) {
         guard let encodedData = try? jsonEncoder().encode(data) else {
             return
         }
@@ -39,7 +39,7 @@ internal extension CertStore {
     }
     
     /// Loads fallback certificate from configuration provided in CertStore initialization.
-    internal func loadFallbackCertificate() -> CertificateInfo? {
+    func loadFallbackCertificate() -> CertificateInfo? {
         guard let fallbackData = configuration.fallbackCertificateData else {
             return nil
         }
@@ -50,7 +50,7 @@ internal extension CertStore {
     }
     
     /// Returns new instance of `JSONDecoder`, preconfigured for our data types deserialization.
-    internal func jsonDecoder() -> JSONDecoder {
+    func jsonDecoder() -> JSONDecoder {
         let decoder = JSONDecoder()
         decoder.dataDecodingStrategy = .base64
         decoder.dateDecodingStrategy = .secondsSince1970
@@ -58,7 +58,7 @@ internal extension CertStore {
     }
     
     /// Returns new instance of `JSONEncoder`, preconfigured for our data types serialization.
-    internal func jsonEncoder() -> JSONEncoder {
+    func jsonEncoder() -> JSONEncoder {
         let encoder = JSONEncoder()
         encoder.dataEncodingStrategy = .base64
         encoder.dateEncodingStrategy = .secondsSince1970

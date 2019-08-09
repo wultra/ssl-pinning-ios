@@ -19,7 +19,7 @@ import Foundation
 public extension CertStore {
     
     /// The result of fingerprint validation
-    public enum ValidationResult {
+    enum ValidationResult {
         
         /// The challenged server certificate is trusted.
         ///
@@ -64,7 +64,7 @@ public extension CertStore {
     /// - Parameter fingerprint: A SHA-256 fingerprint calculated from certificate's data
     ///
     /// - Returns: validation result
-    public func validate(commonName: String, fingerprint: Data) -> ValidationResult {
+    func validate(commonName: String, fingerprint: Data) -> ValidationResult {
         
         // Check expected common names
         if let expected = configuration.expectedCommonNames {
@@ -115,7 +115,7 @@ public extension CertStore {
     /// - Parameter certificateData: Server certificate in DER format
     ///
     /// - Returns: validation result
-    public func validate(commonName: String, certificateData: Data) -> ValidationResult {
+    func validate(commonName: String, certificateData: Data) -> ValidationResult {
         let fingerprint = cryptoProvider.hashSha256(data: certificateData)
         return validate(commonName: commonName, fingerprint: fingerprint)
     }
@@ -125,7 +125,7 @@ public extension CertStore {
     /// - Parameter challenge: An authentication challenge to be validated
     ///
     /// - Returns: validation result
-    public func validate(challenge: URLAuthenticationChallenge) -> ValidationResult {
+    func validate(challenge: URLAuthenticationChallenge) -> ValidationResult {
         // Acquire various nullable objects at first
         guard let serverTrust = challenge.protectionSpace.serverTrust,
             let serverCert = SecTrustGetCertificateAtIndex(serverTrust, 0),
