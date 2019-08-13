@@ -43,8 +43,8 @@ Before you start using the library, you should also check our other related proj
 ### Requirements
 
 - iOS 8.0+
-- Xcode 9.4+
-- Swift 4.1+
+- Xcode 10.2+
+- Swift 5.0+
 
 ### CocoaPods
 

@@ -22,7 +22,7 @@ public extension CertStore {
     /// The constructed validation strategy object will use this instance of `CertStore` for server certificate
     /// validation. Note that the function always constructs new object, so it's effective to create just one instance
     /// of the validator per `CertStore`.
-    public func powerAuthSslValidationStrategy() -> PA2ClientSslValidationStrategy {
+    func powerAuthSslValidationStrategy() -> PA2ClientSslValidationStrategy {
         return PowerAuthSslPinningValidationStrategy(certStore: self)
     }
     
@@ -42,7 +42,7 @@ public extension CertStore {
     ///     }
     /// }
     /// ```
-    public static func powerAuthCertStore(configuration: CertStoreConfiguration) -> CertStore {
+    static func powerAuthCertStore(configuration: CertStoreConfiguration) -> CertStore {
         return CertStore(
             configuration: configuration,
             cryptoProvider: PowerAuthCryptoProvider(),

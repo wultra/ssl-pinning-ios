@@ -19,7 +19,7 @@ import Foundation
 public extension CertStore {
     
     /// Defines modes of update request
-    public enum UpdateMode {
+    enum UpdateMode {
         
         /// The default mode keeps periodicity of handling on the CertStore
         case `default`
@@ -34,7 +34,7 @@ public extension CertStore {
     }
     
     /// Result from update certificates request.
-    public enum UpdateResult {
+    enum UpdateResult {
         
         /// Update succeeded
         case ok
@@ -77,7 +77,7 @@ public extension CertStore {
     /// - Parameter completion: The completion closure called at the end of operation, with following parameters:
     /// - Parameter result: Resut of the update operation
     /// - Parameter error: An optional error, returned in case that operation failed on communication with the remote location.
-    public func update(mode: UpdateMode = .default, completionQueue: DispatchQueue = .main, completion: @escaping (_ result: UpdateResult, _ error: Error?)->Void) -> Void {
+    func update(mode: UpdateMode = .default, completionQueue: DispatchQueue = .main, completion: @escaping (_ result: UpdateResult, _ error: Error?)->Void) -> Void {
         
         // Capture the current date.
         //
@@ -165,7 +165,7 @@ public extension CertStore {
                     // Received entry is already expired, just skip it.
                     continue
                 }
-                if newCertificates.index(of: newCI) != nil {
+                if newCertificates.firstIndex(of: newCI) != nil {
                     // This particular entry is already in the database, just skip it.
                     // Due to fact, that we're using the same array for newly accepted certs,
                     // then it will also filter duplicities received from the server.

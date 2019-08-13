@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.author = { 'Wultra s.r.o.' => 'support@wultra.com' }
   s.source = { :git => 'https://github.com/wultra/ssl-pinning-ios.git', :tag => s.version }
   # Deployment targets
-  s.swift_version = '4.1'
+  s.swift_version = '5.0'
   s.ios.deployment_target = '8.0'
   # Sources
   

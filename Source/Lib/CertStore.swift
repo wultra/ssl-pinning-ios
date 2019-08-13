@@ -96,7 +96,7 @@ internal extension CertStore {
     /// Internal function returns array of `CertificateInfo` objects. The array
     /// contains the fallback certificate, if provided, at the last position.
     /// The operation is thread safe.
-    internal func getCertificates() -> [CertificateInfo] {
+    func getCertificates() -> [CertificateInfo] {
         // Acquire semaphore
         semaphore.wait()
         defer { semaphore.signal() }
@@ -112,7 +112,7 @@ internal extension CertStore {
     }
     
     /// Internal function returns whole `CachedData` structure. The operation is thread safe.
-    internal func getCachedData() -> CachedData? {
+    func getCachedData() -> CachedData? {
         // Acquire semaphore
         semaphore.wait()
         defer { semaphore.signal() }
@@ -125,7 +125,7 @@ internal extension CertStore {
     
     /// Internal function allows atomic update of `CachedData` structure. The provided
     /// update closure is called when exclusive access to data is guaranteed.
-    internal func updateCachedData(updateClosure: (CachedData?)->CachedData?) -> Void {
+    func updateCachedData(updateClosure: (CachedData?)->CachedData?) -> Void {
         // Acquire semaphore
         semaphore.wait()
         defer { semaphore.signal() }
