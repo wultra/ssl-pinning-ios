@@ -40,25 +40,28 @@ public struct CertStoreConfiguration {
     /// If `nil` is provided, then `CertStore` will use "default" string constant for such identification.
     public let identifier: String?
     
-    /// Defines JSON data with a fallback certificate fingerprint.
+    /// Defines JSON data with a fallback certificates fingerprints.
     ///
     /// ## Discussion
-    /// You can configure a fallback certificate which will be used as the last stand during the fingerprint validation.
+    /// You can configure a fallback certificates which will be used as the last stand during the fingerprint validation.
     /// The JSON should contains the same data as are usually received from the server, except that "signature"
     /// is not validated (but must be provided in JSON). For example:
     /// ```
-    /// let fallbackData = """
     /// {
-    ///    "name" : "www.google.com",
-    ///    "fingerprint" : "nu1DOBz31Y5FY6lRNkJV/HdnB6BDVCp7mX0nxkbub7Y=",
-    ///    "expires" : 1540280280000,
-    ///    "signature" : ""
+    ///    "fingerprints":[
+    ///       {
+    ///          "name": "www.google.com",
+    ///          "fingerprint": "nu1DOBz31Y5FY6lRNkJV/HdnB6BDVCp7mX0nxkbub7Y=",
+    ///          "expires": 1540280280000,
+    ///          "signature": ""
+    ///       }
+    ///    ]
     /// }
     /// """.data(using: .ascii)
     /// ```
     ///
-    /// Then, the fallback certificate will be used at the end of the fingerprints validation loop.
-    public let fallbackCertificateData: Data?
+    /// Then, the fallback certificates will be used at the end of the fingerprints validation loop.
+    public let fallbackCertificatesData: Data?
     
     // MARK: - Tweaks
     
@@ -81,7 +84,7 @@ public struct CertStoreConfiguration {
         publicKey: String,
         expectedCommonNames: [String]? = nil,
         identifier: String? = nil,
-        fallbackCertificateData: Data? = nil,
+        fallbackCertificatesData: Data? = nil,
         periodicUpdateInterval: TimeInterval = 7*24*60*60,
         expirationUpdateTreshold: TimeInterval = 14*24*60*60)
     {
@@ -89,7 +92,7 @@ public struct CertStoreConfiguration {
         self.publicKey = publicKey
         self.expectedCommonNames = expectedCommonNames
         self.identifier = identifier
-        self.fallbackCertificateData = fallbackCertificateData
+        self.fallbackCertificatesData = fallbackCertificatesData
         self.periodicUpdateInterval = periodicUpdateInterval
         self.expirationUpdateTreshold = expirationUpdateTreshold
     }
@@ -110,21 +113,23 @@ extension CertStoreConfiguration {
             WultraDebug.warning("CertStore: '.serviceUrl' should point to 'https' server.")
         }
         // Validate fallback certificate data
-        if let fallback = fallbackCertificateData {
+        if let fallbackData = fallbackCertificatesData {
             let decoder = JSONDecoder()
             decoder.dataDecodingStrategy = .base64
             decoder.dateDecodingStrategy = .secondsSince1970
-            if let fallbackEntry = try? decoder.decode(GetFingerprintsResponse.Entry.self, from: fallback) {
-                if let expectedCNs = expectedCommonNames {
-                    if !expectedCNs.contains(fallbackEntry.name) {
-                        WultraDebug.warning("CertStore: '.fallbackCertificateData' is issued for common name, which is not included in 'expectedCommonNames'.")
+            if let fallback = try? decoder.decode(GetFingerprintsResponse.self, from: fallbackData) {
+                for fallbackEntry in fallback.fingerprints {
+                    if let expectedCNs = expectedCommonNames {
+                        if !expectedCNs.contains(fallbackEntry.name) {
+                            WultraDebug.warning("CertStore: certificate '\(fallbackEntry.name)' in '.fallbackCertificatesData' is issued for common name, which is not included in 'expectedCommonNames'.")
+                        }
+                    }
+                    if fallbackEntry.expires.timeIntervalSinceNow < 0 {
+                        WultraDebug.warning("CertStore: certificate '\(fallbackEntry.name)' in '.fallbackCertificateData' is already expired.")
                     }
                 }
-                if fallbackEntry.expires.timeIntervalSinceNow < 0 {
-                    WultraDebug.warning("CertStore: '.fallbackCertificateData' is already expired.")
-                }
             } else {
-                WultraDebug.error("CertStore: '.fallbackCertificateData' contains invalid JSON.")
+                WultraDebug.error("CertStore: '.fallbackCertificatesData' contains invalid JSON.")
             }
         }
         // Validate EC public key (will crash on fatal error, for invalid key)
