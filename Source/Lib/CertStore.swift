@@ -79,7 +79,7 @@ public class CertStore {
     let secureDataStore: SecureDataStore
     let remoteDataProvider: RemoteDataProvider
     
-    // MARK: - Private emembers
+    // MARK: - Private members
     
     fileprivate let semaphore = DispatchSemaphore(value: 1)
     
