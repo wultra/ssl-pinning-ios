@@ -130,9 +130,9 @@ To configure the property, you need to provide JSON data with fallback fingerpri
 {
    "fingerprints":[
       {
-         "name": "www.google.com",
-         "fingerprint": "nu1DOBz31Y5FY6lRNkJV/HdnB6BDVCp7mX0nxkbub7Y=",
-         "expires": 1540280280000,
+         "name": "github.com",
+         "fingerprint": "MRFQDEpmASza4zPsP8ocnd5FyVREDn7kE3Fr/zZjwHQ=",
+         "expires": 1591185600,
          "signature": ""
       }
    ]
