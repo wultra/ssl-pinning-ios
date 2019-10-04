@@ -129,7 +129,7 @@ extension CertStoreConfiguration {
                     }
                 }
             } else {
-                WultraDebug.error("CertStore: '.fallbackCertificatesData' contains invalid JSON.")
+                WultraDebug.fatalError("CertStore: '.fallbackCertificatesData' contains invalid JSON.")
             }
         }
         // Validate EC public key (will crash on fatal error, for invalid key)
