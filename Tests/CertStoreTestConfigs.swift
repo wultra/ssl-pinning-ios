@@ -23,7 +23,7 @@ extension CertStoreConfiguration {
             serviceUrl: URL(string: "https://foo.wultra.com")!,
             publicKey: "BEG6g28LNWRcmdFzexSNTKPBYZnDtKrCyiExFKbktttfKAF7wG4Cx1Nycr5PwCoICG1dRseLyuDxUilAmppPxAo=",
             identifier: nil,
-            fallbackCertificateData: nil,
+            fallbackCertificatesData: nil,
             periodicUpdateInterval: .testUpdateInterval_PeriodicUpdate,
             expirationUpdateTreshold: .testUpdateInterval_ExpirationThreshold
         )
@@ -31,7 +31,7 @@ extension CertStoreConfiguration {
 
     static func testConfigWithFallbackCertificate(expiration: Expiration) -> CertStoreConfiguration {
         
-        let fallbackData = GetFingerprintsResponse.Entry.create(
+        let fallbackData = GetFingerprintsResponse.single(
             commonName: .testCommonName_Fallback,
             expiration: expiration,
             fingerprint: .testFingerprint_Fallback
@@ -40,7 +40,7 @@ extension CertStoreConfiguration {
             serviceUrl: URL(string: "https://foo.wultra.com")!,
             publicKey: "BEG6g28LNWRcmdFzexSNTKPBYZnDtKrCyiExFKbktttfKAF7wG4Cx1Nycr5PwCoICG1dRseLyuDxUilAmppPxAo=",
             identifier: nil,
-            fallbackCertificateData: fallbackData,
+            fallbackCertificatesData: fallbackData,
             periodicUpdateInterval: .testUpdateInterval_PeriodicUpdate,
             expirationUpdateTreshold: .testUpdateInterval_ExpirationThreshold
         )
@@ -52,7 +52,7 @@ extension CertStoreConfiguration {
             publicKey: "BEG6g28LNWRcmdFzexSNTKPBYZnDtKrCyiExFKbktttfKAF7wG4Cx1Nycr5PwCoICG1dRseLyuDxUilAmppPxAo=",
             expectedCommonNames: commonNames,
             identifier: nil,
-            fallbackCertificateData: nil,
+            fallbackCertificatesData: nil,
             periodicUpdateInterval: .testUpdateInterval_PeriodicUpdate,
             expirationUpdateTreshold: .testUpdateInterval_ExpirationThreshold
         )

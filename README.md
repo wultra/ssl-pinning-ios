@@ -115,31 +115,34 @@ The configuration has the following properties:
 - `publicKey` - contains the public key counterpart to the private key, used for data signing. The Base64 formatted string is expected.
 - `expectedCommonNames` - an optional array of strings, defining which domains you expect in certificate validation.
 - `identifier` - optional string identifier for scenarios, where multiple `CertStore` instances are used in the application
-- `fallbackCertificateData` - optional hardcoded data for a fallback fingerprint. See the next chapter of this document for details.
+- `fallbackCertificatesData` - optional hardcoded data for fallback fingerprints. See the next chapter of this document for details.
 - `periodicUpdateInterval` - defines how often will `CertStore` update the fingerprints silently at the background. The default value is 1 week.
 - `expirationUpdateTreshold` - defines time window before the next certificate will expire. In this time window `CertStore` will try to update the list of fingerprints more often than usual. Default value is 2 weeks before the next expiration.
 
 
 ### Predefined fingerprint
 
-The `CertStoreConfiguration` may contain an optional data with predefined certificate fingerprint. This technique can speed up the first application's startup when the database of fingerprints is empty. You still need to update your application, once the fallback fingerprint expires. 
+The `CertStoreConfiguration` may contain an optional data with predefined certificates fingerprints. This technique can speed up the first application's startup when the database of fingerprints is empty. You still need to update your application, once the fallback fingerprints expire. 
 
-To configure the property, you need to provide JSON data with a fallback fingerprint. The JSON should contain the same data as are usually received from the server, except that "signature" property is not validated (but must be provided in JSON). For example:
+To configure the property, you need to provide JSON data with fallback fingerprints. The JSON should contain the same data as are usually received from the server, except that "signature" property is not validated (but must be provided in JSON). For example:
 
 ```swift
-let fallbackData = """
 {
-  "name" : "github.com",
-  "fingerprint" : "MRFQDEpmASza4zPsP8ocnd5FyVREDn7kE3Fr/zZjwHQ=",
-  "expires" : 1591185600,
-  "signature" : ""
+   "fingerprints":[
+      {
+         "name": "github.com",
+         "fingerprint": "MRFQDEpmASza4zPsP8ocnd5FyVREDn7kE3Fr/zZjwHQ=",
+         "expires": 1591185600,
+         "signature": ""
+      }
+   ]
 }
 """.data(using: .ascii)
 
 let configuration = CertStoreConfiguration(
     serviceUrl: URL(string: "https://...")!,
     publicKey: "BMne....kdh2ak=",
-    fallbackCertificateData: fallbackData!
+    fallbackCertificatesData: fallbackData!
 )
 let certStore = CertStore.powerAuthCertStore(configuration: configuration)
 ```

@@ -39,14 +39,14 @@ internal extension CertStore {
     }
     
     /// Loads fallback certificate from configuration provided in CertStore initialization.
-    func loadFallbackCertificate() -> CertificateInfo? {
-        guard let fallbackData = configuration.fallbackCertificateData else {
-            return nil
+    func loadFallbackCertificates() -> [CertificateInfo] {
+        guard let fallbackData = configuration.fallbackCertificatesData else {
+            return []
         }
-        guard let fallbackEntry = try? jsonDecoder().decode(GetFingerprintsResponse.Entry.self, from: fallbackData) else {
-            return nil
+        guard let fallback = try? jsonDecoder().decode(GetFingerprintsResponse.self, from: fallbackData) else {
+            return []
         }
-        return CertificateInfo(from: fallbackEntry)
+        return fallback.fingerprints.map { CertificateInfo(from: $0) }
     }
     
     /// Returns new instance of `JSONDecoder`, preconfigured for our data types deserialization.

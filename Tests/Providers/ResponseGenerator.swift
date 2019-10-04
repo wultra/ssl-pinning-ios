@@ -16,7 +16,7 @@
 
 @testable import WultraSSLPinning
 
-extension GetFingerprintsResponse.Entry {
+fileprivate extension GetFingerprintsResponse.Entry {
     
     /// Creates a new entry for common name and desired expiration
     static func create(commonName: String, expiration: Expiration, fingerprint: Data? = nil) -> GetFingerprintsResponse.Entry {
@@ -29,6 +29,13 @@ extension GetFingerprintsResponse.Entry {
     }
 }
 
+extension GetFingerprintsResponse {
+    
+    /// Creates a response with single fingerprint
+    static func single(commonName: String, expiration: Expiration, fingerprint: Data? = nil) -> GetFingerprintsResponse {
+        return GetFingerprintsResponse(fingerprints: [.create(commonName: commonName, expiration: expiration, fingerprint: fingerprint)])
+    }
+}
 
 class ResponseGenerator {
 

@@ -79,13 +79,13 @@ public class CertStore {
     let secureDataStore: SecureDataStore
     let remoteDataProvider: RemoteDataProvider
     
-    // MARK: - Privat emembers
+    // MARK: - Private members
     
     fileprivate let semaphore = DispatchSemaphore(value: 1)
     
     fileprivate var cacheIsLoaded = false
     fileprivate var cachedData: CachedData?
-    fileprivate var fallbackCertificate: CertificateInfo?
+    fileprivate var fallbackCertificates = [CertificateInfo]()
 }
 
 
@@ -105,9 +105,7 @@ internal extension CertStore {
         restoreCache()
         
         var result = cachedData?.certificates ?? []
-        if let fallback = fallbackCertificate {
-            result.append(fallback)
-        }
+        result.append(contentsOf: fallbackCertificates)
         return result
     }
     
@@ -146,7 +144,7 @@ internal extension CertStore {
     private func restoreCache() {
         if !cacheIsLoaded {
             cachedData = loadCachedData()
-            fallbackCertificate = loadFallbackCertificate()
+            fallbackCertificates = loadFallbackCertificates()
             cacheIsLoaded = true
         }
     }
