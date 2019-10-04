@@ -147,6 +147,7 @@ let configuration = CertStoreConfiguration(
 let certStore = CertStore.powerAuthCertStore(configuration: configuration)
 ```
 
+> Note that if you provide the wrong JSON data, then the fatal error is thrown.
 
 ### Shared instance
 
