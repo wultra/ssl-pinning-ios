@@ -21,8 +21,11 @@ extension Data {
     /// Returns requested number of random bytes.
     static func random(count: Int) -> Data {
         var data = Data(count: count)
-        let result = data.withUnsafeMutableBytes { (mutableBytes: UnsafeMutablePointer<UInt8>) -> Int32 in
-            SecRandomCopyBytes(kSecRandomDefault, count, mutableBytes)
+        let result = data.withUnsafeMutableBytes { (ptr) -> Int32 in
+            if let rawPtr = ptr.baseAddress {
+                return SecRandomCopyBytes(kSecRandomDefault, count, rawPtr)
+            }
+            return errSecAllocate
         }
         guard result == errSecSuccess else {
             fatalError("Cannot generate random bytes")
