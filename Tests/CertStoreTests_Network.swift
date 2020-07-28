@@ -35,7 +35,7 @@ class CertStoreTests_Network: XCTestCase {
      */
     
     // Raw content from my public gist
-    static let serviceUrl = URL(string: "https://gist.githubusercontent.com/hvge/7c5a3f9ac50332a52aa974d90ea2408c/raw/e7bfd338c323e926d404ec245f0e8ae1c4465678/ssl-pinning-signatures.json")!
+    static let serviceUrl = URL(string: "https://gist.githubusercontent.com/hvge/7c5a3f9ac50332a52aa974d90ea2408c/raw/34866234bbaa3350dc0ddc5680a65a6f4e7c549e/ssl-pinning-signatures.json")!
     // Public key
     static let publicKey  = "BC3kV9OIDnMuVoCdDR9nEA/JidJLTTDLuSA2TSZsGgODSshfbZg31MS90WC/HdbU/A5WL5GmyDkE/iks6INv+XE="
     
