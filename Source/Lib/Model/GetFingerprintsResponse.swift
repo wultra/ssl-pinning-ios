@@ -30,18 +30,25 @@ internal struct GetFingerprintsResponse: Codable {
         /// Expiration date
         let expires: Date
         
-        /// ECDSA signature, must be deserialized from BASE64 string
-        let signature: Data
+        /// ECDSA signature, must be deserialized from BASE64 string.
+        /// Property is optional for servers that supports challenge in requests.
+        let signature: Data?
     }
 
     /// List of Entry objects
     let fingerprints: [Entry]
+    
+    /// Optional timestamp, received from servers that supports challenge & signed responses.
+    let timestamp: Date?
 }
 
 extension GetFingerprintsResponse.Entry {
     
     /// Returns normalized data which can be used for the signature validation.
     var dataForSignatureValidation: SignedData? {
+        guard let signature = signature else {
+            return nil
+        }
         let expirationTimestamp = String(format: "%.0f", ceil(expires.timeIntervalSince1970))
         let signedString = "\(name)&\(fingerprint.base64EncodedString())&\(expirationTimestamp)"
         guard let signedBytes = signedString.data(using: .utf8) else {

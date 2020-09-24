@@ -17,7 +17,7 @@
 @testable import WultraSSLPinning
 
 class TestingRemoteDataProvider: RemoteDataProvider {
-    
+
     struct Interceptor {
         var called_getFingerprints = 0
         
@@ -28,6 +28,8 @@ class TestingRemoteDataProvider: RemoteDataProvider {
         case networkError
     }
     
+    typealias Response = (data: Data?, headers: [String:String])
+    
     var interceptor = Interceptor()
     
     var reportError = false
@@ -36,7 +38,7 @@ class TestingRemoteDataProvider: RemoteDataProvider {
     var simulateResponseTime: TimeInterval = 0.200
     var simulateResponseTimeVariability: TimeInterval = 0.8
     
-    var dataGenerator: (()->Data?)?
+    var dataGenerator: (([String:String])->Response)?
     
     @discardableResult
     func setReportError(_ enabled: Bool) -> TestingRemoteDataProvider {
@@ -64,10 +66,29 @@ class TestingRemoteDataProvider: RemoteDataProvider {
         simulateResponseTimeVariability = max - min
         return self
     }
+    
+    @discardableResult
+    @available(iOS 13.0, macOS 10.15, watchOS 6.0, tvOS 13.0, *)
+    func signResponse(with privateKey: ECDSA.PrivateKey) -> TestingRemoteDataProvider {
+        self.dataGenerator = { requestHeaders in
+            guard let data = self.reportData else {
+                return (nil, [:])
+            }
+            guard let challenge = requestHeaders["X-Cert-Pinning-Challenge"] else {
+                return (nil, [:])
+            }
+            var dataToSign = challenge.data(using: .utf8)!
+            dataToSign.append("&".data(using: .ascii)!)
+            dataToSign.append(data)
+            let signature = ECDSA.sign(privateKey: privateKey, data: dataToSign).base64EncodedString()
+            return (data, ["X-Cert-Pinning-Signature" : signature])
+        }
+        return self
+    }
 
     // MARK: - RemoteDataProvider impl
     
-    func getFingerprints(completion: @escaping (Result<Data>) -> Void) {
+    func getFingerprints(request: RemoteDataRequest, completion: @escaping (RemoteDataResponse) -> Void) {
         interceptor.called_getFingerprints += 1
         DispatchQueue.global().async {
             if self.simulateResponseTime > 0 {
@@ -75,16 +96,20 @@ class TestingRemoteDataProvider: RemoteDataProvider {
                 Thread.sleep(forTimeInterval: interval)
             }
             // Now generate the result
-            let data: Data?
+            let response: Response
             if !self.reportError {
-                data = self.dataGenerator?() ?? self.reportData
+                if let generator = self.dataGenerator {
+                    response = generator(request.requestHeaders)
+                } else {
+                    response = (self.reportData, [:])
+                }
             } else {
-                data = nil
+                response = (nil, [:])
             }
-            if let data = data {
-                completion(.success(data))
+            if let data = response.data {
+                completion(RemoteDataResponse(result: .success(data), responseHeaders: response.headers))
             } else {
-                completion(.failure(SimulatedError.networkError))
+                completion(RemoteDataResponse(result: .failure(SimulatedError.networkError), responseHeaders: response.headers))
             }
         }
     }

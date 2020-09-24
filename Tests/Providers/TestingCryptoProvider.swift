@@ -22,6 +22,7 @@ class TestingCryptoProvider: CryptoProvider {
         var called_ecdsaValidateSignatures = 0
         var called_importECPublicKey = 0
         var called_hashSha256 = 0
+        var called_getRandomData = 0
         
         static var clean: Interceptor { return Interceptor() }
     }
@@ -66,6 +67,11 @@ class TestingCryptoProvider: CryptoProvider {
     func hashSha256(data: Data) -> Data {
         interceptor.called_hashSha256 += 1
         return powerAuthCryptoProvider.hashSha256(data: data)
+    }
+    
+    func getRandomData(length: Int) -> Data {
+        interceptor.called_getRandomData += 1
+        return powerAuthCryptoProvider.getRandomData(length: length)
     }
     
     /// Dummy class returned from importECPublicKey()

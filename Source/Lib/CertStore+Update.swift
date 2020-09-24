@@ -120,23 +120,62 @@ public extension CertStore {
 
     /// Private function implemens the update operation.
     private func doUpdate(currentDate: Date, completionQueue: DispatchQueue?, completion: ((UpdateResult, Error?)->Void)?) -> Void {
+        // Prepare challenge and request headers in case that challenge must be used
+        var requestHeaders = [String:String]()
+        let requestChallenge: String?
+        if configuration.useChallenge {
+            let randomChallenge = cryptoProvider.getRandomData(length: 16).base64EncodedString()
+            requestHeaders["X-Cert-Pinning-Challenge"] = randomChallenge
+            requestChallenge = randomChallenge
+        } else {
+            requestChallenge = nil
+        }
         // Fetch fingerprints data from the remote data provider
-        remoteDataProvider.getFingerprints { response in
+        let remoteDataRequest = RemoteDataRequest(requestHeaders: requestHeaders)
+        remoteDataProvider.getFingerprints(request: remoteDataRequest) { response in
             let result: UpdateResult
-            if let data = response.value {
-                result = self.processReceivedData(data, currentDate: currentDate)
-            } else {
+            let error: Error?
+            switch response.result {
+            case .success(let data):
+                result = self.processReceivedData(data, challenge: requestChallenge, responseHeaders: response.responseHeaders, currentDate: currentDate)
+                error = nil
+            case .failure(let err):
                 result = .networkError
+                error = err
             }
             completionQueue?.async {
-                completion?(result, response.error)
+                completion?(result, error)
             }
         }
     }
     
     /// Private function processes the received data and returns update result.
     /// The function also updates list of cached certificates, when there's a change in the data.
-    private func processReceivedData(_ data: Data, currentDate: Date) -> UpdateResult {
+    private func processReceivedData(_ data: Data, challenge: String?, responseHeaders: [String:String], currentDate: Date) -> UpdateResult {
+        
+        // Import public key (may crash in fatalError for invalid configuration)
+        let publicKey = cryptoProvider.importECPublicKey(publicKeyBase64: configuration.publicKey)
+        
+        // Validate signature
+        if configuration.useChallenge {
+            guard let challenge = challenge else {
+                WultraDebug.fatalError("Challenge must be set")
+            }
+            guard let signature = responseHeaders["X-Cert-Pinning-Signature"] else {
+                WultraDebug.error("CertStore: Missing signature header.")
+                return .invalidSignature
+            }
+            guard let signatureData = Data(base64Encoded: signature) else {
+                return .invalidSignature
+            }
+            var signedData = Data(challenge.utf8)
+            signedData.append(Data("&".utf8))
+            signedData.append(data)
+            guard cryptoProvider.ecdsaValidateSignatures(signedData: SignedData(data: signedData, signature: signatureData), publicKey: publicKey) else {
+                WultraDebug.error("CertStore: Invalid signature in X-Cert-Pinning-Signature header.")
+                return .invalidSignature
+            }
+        }
         
         // Try decode data to response object
         guard let response = try? jsonDecoder().decode(GetFingerprintsResponse.self, from: data) else {
@@ -144,8 +183,6 @@ public extension CertStore {
             WultraDebug.error("CertStore: Failed to parse JSON received from the server.")
             return .invalidData
         }
-        // Import public key (may crash in fatalError for invalid configuration)
-        let publicKey = cryptoProvider.importECPublicKey(publicKeyBase64: configuration.publicKey)
         
         // Try to update cached data with the newly received objects.
         // The `updateCachedData` method guarantees atomicity of the operation.
@@ -171,18 +208,23 @@ public extension CertStore {
                     // then it will also filter duplicities received from the server.
                     continue
                 }
-                // Validate signature
-                guard let signedData = entry.dataForSignatureValidation else {
-                    // Failed to construct bytes for signature validation. I think this may
-                    // never happen, unless "entry.name" contains some invalid UTF8 chars.
-                    WultraDebug.error("CertStore: Failed to prepare data for signature validation. CN = '\(entry.name)'")
-                    result = .invalidData
-                    break
-                }
-                guard cryptoProvider.ecdsaValidateSignatures(signedData: signedData, publicKey: publicKey) else {
-                    WultraDebug.error("CertStore: Invalid signature detected. CN = '\(entry.name)'")
-                    result = .invalidSignature
-                    break
+                if !configuration.useChallenge {
+                    // Validate partial signature
+                    guard let signedData = entry.dataForSignatureValidation else {
+                        // Failed to construct bytes for signature validation.
+                        if entry.signature == nil {
+                            WultraDebug.error("CertStore: Missing partial signature. CN = '\(entry.name)'")
+                        } else {
+                            WultraDebug.error("CertStore: Failed to prepare data for signature validation. CN = '\(entry.name)'")
+                        }
+                        result = .invalidData
+                        break
+                    }
+                    guard cryptoProvider.ecdsaValidateSignatures(signedData: signedData, publicKey: publicKey) else {
+                        WultraDebug.error("CertStore: Invalid signature detected. CN = '\(entry.name)'")
+                        result = .invalidSignature
+                        break
+                    }
                 }
                 if let expectedCN = self.configuration.expectedCommonNames {
                     if !expectedCN.contains(newCI.commonName) {

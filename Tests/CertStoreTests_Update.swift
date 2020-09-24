@@ -60,7 +60,7 @@ class CertStoreTests_Update: XCTestCase {
      */
     func testUpdate_WholeCycle() {
 
-        var updateResult: Result<CertStore.UpdateResult>
+        var updateResult: Result<CertStore.UpdateResult, Error>
         var validationResult: CertStore.ValidationResult
         var elapsed: TimeInterval
         let refDate = Date()

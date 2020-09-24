@@ -19,12 +19,12 @@
 fileprivate extension GetFingerprintsResponse.Entry {
     
     /// Creates a new entry for common name and desired expiration
-    static func create(commonName: String, expiration: Expiration, fingerprint: Data? = nil) -> GetFingerprintsResponse.Entry {
+    static func create(commonName: String, expiration: Expiration, fingerprint: Data?, signature: Data?) -> GetFingerprintsResponse.Entry {
         return GetFingerprintsResponse.Entry(
             name: commonName,
             fingerprint: fingerprint ?? .random(count: 32),
             expires: expiration.toDate,
-            signature: .random(count: 64)
+            signature: signature
         )
     }
 }
@@ -32,20 +32,22 @@ fileprivate extension GetFingerprintsResponse.Entry {
 extension GetFingerprintsResponse {
     
     /// Creates a response with single fingerprint
-    static func single(commonName: String, expiration: Expiration, fingerprint: Data? = nil) -> GetFingerprintsResponse {
-        return GetFingerprintsResponse(fingerprints: [.create(commonName: commonName, expiration: expiration, fingerprint: fingerprint)])
+    static func single(commonName: String, expiration: Expiration, fingerprint: Data? = nil, timestamp: Date? = nil) -> GetFingerprintsResponse {
+        return GetFingerprintsResponse(fingerprints: [.create(commonName: commonName, expiration: expiration, fingerprint: fingerprint, signature: nil)], timestamp: timestamp)
     }
 }
 
 class ResponseGenerator {
 
     var fingerprints: [GetFingerprintsResponse.Entry] = []
+    var useTimestamp = false
+    var signData: ((Data) -> Data)?
     
     /// Appends a new item at the end of fingerprints
     @discardableResult
     func append(commonName: String, expiration: Expiration = .valid, fingerprint: Data? = nil) -> ResponseGenerator {
         fingerprints.append(
-            .create(commonName: commonName, expiration: expiration, fingerprint: fingerprint)
+            createEntry(commonName: commonName, expiration: expiration, fingerprint: fingerprint)
         )
         return self
     }
@@ -54,7 +56,7 @@ class ResponseGenerator {
     @discardableResult
     func insertFirst(commonName: String, expiration: Expiration = .valid, fingerprint: Data? = nil) -> ResponseGenerator {
         fingerprints.insert(
-            .create(commonName: commonName, expiration: expiration, fingerprint: fingerprint),
+            createEntry(commonName: commonName, expiration: expiration, fingerprint: fingerprint),
             at: 0
         )
         return self
@@ -76,8 +78,43 @@ class ResponseGenerator {
         return self
     }
     
+    /// Set response to contain a timestamp.
+    @discardableResult
+    func setUseTimestamp(useTimestamp: Bool) -> ResponseGenerator {
+        self.useTimestamp = useTimestamp
+        return self
+    }
+    
+    /// Set entries signed with private key.
+    @discardableResult
+    @available(iOS 13.0, macOS 10.15, watchOS 6.0, tvOS 13.0, *)
+    func signEntry(with privateKey: ECDSA.PrivateKey) -> ResponseGenerator {
+        self.signData = { bytes in
+            return ECDSA.sign(privateKey: privateKey, data: bytes)
+        }
+        return self
+    }
+    
+    /// Create entry for list of entries
+    private func createEntry(commonName: String, expiration: Expiration, fingerprint: Data?) -> GetFingerprintsResponse.Entry {
+        let fingerprint = fingerprint ?? Data.random(count: 32)
+        let signature: Data?
+        if let signData = signData {
+            let expirationTimestamp = String(format: "%.0f", ceil(expiration.toDate.timeIntervalSince1970))
+            let signedString = "\(commonName)&\(fingerprint.base64EncodedString())&\(expirationTimestamp)"
+            guard let bytesToSign = signedString.data(using: .utf8) else {
+                fatalError("Failed to prepare data for sign")
+            }
+            signature = signData(bytesToSign)
+        } else {
+            signature = .random(count: 64)
+        }
+        return .create(commonName: commonName, expiration: expiration, fingerprint: fingerprint, signature: signature)
+    }
+        
     /// Generates response data from fingerprints.
     func data() -> Data {
-        return GetFingerprintsResponse(fingerprints: fingerprints).toJSON()
+        let now = useTimestamp ? Date() : nil
+        return GetFingerprintsResponse(fingerprints: fingerprints, timestamp: now).toJSON()
     }
 }

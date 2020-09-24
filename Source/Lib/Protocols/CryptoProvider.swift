@@ -42,6 +42,12 @@ public protocol CryptoProvider: class {
     /// - Parameter data: Data to be hashed
     /// - Returns: 32 bytes hash, calculated as `SHA256(data)`
     func hashSha256(data: Data) -> Data
+    
+    /// Generate random data.
+    ///
+    /// - Parameter length: Number of random bytes to be produced.
+    /// - Returns: `Data` with requested number of random bytes.
+    func getRandomData(length: Int) -> Data
 }
 
 /// The `SignedData` structure contains data and signature calculated for
