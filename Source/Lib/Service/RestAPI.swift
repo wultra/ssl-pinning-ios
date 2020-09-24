@@ -35,27 +35,56 @@ internal class RestAPI: RemoteDataProvider {
     enum NetworkError: Error {
         // Error returned in case of neither data nor error were provided.
         case noDataProvided
+        // Error returned when non 2xx status code is returned.
+        case invalidHttpStatusCode(statusCode: Int)
+        // Internal error.
+        case internalError(message: String)
     }
     
-    func getFingerprints(completion: @escaping (Result<Data>) -> Void) {
+    func getFingerprints(request: RemoteDataRequest, completion: @escaping (RemoteDataResponse) -> Void) {
         executionQueue.async { [weak self] in
             guard let this = self else {
                 return
             }
-            var request = URLRequest(url: this.baseURL)
-            request.addValue("application/json", forHTTPHeaderField: "Accept")
-            request.httpMethod = "GET"
+            var urlRequest = URLRequest(url: this.baseURL)
+            urlRequest.addValue("application/json", forHTTPHeaderField: "Accept")
+            request.requestHeaders.forEach { key, value in
+                urlRequest.addValue(value, forHTTPHeaderField: key)
+            }
+            urlRequest.httpMethod = "GET"
             
-            this.session.dataTask(with: request) { (data, response, error) in
-                if let data = data {
-                    completion(.success(data))
+            this.session.dataTask(with: urlRequest) { (data, response, error) in
+                guard let response = response as? HTTPURLResponse else {
+                    completion(RemoteDataResponse(result: .failure(NetworkError.internalError(message: "Invalid HTTPURLResponse object")), responseHeaders: [:]))
+                    return
+                }
+                let headers = response.allStringHeaders
+                let statusCode = response.statusCode
+                if statusCode / 100 != 2 {
+                    WultraDebug.print("RestAPI: HTTP request failed with status code: \(statusCode)")
+                    completion(RemoteDataResponse(result: .failure(NetworkError.invalidHttpStatusCode(statusCode: statusCode)), responseHeaders: headers))
                 } else if let error = error {
                     WultraDebug.print("RestAPI: HTTP request failed with error: \(error)")
-                    completion(.failure(error))
+                    completion(RemoteDataResponse(result: .failure(error), responseHeaders: headers))
+                } else if let data = data {
+                    completion(RemoteDataResponse(result: .success(data), responseHeaders: headers))
                 } else {
-                    completion(.failure(NetworkError.noDataProvided))
+                    WultraDebug.print("RestAPI: HTTP request finished with empty response.")
+                    completion(RemoteDataResponse(result: .failure(NetworkError.noDataProvided), responseHeaders: headers))
                 }
             }.resume()
         }
+    }
+}
+
+fileprivate extension HTTPURLResponse {
+    var allStringHeaders: [String:String] {
+        return allHeaderFields
+            .reduce(into: [:]) { (result, tuple) in
+                guard let key = tuple.key as? String, let value = tuple.value as? String else {
+                    return
+                }
+                result[key] = value
+            }
     }
 }

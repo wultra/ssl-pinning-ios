@@ -18,7 +18,7 @@ import XCTest
 
 @testable import WultraSSLPinning
 
-class CertStoreTests_Network: XCTestCase {
+class CertStoreTests_NetworkStatic: XCTestCase {
     
     // MARK: - Helpers
     
@@ -52,8 +52,8 @@ class CertStoreTests_Network: XCTestCase {
     
     func prepareStore() {
         self.config = CertStoreConfiguration(
-            serviceUrl: CertStoreTests_Network.serviceUrl,
-            publicKey: CertStoreTests_Network.publicKey
+            serviceUrl: CertStoreTests_NetworkStatic.serviceUrl,
+            publicKey: CertStoreTests_NetworkStatic.publicKey
         )
         cryptoProvider = PowerAuthCryptoProvider()
         dataStore = TestingSecureDataStore()
@@ -79,7 +79,7 @@ class CertStoreTests_Network: XCTestCase {
 
         // Update certificates from remote server
         
-        let updateResult: Result<CertStore.UpdateResult> = AsyncHelper.wait { (completion) in
+        let updateResult = AsyncHelper.wait { (completion) in
             certStore.update { (result, error) in
                 completion.complete(with: result)
             }
@@ -102,7 +102,7 @@ class CertStoreTests_Network: XCTestCase {
         // And finally, try to open https://github.com
         
         let urlSession = URLSession(configuration: .ephemeral, delegate: sessionDelegate, delegateQueue: .main)
-        let result: Result<Bool> = AsyncHelper.wait { (completion) in
+        let result: Result<Bool, Error> = AsyncHelper.wait { (completion) in
             urlSession.dataTask(with: URL(string: "https://github.com")!) { (data, response, error) in
                 XCTAssertNotNil(data)
                 XCTAssertNotNil(response)

@@ -44,6 +44,20 @@ public class PowerAuthCryptoProvider: CryptoProvider {
         // Just calculate SHA-256
         return PA2CryptoUtils.hashSha256(data)
     }
+    
+    public func getRandomData(length: Int) -> Data {
+        var data = Data(count: length)
+        let result = data.withUnsafeMutableBytes { (ptr) -> Int32 in
+            if let rawPtr = ptr.baseAddress {
+                return SecRandomCopyBytes(kSecRandomDefault, length, rawPtr)
+            }
+            return errSecAllocate
+        }
+        guard result == errSecSuccess else {
+            WultraDebug.fatalError("Cannot generate enough random bytes")
+        }
+        return data
+    }
 }
 
 extension PA2ECPublicKey: ECPublicKey {

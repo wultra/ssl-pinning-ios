@@ -30,6 +30,10 @@ public struct CertStoreConfiguration {
     /// on the first attempt to use the public key.
     public let publicKey: String
     
+    /// If `true`, then the random challenge is generated for each HTTP request. It's is expected, that the response
+    /// body is signed with ECDSA and must be valid. The signature is calculated from CHALLENGE + '&' + BODY.
+    public let useChallenge: Bool
+    
     /// Optional property, defines the set of common names which are expected in certificate validation. By setting
     /// this propery, you tell the store to treat all certificates issued for other common names as untrusted.
     public let expectedCommonNames: [String]?
@@ -82,6 +86,7 @@ public struct CertStoreConfiguration {
     public init(
         serviceUrl: URL,
         publicKey: String,
+        useChallenge: Bool = false,
         expectedCommonNames: [String]? = nil,
         identifier: String? = nil,
         fallbackCertificatesData: Data? = nil,
@@ -90,6 +95,7 @@ public struct CertStoreConfiguration {
     {
         self.serviceUrl = serviceUrl
         self.publicKey = publicKey
+        self.useChallenge = useChallenge
         self.expectedCommonNames = expectedCommonNames
         self.identifier = identifier
         self.fallbackCertificatesData = fallbackCertificatesData

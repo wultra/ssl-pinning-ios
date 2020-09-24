@@ -16,8 +16,6 @@
 
 @testable import WultraSSLPinning
 
-typealias AsyncHelperResult = Result 
-
 ///
 /// AsyncHelper allows you to linearize execution of any asynchronous operation.
 /// The typical usage pattern for this class looks like this:
@@ -38,7 +36,7 @@ typealias AsyncHelperResult = Result
 /// Do not use this class in the production application. The internal implementation is
 /// sufficient for the testing purposes, but it's still kind of multithread anti-pattern.
 ///
-class AsyncHelper<Result> {
+class AsyncHelper<Success> {
     
     /// Creates a new instance of `AsyncHelper` internally and immediately executes the provided block.
     /// In the block, you can start any asynchronous operation with any completion, but once
@@ -53,7 +51,7 @@ class AsyncHelper<Result> {
     /// - Parameter completion: Object for signalling that asynchronous operation did finish
     ///
     /// - Returns: Object provided in `complete(with:)` method
-    static func wait(waitTimeout: TimeInterval = 10, _ block: (_ completion: AsyncHelper) -> Void) -> AsyncHelperResult<Result> {
+    static func wait(waitTimeout: TimeInterval = 10, _ block: (_ completion: AsyncHelper) -> Void) -> Result<Success, Error> {
         let helper = AsyncHelper()
         block(helper)
         return helper.waitForCompletion(timeout: waitTimeout)
@@ -61,7 +59,7 @@ class AsyncHelper<Result> {
     
     /// Reports success to a waiting object and breaks waiting loop. The result can be reported from
     /// an arbitrary thread.
-    func complete(with result: Result) {
+    func complete(with result: Success) {
         self.result = .success(result)
         semaphore.signal()
     }
@@ -76,14 +74,14 @@ class AsyncHelper<Result> {
     // MARK: - Private
     
     private let semaphore: DispatchSemaphore
-    private var result: AsyncHelperResult<Result>?
+    private var result: Result<Success, Error>?
     
     private init() {
         semaphore = DispatchSemaphore(value: 0)
     }
     
     /// Private function implements waiting for an asynchronous operation.
-    private func waitForCompletion(timeout: TimeInterval) -> AsyncHelperResult<Result> {
+    private func waitForCompletion(timeout: TimeInterval) -> Result<Success, Error> {
         var attempts = Int(timeout * 4) // timeout / (0.125 + 0.125) => timeout * 4 => attempts
         var triggered = false
         while attempts > 0 && !triggered {

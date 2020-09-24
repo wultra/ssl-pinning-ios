@@ -1,5 +1,5 @@
 //
-// Copyright 2018 Wultra s.r.o.
+// Copyright 2020 Wultra s.r.o.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,22 @@
 
 import Foundation
 
+/// The `RemoteDataRequest` internal structure contains information required
+/// for constructing HTTP request to acquire data from the remote server.
+internal struct RemoteDataRequest {
+    /// Request headers.
+    let requestHeaders: [String:String]
+}
+
+/// The `RemoteDataResponse` internal structure contains response received
+/// from the server.
+internal struct RemoteDataResponse {
+    /// Result with received `Data`.
+    let result: Result<Data, Error>
+    /// Headers received in the response.
+    let responseHeaders: [String:String]
+}
+
 ///
 /// The `RemoteDataProvider` protocol defines an interface for getting
 /// fingerprints from remote data location.
@@ -25,5 +41,5 @@ import Foundation
 internal protocol RemoteDataProvider: class {
     
     /// Gets data containing fingerprints from the remote location.
-    func getFingerprints(completion: @escaping (Result<Data>) -> Void) -> Void
+    func getFingerprints(request: RemoteDataRequest, completion: @escaping (RemoteDataResponse) -> Void) -> Void
 }

@@ -60,7 +60,7 @@ class CertStoreTests_Basics: XCTestCase {
     func testEmptyStore_UpdateNoRemoteData() {
         allConfigs().forEach { (configData) in
             
-            var updateResult: Result<CertStore.UpdateResult>
+            var updateResult: Result<CertStore.UpdateResult, Error>
             
             print("Running 'testEmptyStore_UpdateNoRemoteData' for \(configData.name)")
             
@@ -144,7 +144,7 @@ class CertStoreTests_Basics: XCTestCase {
     func testEmptyStore_UpdateToAlreadyExpiredData() {
         allConfigs().forEach { (configData) in
             
-            var updateResult: Result<CertStore.UpdateResult>
+            var updateResult: Result<CertStore.UpdateResult, Error>
             var validationResult: CertStore.ValidationResult
             
             print("Running 'testEmptyStore_UpdateToAlreadyExpiredData' for \(configData.name)")
@@ -206,7 +206,7 @@ class CertStoreTests_Basics: XCTestCase {
             var validationResult = certStore.validate(commonName: .testCommonName_1, fingerprint: .testFingerprint_1)
             XCTAssertTrue(validationResult == .empty)
             
-            let updateResult: Result<CertStore.UpdateResult> = AsyncHelper.wait { completion in
+            let updateResult = AsyncHelper.wait { completion in
                 certStore.update { (result, error) in
                     completion.complete(with: result)
                 }
@@ -243,7 +243,7 @@ class CertStoreTests_Basics: XCTestCase {
             
             print("Running 'testEmptyStore_UpdateFails' for \(configData.name)")
             
-            var updateResult: Result<CertStore.UpdateResult>
+            var updateResult: Result<CertStore.UpdateResult, Error>
             var reportedError: Error? = nil
             
             prepareStore(with: configData.config)

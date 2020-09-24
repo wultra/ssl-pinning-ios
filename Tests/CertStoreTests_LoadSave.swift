@@ -70,7 +70,7 @@ class CertStoreTests_LoadSave: XCTestCase {
                 .append(commonName: .testCommonName_2, expiration: .never, fingerprint: .testFingerprint_2)
                 .appendLast()   // duplicit entry, to test filtering
                 .data()
-        let updateResult: Result<CertStore.UpdateResult> = AsyncHelper.wait { completion in
+        let updateResult = AsyncHelper.wait { completion in
             certStore.update { (result, error) in
                 completion.complete(with: result)
             }
@@ -140,7 +140,7 @@ class CertStoreTests_LoadSave: XCTestCase {
                 .append(commonName: .testCommonName_1, expiration: .never, fingerprint: .testFingerprint_1)
                 .append(commonName: .testCommonName_2, expiration: .never, fingerprint: .testFingerprint_2)
                 .data()
-        var updateResult: Result<CertStore.UpdateResult> = AsyncHelper.wait { completion in
+        var updateResult = AsyncHelper.wait { completion in
             certStore.update { (result, error) in
                 completion.complete(with: result)
             }
