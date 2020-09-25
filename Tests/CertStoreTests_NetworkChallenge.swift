@@ -23,21 +23,13 @@ class CertStoreTests_NetworkChallenge: XCTestCase {
     // MARK: - Helpers
     
     /*
-     This test validates whether the real communication with the server works and
-     whether the certificate validation works in real scenarios. The list of certificates
-     is available at my [public gist](https://gist.github.com/hvge/7c5a3f9ac50332a52aa974d90ea2408c)
-     You may contact me (at juraj.durech@wultra.com) to update the list, once the github's
-     certificate expires.
-     
-     You can also use the helper script available at `{GIT_ROOT}/Tests/TestData` to fetch new
-     certificate and calculate the new entry for the validation. The `TestData` folder also contains
-     private key used for the signature calculation. Please, do not use that key for your own signing :)
+     This test validates whether the real communication with the Mobile Utility Server works.
      */
     
-    // Raw content from my public gist
-    static let serviceUrl = URL(string: "https://mobile-utility-server.herokuapp.com/app/init?appName=rb-ekonto")!
-    // Public key
-    static let publicKey  = "BCeNRoRsy2KjIk7JTPRbCfqM4My4BvbptmUJrxwBMrpe5ntADTrsQbZQwEGS3zZUQmSgju/CPkGXu8g4QDQScp0="
+    // Location of Mobile Utility Server
+    let serviceUrl = "https://mobile-utility-server.herokuapp.com/app"
+    // Name of application configured at MOS
+    let serviceAppName = "rb-ekonto"
     
     //
     
@@ -50,10 +42,14 @@ class CertStoreTests_NetworkChallenge: XCTestCase {
     
     let responseGenerator = ResponseGenerator()
     
-    func prepareStore() {
+    func prepareStore() -> Bool {
+        guard let publicKey = getPublicKey() else {
+            XCTFail("Failed to acquire public key")
+            return false
+        }
         self.config = CertStoreConfiguration(
-            serviceUrl: CertStoreTests_NetworkChallenge.serviceUrl,
-            publicKey: CertStoreTests_NetworkChallenge.publicKey,
+            serviceUrl: serviceUrl(endpointPath: "/init?appName=\(serviceAppName)"),
+            publicKey: publicKey,
             useChallenge: true
         )
         cryptoProvider = PowerAuthCryptoProvider()
@@ -65,7 +61,26 @@ class CertStoreTests_NetworkChallenge: XCTestCase {
             secureDataStore: dataStore,
             remoteDataProvider: remoteDataProvider
         )
+        return true
     }
+    
+    func serviceUrl(endpointPath: String) -> URL {
+        let urlString = "\(serviceUrl)\(endpointPath)"
+        return URL(string: urlString)!
+    }
+    
+    struct GetPublicKeyResponse: Decodable {
+        let publicKey: String
+    }
+    
+    func getPublicKey() -> String? {
+        let request = URLRequest(url: serviceUrl(endpointPath: "/init/public-key?appName=\(serviceAppName)"))
+        guard let publicKey: GetPublicKeyResponse = RemoteObject(request: request).get() else {
+            return nil
+        }
+        return publicKey.publicKey
+    }
+    
     
     // MARK: - Unit tests
     
@@ -75,7 +90,9 @@ class CertStoreTests_NetworkChallenge: XCTestCase {
     
     func testMobileUtilityServer() {
         
-        prepareStore()
+        guard prepareStore() else {
+            return
+        }
         
         let updateResult = AsyncHelper.wait { completion in
             certStore.update { result, error in

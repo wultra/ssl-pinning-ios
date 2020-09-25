@@ -11,6 +11,7 @@
 		BF1FE29B251B516100A3374F /* CertStoreTests_Signing.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF1FE298251B4E1B00A3374F /* CertStoreTests_Signing.swift */; };
 		BF1FE2A4251C999600A3374F /* CertStoreTests_NetworkChallenge.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF1FE2A3251C999600A3374F /* CertStoreTests_NetworkChallenge.swift */; };
 		BF1FE2A8251CA5DE00A3374F /* ResultHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF1FE2A7251CA5DE00A3374F /* ResultHelper.swift */; };
+		BF1FE2C3251DE6AF00A3374F /* RemoteObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF1FE2C2251DE6AF00A3374F /* RemoteObject.swift */; };
 		BF7DD3CB214022FC00766D03 /* AsyncHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF7DD3C9214022FA00766D03 /* AsyncHelper.swift */; };
 		BF7DD3CE21402A3100766D03 /* PowerAuthCryptoProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF7DD3CC214029FA00766D03 /* PowerAuthCryptoProviderTests.swift */; };
 		BF7DD3D121402B5000766D03 /* HexadecimalHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF7DD3CF21402B3900766D03 /* HexadecimalHelper.swift */; };
@@ -80,6 +81,7 @@
 		BF1FE298251B4E1B00A3374F /* CertStoreTests_Signing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertStoreTests_Signing.swift; sourceTree = "<group>"; };
 		BF1FE2A3251C999600A3374F /* CertStoreTests_NetworkChallenge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertStoreTests_NetworkChallenge.swift; sourceTree = "<group>"; };
 		BF1FE2A7251CA5DE00A3374F /* ResultHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultHelper.swift; sourceTree = "<group>"; };
+		BF1FE2C2251DE6AF00A3374F /* RemoteObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteObject.swift; sourceTree = "<group>"; };
 		BF7DD3C9214022FA00766D03 /* AsyncHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncHelper.swift; sourceTree = "<group>"; };
 		BF7DD3CC214029FA00766D03 /* PowerAuthCryptoProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerAuthCryptoProviderTests.swift; sourceTree = "<group>"; };
 		BF7DD3CF21402B3900766D03 /* HexadecimalHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexadecimalHelper.swift; sourceTree = "<group>"; };
@@ -166,6 +168,7 @@
 				BF7DD40E2142A16E00766D03 /* Expiration.swift */,
 				BF7DD4102142A25A00766D03 /* JSON.swift */,
 				BFF51837251A16720061DAAF /* ECDSA.swift */,
+				BF1FE2C2251DE6AF00A3374F /* RemoteObject.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -432,6 +435,7 @@
 				BF1FE2A8251CA5DE00A3374F /* ResultHelper.swift in Sources */,
 				BF7DD4012142878B00766D03 /* TestingSecureDataStore.swift in Sources */,
 				BF1FE29B251B516100A3374F /* CertStoreTests_Signing.swift in Sources */,
+				BF1FE2C3251DE6AF00A3374F /* RemoteObject.swift in Sources */,
 				BF7DD4112142A25A00766D03 /* JSON.swift in Sources */,
 				BF7DD4022142878E00766D03 /* TestingRemoteDataProvider.swift in Sources */,
 				BFABCD5D2149830600A9221F /* UpdateSchedulerTests.swift in Sources */,
