@@ -102,15 +102,8 @@ class CertStoreTests_NetworkStatic: XCTestCase {
         // And finally, try to open https://github.com
         
         let urlSession = URLSession(configuration: .ephemeral, delegate: sessionDelegate, delegateQueue: .main)
-        let result: Result<Bool, Error> = AsyncHelper.wait { (completion) in
-            urlSession.dataTask(with: URL(string: "https://github.com")!) { (data, response, error) in
-                XCTAssertNotNil(data)
-                XCTAssertNotNil(response)
-                XCTAssertNil(error)
-                completion.complete(with: error == nil)
-            }.resume()
-        }
-        XCTAssertTrue(result.value == true)
+        let result: Data? = RemoteObject(session: urlSession, request: URLRequest(url: URL(string: "https://github.com")!)).get()
+        XCTAssertNotNil(result)
         XCTAssertTrue(sessionDelegate.interceptor.called_didReceiveChallenge == 1)
     }
 }
