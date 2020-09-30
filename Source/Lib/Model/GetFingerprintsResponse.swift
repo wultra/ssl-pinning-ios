@@ -31,7 +31,8 @@ internal struct GetFingerprintsResponse: Codable {
         let expires: Date
         
         /// ECDSA signature, must be deserialized from BASE64 string.
-        /// Property is optional for servers that supports challenge in requests.
+        /// Property is optional for servers that supports challenge in request
+        /// and provides signature for the whole response.
         let signature: Data?
     }
 
