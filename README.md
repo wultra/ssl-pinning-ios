@@ -43,7 +43,7 @@ Before you start using the library, you should also check our other related proj
 
 ### Requirements
 
-- iOS 8.0+
+- iOS 9.0+
 - Xcode 10.2+
 - Swift 5.0+
 
@@ -58,7 +58,7 @@ $ gem install cocoapods
 To integrate framework into your Xcode project using CocoaPods, specify it in your `Podfile`:
 
 ```ruby
-platform :ios, '8.0'
+platform :ios, '9.0'
 target '<Your Target App>' do
   pod 'WultraSSLPinning/PowerAuthIntegration'
 end
