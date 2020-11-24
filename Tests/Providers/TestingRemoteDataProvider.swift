@@ -81,7 +81,7 @@ class TestingRemoteDataProvider: RemoteDataProvider {
             dataToSign.append("&".data(using: .ascii)!)
             dataToSign.append(data)
             let signature = ECDSA.sign(privateKey: privateKey, data: dataToSign).base64EncodedString()
-            return (data, ["X-Cert-Pinning-Signature" : signature])
+            return (data, ["x-cert-pinning-signature" : signature])
         }
         return self
     }
