@@ -95,7 +95,7 @@ fileprivate extension HTTPURLResponse {
                 guard let key = tuple.key as? String, let value = tuple.value as? String else {
                     return
                 }
-                result[key] = value
+                result[key.lowercased()] = value
             }
     }
 }

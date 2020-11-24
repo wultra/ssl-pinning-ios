@@ -161,7 +161,7 @@ public extension CertStore {
             guard let challenge = challenge else {
                 WultraDebug.fatalError("Challenge must be set")
             }
-            guard let signature = responseHeaders["X-Cert-Pinning-Signature"] else {
+            guard let signature = responseHeaders["x-cert-pinning-signature"] else {
                 WultraDebug.error("CertStore: Missing signature header.")
                 return .invalidSignature
             }

@@ -28,7 +28,7 @@ internal struct RemoteDataRequest {
 internal struct RemoteDataResponse {
     /// Result with received `Data`.
     let result: Result<Data, Error>
-    /// Headers received in the response.
+    /// Headers received in the response. Note that all header names are lowercased.
     let responseHeaders: [String:String]
 }
 
