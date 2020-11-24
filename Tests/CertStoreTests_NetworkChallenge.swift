@@ -54,7 +54,7 @@ class CertStoreTests_NetworkChallenge: XCTestCase {
         )
         cryptoProvider = PowerAuthCryptoProvider()
         dataStore = TestingSecureDataStore()
-        remoteDataProvider = RestAPI(baseURL: config.serviceUrl)
+        remoteDataProvider = RestAPI(baseURL: config.serviceUrl, sslValidationStrategy: .default)
         certStore = CertStore(
             configuration: config,
             cryptoProvider: cryptoProvider,
