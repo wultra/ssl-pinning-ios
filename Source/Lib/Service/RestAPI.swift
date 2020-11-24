@@ -16,20 +16,25 @@
 
 import Foundation
 
-///
 /// The `RestAPI` class implements downloading list of certificates
 /// from a remote server. The class is used internally in the CertStore.
-///
-internal class RestAPI: RemoteDataProvider {
+internal class RestAPI: NSObject, URLSessionDelegate, RemoteDataProvider {
     
     private let baseURL: URL
-    private let session: URLSession
+    private let sslValidationStrategy: SSLValidationStrategy
     private let executionQueue: DispatchQueue
-    
-    init(baseURL: URL) {
+    private let delegateQueue: OperationQueue
+    private lazy var session: URLSession = {
+        return URLSession(configuration: .ephemeral, delegate: self, delegateQueue: delegateQueue)
+    }()
+
+    init(baseURL: URL, sslValidationStrategy: SSLValidationStrategy) {
+        let dispatchQueue = DispatchQueue(label: "WultraCertStoreNetworking")
         self.baseURL = baseURL
-        self.session = URLSession(configuration: .ephemeral)
-        self.executionQueue = DispatchQueue(label: "WultraCertStoreNetworking")
+        self.sslValidationStrategy = sslValidationStrategy
+        self.executionQueue = dispatchQueue
+        self.delegateQueue = OperationQueue()
+        self.delegateQueue.underlyingQueue = dispatchQueue
     }
     
     enum NetworkError: Error {
@@ -74,6 +79,12 @@ internal class RestAPI: RemoteDataProvider {
                 }
             }.resume()
         }
+    }
+    
+    // URLSessionDelegate
+    
+    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        sslValidationStrategy.validate(challenge: challenge, completionHandler: completionHandler)
     }
 }
 

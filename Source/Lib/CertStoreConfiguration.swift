@@ -82,6 +82,13 @@ public struct CertStoreConfiguration {
     /// The default value is 2 weeks.
     public let expirationUpdateTreshold: TimeInterval
     
+    /// Defines the validation strategy for HTTPS connections initiated from the library itself. The default
+    /// validation strategy implements a default URLSession handling.
+    ///
+    /// Be aware that altering this option may put your application at risk. You should not ship your application
+    /// to production with SSL validation turned off.
+    public let sslValidationStrategy: SSLValidationStrategy
+    
     /// Default constructor.
     public init(
         serviceUrl: URL,
@@ -91,7 +98,8 @@ public struct CertStoreConfiguration {
         identifier: String? = nil,
         fallbackCertificatesData: Data? = nil,
         periodicUpdateInterval: TimeInterval = 7*24*60*60,
-        expirationUpdateTreshold: TimeInterval = 14*24*60*60)
+        expirationUpdateTreshold: TimeInterval = 14*24*60*60,
+        sslValidationStrategy: SSLValidationStrategy = .default)
     {
         self.serviceUrl = serviceUrl
         self.publicKey = publicKey
@@ -101,6 +109,7 @@ public struct CertStoreConfiguration {
         self.fallbackCertificatesData = fallbackCertificatesData
         self.periodicUpdateInterval = periodicUpdateInterval
         self.expirationUpdateTreshold = expirationUpdateTreshold
+        self.sslValidationStrategy = sslValidationStrategy
     }
 }
 
@@ -117,6 +126,9 @@ extension CertStoreConfiguration {
         // Check "http"
         if serviceUrl.absoluteString.hasPrefix("http:") {
             WultraDebug.warning("CertStore: '.serviceUrl' should point to 'https' server.")
+        }
+        if sslValidationStrategy == .noValidation {
+            WultraDebug.warning("CertStore: '.sslValidationStrategy.noValidation' should not be used in production.")
         }
         // Validate fallback certificate data
         if let fallbackData = fallbackCertificatesData {

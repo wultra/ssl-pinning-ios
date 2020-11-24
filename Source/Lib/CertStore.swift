@@ -35,7 +35,7 @@ public class CertStore {
         self.configuration = configuration
         self.cryptoProvider = cryptoProvider
         self.secureDataStore = secureDataStore
-        self.remoteDataProvider = RestAPI(baseURL: configuration.serviceUrl)
+        self.remoteDataProvider = RestAPI(baseURL: configuration.serviceUrl, sslValidationStrategy: configuration.sslValidationStrategy)
     }
     
     /// Internal constructor, suitable for unit tests.
