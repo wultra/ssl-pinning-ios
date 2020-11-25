@@ -123,7 +123,7 @@ The configuration has the following properties:
 - `fallbackCertificatesData` - optional hardcoded data for fallback fingerprints. See the next chapter of this document for details.
 - `periodicUpdateInterval` - defines how often will `CertStore` update the fingerprints silently at the background. The default value is 1 week.
 - `expirationUpdateTreshold` - defines time window before the next certificate will expire. In this time window `CertStore` will try to update the list of fingerprints more often than usual. Default value is 2 weeks before the next expiration.
-
+- `sslValidationStrategy` - defines the validation strategy for HTTPS connections initiated from the library itself. The `.default` value performs standard certificate chain validation provided by the operating system. Be aware that altering this option may put your application at risk. You should not ship your application to production with SSL validation turned off.
 
 ### Predefined fingerprint
 
