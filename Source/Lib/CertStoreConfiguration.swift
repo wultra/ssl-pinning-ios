@@ -1,5 +1,5 @@
 //
-// Copyright 2018 Wultra s.r.o.
+// Copyright 2020 Wultra s.r.o.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -113,6 +113,15 @@ public struct CertStoreConfiguration {
     }
 }
 
+/// Validation strategy decides how HTTPS requests initiated from the library should be handled.
+public enum SSLValidationStrategy {
+    
+    /// Will use default URLSession handling
+    case `default`
+    
+    /// Will trust https connections with invalid certificates
+    case noValidation
+}
 
 
 // MARK: - Internal validation
@@ -158,4 +167,21 @@ extension CertStoreConfiguration {
             WultraDebug.fatalError("CertStoreConfiguration contains negative TimeInterval.")
         }
     }
+}
+
+extension SSLValidationStrategy {
+    
+   /// Internal function implements SSL chain validation depending on validation strategy.
+   func validate(challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+       switch self {
+       case .noValidation:
+           if let st = challenge.protectionSpace.serverTrust {
+               completionHandler(.useCredential, URLCredential(trust: st))
+           } else {
+               completionHandler(.performDefaultHandling, nil)
+           }
+       case .default:
+           completionHandler(.performDefaultHandling, nil)
+       }
+   }
 }
