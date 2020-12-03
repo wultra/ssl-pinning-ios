@@ -58,7 +58,12 @@ internal class RestAPI: NSObject, URLSessionDelegate, RemoteDataProvider {
             }
             urlRequest.httpMethod = "GET"
             
+            RestAPI.logRequest(request: urlRequest)
+            
             this.session.dataTask(with: urlRequest) { (data, response, error) in
+                
+                RestAPI.logResponse(response: response, data: data, error: error)
+                
                 guard let response = response as? HTTPURLResponse else {
                     completion(RemoteDataResponse(result: .failure(NetworkError.internalError(message: "Invalid HTTPURLResponse object")), responseHeaders: [:]))
                     return
@@ -81,6 +86,52 @@ internal class RestAPI: NSObject, URLSessionDelegate, RemoteDataProvider {
         }
     }
     
+    /// Dump HTTP request into debug log.
+    /// - Parameter request: URL request to print to log.
+    private static func logRequest(request: URLRequest) {
+        #if DEBUG
+        guard WultraDebug.verboseLevel == .all else {
+            return
+        }
+        let httpMethod = request.httpMethod ?? "nil"
+        let urlString = request.url?.absoluteString ?? "nil"
+        let headers = request.allHTTPHeaderFields ?? [:]
+        var message = "HTTP \(httpMethod) request: → \(urlString)"
+        if !headers.isEmpty {
+            message += "\n  + Headers: \(headers)"
+        }
+        if let body = request.httpBody {
+            message += "\n  + Body: \(Data.toBodyString(data: body))"
+        }
+        WultraDebug.print(message)
+        #endif
+    }
+    
+    
+    /// Dump HTTP response to debug log.
+    /// - Parameters:
+    ///   - response: Response object
+    ///   - data: Received data
+    ///   - error: Error in case of failure
+    private static func logResponse(response: URLResponse?, data: Data?, error: Error?) {
+        #if DEBUG
+        guard WultraDebug.verboseLevel == .all else {
+            return
+        }
+        let httpResponse = response as? HTTPURLResponse
+        let urlString = response?.url?.absoluteString ?? "nil"
+        let statusCode = httpResponse?.statusCode ?? 0
+        let headers = httpResponse?.allStringHeaders ?? [:]
+        var message = "HTTP \(statusCode) response: ← \(urlString)"
+        message += "\n  + Headers: \(headers)"
+        message += "\n  + Data: \(Data.toBodyString(data: data))"
+        if let error = error {
+            message += "\n  + Error: \(error)"
+        }
+        WultraDebug.print(message)
+        #endif
+    }
+    
     // URLSessionDelegate
     
     func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
@@ -97,5 +148,24 @@ fileprivate extension HTTPURLResponse {
                 }
                 result[key.lowercased()] = value
             }
+    }
+}
+
+fileprivate extension Data {
+    
+    /// Helper function converts Data object to human readable string representation for
+    /// debug purposes. If it's possible to convert data to UTF-8 string then returns such
+    /// string, otherwise return Base64 encoded content of data. If data is empty or nil,
+    /// then returns "empty" constant.
+    ///
+    /// - Returns: Human readable string.
+    static func toBodyString(data: Data?) -> String {
+        guard let data = data, !data.isEmpty else {
+            return "empty"
+        }
+        guard let string = String(data: data, encoding: .utf8) else {
+            return data.base64EncodedString()
+        }
+        return string
     }
 }
