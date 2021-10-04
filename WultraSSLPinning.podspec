@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name = 'WultraSSLPinning'
-  s.version = '1.3.2'
+  s.version = '1.4.0'
   # Metadata
   s.license = { :type => 'Apache License, Version 2.0', :file => 'LICENSE' }
   s.summary = 'Dynamic SSL pinning written in Swift'
@@ -25,7 +25,7 @@ Pod::Spec.new do |s|
   s.subspec 'PowerAuthIntegration' do |sub|
     sub.source_files = 'Source/Plugins/PowerAuth/**/*.swift'
     sub.dependency 'WultraSSLPinning/Lib'
-    sub.dependency 'PowerAuth2', '>= 0.19.1'
+    sub.dependency 'PowerAuth2', '>= 1.6.0'
   end
 
 end
