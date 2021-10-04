@@ -38,7 +38,7 @@ internal struct RemoteDataResponse {
 /// The protocol is currently implemented by `RestAPI` class and by
 /// several dummy implementations used for the unit testing.
 ///
-internal protocol RemoteDataProvider: class {
+internal protocol RemoteDataProvider: AnyObject {
     
     /// Gets data containing fingerprints from the remote location.
     func getFingerprints(request: RemoteDataRequest, completion: @escaping (RemoteDataResponse) -> Void) -> Void

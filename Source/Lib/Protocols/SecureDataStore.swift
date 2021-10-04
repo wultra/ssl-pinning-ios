@@ -21,7 +21,7 @@ import Foundation
 /// from the underlying secure storage. The implementing class should store data as
 /// secure as possible. On iOS that typically means that iOS Keychain should be used.
 ///
-public protocol SecureDataStore: class {
+public protocol SecureDataStore: AnyObject {
     
     /// Save data to the secure data store.
     ///
