@@ -272,7 +272,7 @@ class YourUrlSessionDelegate: NSObject, URLSessionDelegate {
 
 ## PowerAuth integration
 
-The `WultraSSLPinning/PowerAuthIntegration` cocoapod sub-spec provides a several additional classes which enhances the PowerAuth SDK functionality. The most important one is the `PowerAuthSslPinningValidationStrategy` class, which implements SSL pinning with using fingerprints, stored in the `CertStore`. You can simply instantiate this object from the existing `CertStore` and set it to the `PA2ClientConfiguration`. Then the class will provide SSL pinning for all communication initiated from the PowerAuth SDK.
+The `WultraSSLPinning/PowerAuthIntegration` cocoapod sub-spec provides a several additional classes which enhances the PowerAuth SDK functionality. The most important one is the `PowerAuthSslPinningValidationStrategy` class, which implements SSL pinning with using fingerprints, stored in the `CertStore`. You can simply instantiate this object from the existing `CertStore` and set it to the `PowerAuthClientConfiguration`. Then the class will provide SSL pinning for all communication initiated from the PowerAuth SDK.
 
 For example, this is how the configuration sequence may look like if you want to use both, `PowerAuthSDK` and `CertStore`, as singletons:
 
@@ -299,11 +299,11 @@ extension PowerAuthSDK {
         config.baseEndpointUrl = ...
         
         // Configure the keychain
-        let keychain = PA2KeychainConfiguration()
+        let keychain = PowerAuthKeychainConfiguration()
         keychain.identifier = ...
         
-        // Configure PA2Client and assign validation strategy...
-        let client = PA2ClientConfiguration()
+        // Configure PowerAuthClient and assign validation strategy...
+        let client = PowerAuthClientConfiguration()
         client.sslValidationStrategy = CertStore.shared.powerAuthSslValidationStrategy()
         
         // And construct the SDK instance

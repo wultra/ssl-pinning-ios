@@ -18,11 +18,11 @@ import PowerAuth2
 
 public extension CertStore {
     
-    /// Returns validation strategy object which can be used in `PA2ClientConfiguration`.
+    /// Returns validation strategy object which can be used in `PowerAuthClientSslValidationStrategy`.
     /// The constructed validation strategy object will use this instance of `CertStore` for server certificate
     /// validation. Note that the function always constructs new object, so it's effective to create just one instance
     /// of the validator per `CertStore`.
-    func powerAuthSslValidationStrategy() -> PA2ClientSslValidationStrategy {
+    func powerAuthSslValidationStrategy() -> PowerAuthClientSslValidationStrategy {
         return PowerAuthSslPinningValidationStrategy(certStore: self)
     }
     
@@ -30,7 +30,7 @@ public extension CertStore {
     /// both implemented on top of PowerAuth SDK. You can use this type of instantiation in case that you're OK
     /// with all defaults defined in this library.
     ///
-    /// You can use following code to construct a shared signeton for `CertStore`:
+    /// You can use following code to construct a shared singleton for `CertStore`:
     /// ```
     /// extension CertStore {
     ///     static var shared: CertStore {
@@ -53,9 +53,9 @@ public extension CertStore {
 
 ///
 /// The `PowerAuthSslPinningValidationStrategy` implements SSL pinning with fingerprints, stored in
-/// the CertStore. The object implements `PA2ClientSslValidationStrategy` protocol, so it can be used
+/// the CertStore. The object implements `PowerAuthClientSslValidationStrategy` protocol, so it can be used
 /// to protect the communication initiated from the PowerAuth SDK itself. To do this, you can simply
-/// create an instance of this object and assign it to the `PA2ClientConfiguration` before you construct
+/// create an instance of this object and assign it to the `PowerAuthClientConfiguration` before you construct
 /// your `PowerAuthSDK` object.
 ///
 /// For example, this is how the configuration sequence may looks like if you want to use both
@@ -77,11 +77,11 @@ public extension CertStore {
 ///     static var shared: PowerAuthSDK {
 ///         let config = PowerAuthConfiguration()
 ///         // Configure your powerauth...
-///         let keychain = PA2KeychainConfiguration()
+///         let keychain = PowerAuthKeychainConfiguration()
 ///         // Configure the keychain
-///         let client = PA2ClientConfiguration()
+///         let client = PowerAuthClientConfiguration()
 ///         client.sslValidationStrategy = CertStore.shared.powerAuthSslValidationStrategy()
-///         // Configure PA2Client...
+///         // Configure PowerAuthClient...
 ///         // And construct the SDK instance
 ///         guard let powerAuth = PowerAuthSDK(configuration: config, keychainConfiguration: keychain, clientConfiguration: client)
 ///             else { fatalError() }
@@ -90,7 +90,7 @@ public extension CertStore {
 /// }
 /// ```
 ///
-public class PowerAuthSslPinningValidationStrategy: NSObject, PA2ClientSslValidationStrategy {
+public class PowerAuthSslPinningValidationStrategy: NSObject, PowerAuthClientSslValidationStrategy {
     
     /// `CertStore` object which actually implements the SSL pinning.
     public let certStore: CertStore
@@ -100,7 +100,7 @@ public class PowerAuthSslPinningValidationStrategy: NSObject, PA2ClientSslValida
         self.certStore = certStore
     }
     
-    /// Implements SSL certificate validation, as defined in `PA2ClientSslValidationStrategy` protocol.
+    /// Implements SSL certificate validation, as defined in `PowerAuthClientSslValidationStrategy` protocol.
     public func validateSsl(for session: URLSession, challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         // Validate challenge and complete handler with an appropriate result.
         switch certStore.validate(challenge: challenge) {

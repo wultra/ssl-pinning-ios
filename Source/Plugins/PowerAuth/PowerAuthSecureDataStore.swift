@@ -18,7 +18,7 @@ import PowerAuth2
 
 ///
 /// The `PowerAuthSecureDataStore` implements `SecureDataStore` interface with using
-/// `PowerAuth2.PA2Keychain` as underlying data storage. To initialize the data store,
+/// `PowerAuth2.PowerAuthKeychain` as underlying data storage. To initialize the data store,
 /// you have to provide keychain identifier and optional access group, if the cached
 /// data has to be stored across multiple applications.
 ///
@@ -28,15 +28,15 @@ public class PowerAuthSecureDataStore: SecureDataStore {
     public static let defaultKeychainIdentifier = "com.wultra.WultraCertStore"
     
     /// Underlying keychain object used for data storage.
-    private let keychain: PA2Keychain
+    private let keychain: PowerAuthKeychain
     
-    /// Initializes secure data store based on PowerAuth keychain services. You can check `PA2Keychain`
+    /// Initializes secure data store based on PowerAuth keychain services. You can check `PowerAuthKeychain`
     /// object documentation for more details.
     ///
     /// - Parameter keychainIdentifier: Identifier of the service
     /// - Parameter accessGroup: Access group for the Keychain Sharing
     public init(keychainIdentifier: String = PowerAuthSecureDataStore.defaultKeychainIdentifier, accessGroup: String? = nil) {
-        keychain = PA2Keychain(identifier: keychainIdentifier, accessGroup: accessGroup)
+        keychain = PowerAuthKeychain(identifier: keychainIdentifier, accessGroup: accessGroup)
     }
     
     // MARK: - SecureDataStore protocol

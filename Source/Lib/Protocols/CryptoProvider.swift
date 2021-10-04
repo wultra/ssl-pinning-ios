@@ -20,7 +20,7 @@ import Foundation
 /// The `CryptoProvider` protocol defines interface for performing several
 /// cryptographic primitives, required by this library.
 ///
-public protocol CryptoProvider: class {
+public protocol CryptoProvider: AnyObject {
     
     /// Validates whether data has not been modified.
     ///
@@ -63,6 +63,6 @@ public struct SignedData {
 
 /// The `ECPublicKey` protocol is an abstract interface representing
 /// a public key in EC based cryptography.
-public protocol ECPublicKey: class {
+public protocol ECPublicKey: AnyObject {
 }
 

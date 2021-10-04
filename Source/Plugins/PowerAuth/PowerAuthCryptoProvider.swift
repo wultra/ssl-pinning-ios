@@ -15,6 +15,7 @@
 //
 
 import PowerAuth2
+import PowerAuthCore
 
 ///
 /// The `PowerAuthCryptoProvider` implements `CryptoProvider` interface with using
@@ -29,20 +30,20 @@ public class PowerAuthCryptoProvider: CryptoProvider {
     // MARK: - CryptoProvider protocol
     
     public func ecdsaValidateSignatures(signedData: SignedData, publicKey: ECPublicKey) -> Bool {
-        // Cast abstract interface to PA2ECPublicKey
-        guard let ecKey = publicKey as? PA2ECPublicKey else {
+        // Cast abstract interface to PowerAuthCoreECPublicKey
+        guard let ecKey = publicKey as? PowerAuthCoreECPublicKey else {
             WultraDebug.fatalError("Invalid ECPublicKey object.")
         }
-        return PA2CryptoUtils.ecdsaValidateSignature(signedData.signature, for: signedData.data, for: ecKey)
+        return PowerAuthCoreCryptoUtils.ecdsaValidateSignature(signedData.signature, for: signedData.data, for: ecKey)
     }
     
     public func importECPublicKey(publicKey: Data) -> ECPublicKey? {
-        return PA2ECPublicKey(data: publicKey)
+        return PowerAuthCoreECPublicKey(data: publicKey)
     }
     
     public func hashSha256(data: Data) -> Data {
         // Just calculate SHA-256
-        return PA2CryptoUtils.hashSha256(data)
+        return PowerAuthCoreCryptoUtils.hashSha256(data)
     }
     
     public func getRandomData(length: Int) -> Data {
@@ -60,6 +61,6 @@ public class PowerAuthCryptoProvider: CryptoProvider {
     }
 }
 
-extension PA2ECPublicKey: ECPublicKey {
-    // Makes `PA2ECPublicKey` compatible with `ECPublicKey` interface
+extension PowerAuthCoreECPublicKey: ECPublicKey {
+    // Makes `PowerAuthCoreECPublicKey` compatible with `ECPublicKey` interface
 }
