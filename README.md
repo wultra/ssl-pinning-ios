@@ -45,6 +45,7 @@ Before you start using the library, you should also check our other related proj
 ### Requirements
 
 - iOS 11.0+
+- tvOS 11.0+
 - Xcode 14+
 - Swift 5.0+
 
