@@ -11,6 +11,7 @@ Pod::Spec.new do |s|
   # Deployment targets
   s.swift_version = '5.0'
   s.ios.deployment_target = '11.0'
+  s.tvos.deployment_target = '11.0'
   # Sources
   
   # Lib is defautl subspec
@@ -18,12 +19,12 @@ Pod::Spec.new do |s|
   
   # 'Lib' subspec
   s.subspec 'Lib' do |sub|
-    sub.source_files = 'Source/Lib/**/*.swift'
+    sub.source_files = 'Sources/WultraSSLPinning/Lib/**/*.swift'
   end
   
   # 'PowerAuthIntegration' subspec
   s.subspec 'PowerAuthIntegration' do |sub|
-    sub.source_files = 'Source/Plugins/PowerAuth/**/*.swift'
+    sub.source_files = 'Sources/WultraSSLPinning/Plugins/PowerAuth/**/*.swift'
     sub.dependency 'WultraSSLPinning/Lib'
     sub.dependency 'PowerAuth2', '>= 1.7.0'
     sub.dependency 'PowerAuthCore', '>= 1.7.0'

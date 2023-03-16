@@ -81,6 +81,7 @@
 		BF1FE2A3251C999600A3374F /* CertStoreTests_NetworkChallenge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertStoreTests_NetworkChallenge.swift; sourceTree = "<group>"; };
 		BF1FE2A7251CA5DE00A3374F /* ResultHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultHelper.swift; sourceTree = "<group>"; };
 		BF1FE2C2251DE6AF00A3374F /* RemoteObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteObject.swift; sourceTree = "<group>"; };
+		BF2FB90029C31BFF000F2E2C /* Package.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Package.swift; sourceTree = "<group>"; };
 		BF7DD3C9214022FA00766D03 /* AsyncHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncHelper.swift; sourceTree = "<group>"; };
 		BF7DD3CC214029FA00766D03 /* PowerAuthCryptoProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerAuthCryptoProviderTests.swift; sourceTree = "<group>"; };
 		BF7DD3CF21402B3900766D03 /* HexadecimalHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexadecimalHelper.swift; sourceTree = "<group>"; };
@@ -111,8 +112,8 @@
 		BFCB8164213D931200615ADA /* WultraSSLPinning.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = WultraSSLPinning.podspec; sourceTree = "<group>"; };
 		BFCB8165213D94CE00615ADA /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		BFCB8166213D94CF00615ADA /* WultraSSLPinning.podspec */ = {isa = PBXFileReference; lastKnownFileType = text; path = WultraSSLPinning.podspec; sourceTree = "<group>"; };
-		BFCB816E213D96F300615ADA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = Source/Info.plist; sourceTree = "<group>"; };
-		BFCB816F213D96F300615ADA /* WultraSSLPinning.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WultraSSLPinning.h; path = Source/WultraSSLPinning.h; sourceTree = "<group>"; };
+		BFCB816E213D96F300615ADA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = Sources/Info.plist; sourceTree = "<group>"; };
+		BFCB816F213D96F300615ADA /* WultraSSLPinning.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WultraSSLPinning.h; path = Sources/WultraSSLPinning.h; sourceTree = "<group>"; };
 		BFCB8176213D9F8400615ADA /* CryptoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoProvider.swift; sourceTree = "<group>"; };
 		BFCB8178213D9FEB00615ADA /* SecureDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureDataStore.swift; sourceTree = "<group>"; };
 		BFCB817D213DA71100615ADA /* PowerAuthSecureDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerAuthSecureDataStore.swift; sourceTree = "<group>"; usesTabs = 0; };
@@ -151,6 +152,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		BF2FB90129C31E0B000F2E2C /* WultraSSLPinning */ = {
+			isa = PBXGroup;
+			children = (
+				BFCB816A213D954500615ADA /* Lib */,
+				BFCB8168213D954500615ADA /* Plugins */,
+			);
+			path = WultraSSLPinning;
+			sourceTree = "<group>";
+		};
 		BF7DD3D3214034CF00766D03 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -209,7 +219,7 @@
 		BFCB8147213D917600615ADA = {
 			isa = PBXGroup;
 			children = (
-				BFCB8167213D954500615ADA /* Source */,
+				BFCB8167213D954500615ADA /* Sources */,
 				BF8BB77C214021EF0097315B /* Tests */,
 				BFCB815D213D925B00615ADA /* Supporting Files */,
 				BFCB8152213D917600615ADA /* Products */,
@@ -231,6 +241,7 @@
 			isa = PBXGroup;
 			children = (
 				BFCB8162213D92D600615ADA /* Deploy */,
+				BF2FB90029C31BFF000F2E2C /* Package.swift */,
 				BFCB816F213D96F300615ADA /* WultraSSLPinning.h */,
 				BFCB8166213D94CF00615ADA /* WultraSSLPinning.podspec */,
 				BFCB816E213D96F300615ADA /* Info.plist */,
@@ -249,13 +260,12 @@
 			path = Deploy;
 			sourceTree = "<group>";
 		};
-		BFCB8167213D954500615ADA /* Source */ = {
+		BFCB8167213D954500615ADA /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				BFCB816A213D954500615ADA /* Lib */,
-				BFCB8168213D954500615ADA /* Plugins */,
+				BF2FB90129C31E0B000F2E2C /* WultraSSLPinning */,
 			);
-			path = Source;
+			path = Sources;
 			sourceTree = "<group>";
 		};
 		BFCB8168213D954500615ADA /* Plugins */ = {
@@ -678,7 +688,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = "$(SRCROOT)/Source/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Sources/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -704,7 +714,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = "$(SRCROOT)/Source/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/Sources/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
