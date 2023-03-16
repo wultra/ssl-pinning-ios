@@ -1,3 +1,3 @@
 DEPLOY_POD_NAME='WultraSSLPinning'
-DEPLOY_VERSIONING_FILES=( "Deploy/WultraSSLPinning.podspec,WultraSSLPinning.podspec" "Deploy/Info.plist,Source/Info.plist" )
+DEPLOY_VERSIONING_FILES=( "Deploy/WultraSSLPinning.podspec,WultraSSLPinning.podspec" "Deploy/Info.plist,Sources/Info.plist" )
 DEPLOY_MODE='cocoapods'

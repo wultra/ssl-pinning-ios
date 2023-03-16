@@ -7,6 +7,7 @@
 - [Introduction](#introduction)
 - [Installation](#installation)
     - [Requirements](#requirements)
+    - [Swift PM](#swift-package-manager)
     - [CocoaPods](#cocoapods)
     - [Carthage](#carthage) (experimental)
 - [Usage](#usage)
@@ -43,9 +44,21 @@ Before you start using the library, you should also check our other related proj
 
 ### Requirements
 
-- iOS 9.0+
-- Xcode 10.2+
+- iOS 11.0+
+- Xcode 14+
 - Swift 5.0+
+
+### Swift Package Manager
+
+The [Swift Package Manager](https://swift.org/package-manager) is a tool for automating the distribution of Swift code and is integrated into the `swift` compiler. 
+
+Once you have your Swift package set up, adding this lbirary as a dependency is as easy as adding it to the `dependencies` value of your `Package.swift`.
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/wultra/ssl-pinnin-ios.git", .upToNextMajor(from: "1.5.0"))
+]
+```
 
 ### CocoaPods
 
@@ -58,7 +71,7 @@ $ gem install cocoapods
 To integrate framework into your Xcode project using CocoaPods, specify it in your `Podfile`:
 
 ```ruby
-platform :ios, '9.0'
+platform :ios, '11.0'
 target '<Your Target App>' do
   pod 'WultraSSLPinning/PowerAuthIntegration'
 end
