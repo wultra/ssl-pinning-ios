@@ -1,3 +1,0 @@
-[submodule "Carthage/Checkouts/powerauth-mobile-sdk"]
-	path = Carthage/Checkouts/powerauth-mobile-sdk
-	url = https://github.com/wultra/powerauth-mobile-sdk.git
