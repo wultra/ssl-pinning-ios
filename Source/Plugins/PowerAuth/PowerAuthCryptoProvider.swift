@@ -14,7 +14,6 @@
 // and limitations under the License.
 //
 
-import PowerAuth2
 import PowerAuthCore
 
 ///
