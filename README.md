@@ -57,7 +57,7 @@ Once you have your Swift package set up, adding this lbirary as a dependency is 
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/wultra/ssl-pinnin-ios.git", .upToNextMajor(from: "1.5.0"))
+    .package(url: "https://github.com/wultra/ssl-pinning-ios.git", .upToNextMajor(from: "1.5.0"))
 ]
 ```
 
