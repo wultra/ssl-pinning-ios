@@ -22,6 +22,7 @@ import XCTest
 class CertStoreTests_Signing: XCTestCase {
 
     var config: CertStoreConfiguration!
+    var networkConfig: NetworkConfiguration!
     var certStore: CertStore!
     
     var cryptoProvider: CryptoProvider!
@@ -32,14 +33,15 @@ class CertStoreTests_Signing: XCTestCase {
     let keyPair = ECDSA.generateKeyPair()
     
     func prepareStore(useChallenge: Bool) {
-        self.config = CertStoreConfiguration(
+        config = CertStoreConfiguration()
+        networkConfig = NetworkConfiguration(
             serviceUrl: URL(string: "https://example.org/pinning-service")!,
             publicKey: keyPair.publicKey.stringRepresentation,
             useChallenge: useChallenge
         )
         cryptoProvider = PowerAuthCryptoProvider()
         dataStore = TestingSecureDataStore()
-        remoteDataProvider = TestingRemoteDataProvider()
+        remoteDataProvider = TestingRemoteDataProvider(networkConfig: networkConfig)
         certStore = CertStore(
             configuration: config,
             cryptoProvider: cryptoProvider,

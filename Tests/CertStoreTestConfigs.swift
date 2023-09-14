@@ -20,8 +20,6 @@ extension CertStoreConfiguration {
     
     static var testConfig: CertStoreConfiguration {
         return CertStoreConfiguration(
-            serviceUrl: URL(string: "https://foo.wultra.com")!,
-            publicKey: "BEG6g28LNWRcmdFzexSNTKPBYZnDtKrCyiExFKbktttfKAF7wG4Cx1Nycr5PwCoICG1dRseLyuDxUilAmppPxAo=",
             identifier: nil,
             fallbackCertificatesData: nil,
             periodicUpdateInterval: .testUpdateInterval_PeriodicUpdate,
@@ -31,14 +29,12 @@ extension CertStoreConfiguration {
 
     static func testConfigWithFallbackCertificate(expiration: Expiration) -> CertStoreConfiguration {
         
-        let fallbackData = GetFingerprintsResponse.single(
+        let fallbackData = ServerResponse.single(
             commonName: .testCommonName_Fallback,
             expiration: expiration,
             fingerprint: .testFingerprint_Fallback
             ).toJSON()
         return CertStoreConfiguration(
-            serviceUrl: URL(string: "https://foo.wultra.com")!,
-            publicKey: "BEG6g28LNWRcmdFzexSNTKPBYZnDtKrCyiExFKbktttfKAF7wG4Cx1Nycr5PwCoICG1dRseLyuDxUilAmppPxAo=",
             identifier: nil,
             fallbackCertificatesData: fallbackData,
             periodicUpdateInterval: .testUpdateInterval_PeriodicUpdate,
@@ -48,13 +44,20 @@ extension CertStoreConfiguration {
     
     static func testConfigWithExpectedCommonNames(_ commonNames: [String]) -> CertStoreConfiguration {
         return CertStoreConfiguration(
-            serviceUrl: URL(string: "https://foo.wultra.com")!,
-            publicKey: "BEG6g28LNWRcmdFzexSNTKPBYZnDtKrCyiExFKbktttfKAF7wG4Cx1Nycr5PwCoICG1dRseLyuDxUilAmppPxAo=",
             expectedCommonNames: commonNames,
             identifier: nil,
             fallbackCertificatesData: nil,
             periodicUpdateInterval: .testUpdateInterval_PeriodicUpdate,
             expirationUpdateTreshold: .testUpdateInterval_ExpirationThreshold
+        )
+    }
+}
+
+extension NetworkConfiguration {
+    static var testConfig: NetworkConfiguration {
+        return .init(
+            serviceUrl: URL(string: "https://foo.wultra.com")!,
+            publicKey: "BEG6g28LNWRcmdFzexSNTKPBYZnDtKrCyiExFKbktttfKAF7wG4Cx1Nycr5PwCoICG1dRseLyuDxUilAmppPxAo="
         )
     }
 }

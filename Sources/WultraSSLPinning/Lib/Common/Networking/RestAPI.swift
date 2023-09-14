@@ -20,18 +20,33 @@ import Foundation
 /// from a remote server. The class is used internally in the CertStore.
 internal class RestAPI: NSObject, URLSessionDelegate, RemoteDataProvider {
     
-    private let baseURL: URL
-    private let sslValidationStrategy: SSLValidationStrategy
+    let config: NetworkConfiguration
+    private let cryptoProvider: CryptoProvider
     private let executionQueue: DispatchQueue
     private let delegateQueue: OperationQueue
     private lazy var session: URLSession = {
         return URLSession(configuration: .ephemeral, delegate: self, delegateQueue: delegateQueue)
     }()
+    private lazy var jsonDecoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.dataDecodingStrategy = .base64
+        decoder.dateDecodingStrategy = .secondsSince1970
+        return decoder
+    }()
+    
+    /// Returns new instance of `JSONEncoder`, preconfigured for our data types serialization.
+    private lazy var jsonEncoder: JSONEncoder = {
+        let encoder = JSONEncoder()
+        encoder.dataEncodingStrategy = .base64
+        encoder.dateEncodingStrategy = .secondsSince1970
+        return encoder
+    }()
 
-    init(baseURL: URL, sslValidationStrategy: SSLValidationStrategy) {
+    init(config: NetworkConfiguration, cryptoProvider: CryptoProvider) {
+        config.validate(cryptoProvider: cryptoProvider)
         let dispatchQueue = DispatchQueue(label: "WultraCertStoreNetworking")
-        self.baseURL = baseURL
-        self.sslValidationStrategy = sslValidationStrategy
+        self.config = config
+        self.cryptoProvider = cryptoProvider
         self.executionQueue = dispatchQueue
         self.delegateQueue = OperationQueue()
         self.delegateQueue.underlyingQueue = dispatchQueue
@@ -42,21 +57,32 @@ internal class RestAPI: NSObject, URLSessionDelegate, RemoteDataProvider {
         case noDataProvided
         // Error returned when non 2xx status code is returned.
         case invalidHttpStatusCode(statusCode: Int)
+        /// The update request returned the data which did not pass the signature validation.
+        case invalidSignature
+        /// The update request returned an invalid data from the server.
+        case invalidData
         // Internal error.
         case internalError(message: String)
     }
     
-    func getFingerprints(request: RemoteDataRequest, completion: @escaping (RemoteDataResponse) -> Void) {
+    func getData(currentDate: Date, completion: @escaping (Result<ServerResponse, Error>) -> Void) {
         executionQueue.async { [weak self] in
             guard let this = self else {
                 return
             }
-            var urlRequest = URLRequest(url: this.baseURL)
+            
+            var urlRequest = URLRequest(url: this.config.serviceUrl)
             urlRequest.addValue("application/json", forHTTPHeaderField: "Accept")
-            request.requestHeaders.forEach { key, value in
-                urlRequest.addValue(value, forHTTPHeaderField: key)
-            }
             urlRequest.httpMethod = "GET"
+            
+            let requestChallenge: String?
+            if this.config.useChallenge {
+                let randomChallenge = this.cryptoProvider.getRandomData(length: 16).base64EncodedString()
+                urlRequest.addValue(randomChallenge, forHTTPHeaderField: "X-Cert-Pinning-Challenge")
+                requestChallenge = randomChallenge
+            } else {
+                requestChallenge = nil
+            }
             
             RestAPI.logRequest(request: urlRequest)
             
@@ -65,25 +91,69 @@ internal class RestAPI: NSObject, URLSessionDelegate, RemoteDataProvider {
                 RestAPI.logResponse(response: response, data: data, error: error)
                 
                 guard let response = response as? HTTPURLResponse else {
-                    completion(RemoteDataResponse(result: .failure(NetworkError.internalError(message: "Invalid HTTPURLResponse object")), responseHeaders: [:]))
+                    completion(.failure(NetworkError.internalError(message: "Invalid HTTPURLResponse object")))
                     return
                 }
                 let headers = response.allStringHeaders
                 let statusCode = response.statusCode
                 if statusCode / 100 != 2 {
                     WultraDebug.print("RestAPI: HTTP request failed with status code: \(statusCode)")
-                    completion(RemoteDataResponse(result: .failure(NetworkError.invalidHttpStatusCode(statusCode: statusCode)), responseHeaders: headers))
+                    completion(.failure(NetworkError.invalidHttpStatusCode(statusCode: statusCode)))
                 } else if let error = error {
                     WultraDebug.print("RestAPI: HTTP request failed with error: \(error)")
-                    completion(RemoteDataResponse(result: .failure(error), responseHeaders: headers))
+                    completion(.failure(error))
                 } else if let data = data {
-                    completion(RemoteDataResponse(result: .success(data), responseHeaders: headers))
+                    this.processReceivedData(data, challenge: requestChallenge, responseHeaders: headers, requestDate: currentDate, completion: completion)
                 } else {
                     WultraDebug.print("RestAPI: HTTP request finished with empty response.")
-                    completion(RemoteDataResponse(result: .failure(NetworkError.noDataProvided), responseHeaders: headers))
+                    completion(.failure(NetworkError.noDataProvided))
                 }
             }.resume()
         }
+    }
+    
+    /// Private function processes the received data and returns update result.
+    /// The function also updates list of cached certificates, when there's a change in the data.
+    private func processReceivedData(_ data: Data, challenge: String?, responseHeaders: [String:String], requestDate: Date, completion: @escaping (Result<ServerResponse, Error>) -> Void) {
+        
+        // Import public key (may crash in fatalError for invalid configuration)
+        let publicKey = cryptoProvider.importECPublicKey(publicKeyBase64: config.publicKey)
+        
+        // Validate signature
+        if config.useChallenge {
+            guard let challenge = challenge else {
+                WultraDebug.fatalError("Challenge must be set")
+            }
+            guard let signature = responseHeaders["x-cert-pinning-signature"] else {
+                WultraDebug.error("CertStore: Missing signature header.")
+                completion(.failure(NetworkError.invalidSignature))
+                return
+            }
+            guard let signatureData = Data(base64Encoded: signature) else {
+                completion(.failure(NetworkError.invalidSignature))
+                return
+            }
+            var signedData = Data(challenge.utf8)
+            signedData.append(Data("&".utf8))
+            signedData.append(data)
+            guard cryptoProvider.ecdsaValidateSignatures(signedData: SignedData(data: signedData, signature: signatureData), publicKey: publicKey) else {
+                WultraDebug.error("CertStore: Invalid signature in X-Cert-Pinning-Signature header.")
+                completion(.failure(NetworkError.invalidSignature))
+                return
+            }
+        }
+        
+        // Try decode data to response object
+        guard let response = try? jsonDecoder.decode(ServerResponse.self, from: data) else {
+            // Failed to decode JSON to our model object
+            WultraDebug.error("CertStore: Failed to parse JSON received from the server.")
+            completion(.failure(NetworkError.invalidData))
+            return
+        }
+        
+        // TODO: delegates
+        
+        completion(.success(response))
     }
     
     /// Dump HTTP request into debug log.
@@ -135,7 +205,7 @@ internal class RestAPI: NSObject, URLSessionDelegate, RemoteDataProvider {
     // URLSessionDelegate
     
     func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-        sslValidationStrategy.validate(challenge: challenge, completionHandler: completionHandler)
+        config.sslValidationStrategy.validate(challenge: challenge, completionHandler: completionHandler)
     }
 }
 

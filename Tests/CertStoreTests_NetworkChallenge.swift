@@ -34,6 +34,7 @@ class CertStoreTests_NetworkChallenge: XCTestCase {
     //
     
     var config: CertStoreConfiguration!
+    var networkConfig: NetworkConfiguration!
     var certStore: CertStore!
     
     var cryptoProvider: CryptoProvider!
@@ -47,14 +48,15 @@ class CertStoreTests_NetworkChallenge: XCTestCase {
             XCTFail("Failed to acquire public key")
             return false
         }
-        self.config = CertStoreConfiguration(
+        config = CertStoreConfiguration()
+        networkConfig = NetworkConfiguration(
             serviceUrl: serviceUrl(endpointPath: "/init?appName=\(serviceAppName)"),
             publicKey: publicKey,
             useChallenge: true
         )
         cryptoProvider = PowerAuthCryptoProvider()
         dataStore = TestingSecureDataStore()
-        remoteDataProvider = RestAPI(baseURL: config.serviceUrl, sslValidationStrategy: .default)
+        remoteDataProvider = RestAPI(config: networkConfig, cryptoProvider: cryptoProvider)
         certStore = CertStore(
             configuration: config,
             cryptoProvider: cryptoProvider,

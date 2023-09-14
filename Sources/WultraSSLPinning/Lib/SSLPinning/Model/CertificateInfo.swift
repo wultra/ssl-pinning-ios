@@ -53,10 +53,10 @@ extension CertificateInfo: Equatable {
 extension CertificateInfo {
     
     /// Helper constructor initializes `CertificateInfo` structure from object received from the server.
-    init(from responseEntry: GetFingerprintsResponse.Entry) {
-        commonName = responseEntry.name
-        fingerprint = responseEntry.fingerprint
-        expires = responseEntry.expires
+    init(from entry: FingerprintEntry) {
+        commonName = entry.name
+        fingerprint = entry.fingerprint
+        expires = entry.expires
     }
     
     /// Returns true if certificate is expired. (e.g. "expires" date is lesser than the provided date).

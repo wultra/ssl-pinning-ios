@@ -16,22 +16,6 @@
 
 import Foundation
 
-/// The `RemoteDataRequest` internal structure contains information required
-/// for constructing HTTP request to acquire data from the remote server.
-internal struct RemoteDataRequest {
-    /// Request headers.
-    let requestHeaders: [String:String]
-}
-
-/// The `RemoteDataResponse` internal structure contains response received
-/// from the server.
-internal struct RemoteDataResponse {
-    /// Result with received `Data`.
-    let result: Result<Data, Error>
-    /// Headers received in the response. Note that all header names are lowercased.
-    let responseHeaders: [String:String]
-}
-
 ///
 /// The `RemoteDataProvider` protocol defines an interface for getting
 /// fingerprints from remote data location.
@@ -40,6 +24,8 @@ internal struct RemoteDataResponse {
 ///
 internal protocol RemoteDataProvider: AnyObject {
     
+    var config: NetworkConfiguration { get }
+    
     /// Gets data containing fingerprints from the remote location.
-    func getFingerprints(request: RemoteDataRequest, completion: @escaping (RemoteDataResponse) -> Void) -> Void
+    func getData(currentDate: Date, completion: @escaping (Result<ServerResponse, Error>) -> Void)
 }

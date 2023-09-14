@@ -42,6 +42,7 @@ class CertStoreTests_NetworkStatic: XCTestCase {
     //
     
     var config: CertStoreConfiguration!
+    var networkConfig: NetworkConfiguration!
     var certStore: CertStore!
     
     var cryptoProvider: CryptoProvider!
@@ -51,13 +52,14 @@ class CertStoreTests_NetworkStatic: XCTestCase {
     let responseGenerator = ResponseGenerator()
     
     func prepareStore() {
-        self.config = CertStoreConfiguration(
+        config = CertStoreConfiguration()
+        networkConfig = NetworkConfiguration(
             serviceUrl: CertStoreTests_NetworkStatic.serviceUrl,
             publicKey: CertStoreTests_NetworkStatic.publicKey
         )
         cryptoProvider = PowerAuthCryptoProvider()
         dataStore = TestingSecureDataStore()
-        remoteDataProvider = RestAPI(baseURL: config.serviceUrl, sslValidationStrategy: .default)
+        remoteDataProvider = RestAPI(config: networkConfig, cryptoProvider: cryptoProvider)
         certStore = CertStore(
             configuration: config,
             cryptoProvider: cryptoProvider,

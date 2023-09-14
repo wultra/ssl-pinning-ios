@@ -34,7 +34,12 @@ class CertStoreTests_Update: XCTestCase {
         self.config = config
         cryptoProvider = TestingCryptoProvider()
         dataStore = TestingSecureDataStore()
-        remoteDataProvider = TestingRemoteDataProvider()
+        remoteDataProvider = TestingRemoteDataProvider(
+            networkConfig: .init(
+                serviceUrl: URL(string: "https://example.org/pinning-service")!,
+                publicKey: ""
+            )
+        )
         certStore = CertStore(
             configuration: config,
             cryptoProvider: cryptoProvider,

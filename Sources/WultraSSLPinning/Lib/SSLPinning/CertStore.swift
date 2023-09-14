@@ -28,19 +28,20 @@ public class CertStore {
     /// Initializes `CertStore` with provided configuration, crypto provider and secure data store.
     ///
     /// - Parameter configuration: Configuration for the CertStore object
+    /// - Parameter networkConfiguration: Configuration for the underlying HTTP REST client
     /// - Parameter cryptoProvider: Instance of `CryptoProvider` object
     /// - Parameter secureDataStore: Instance of `SecureDataStore` object
-    public init(configuration: CertStoreConfiguration, cryptoProvider: CryptoProvider, secureDataStore: SecureDataStore) {
-        configuration.validate(cryptoProvider: cryptoProvider)
+    public init(configuration: CertStoreConfiguration, networkConfiguration: NetworkConfiguration, cryptoProvider: CryptoProvider, secureDataStore: SecureDataStore) {
+        configuration.validate()
         self.configuration = configuration
         self.cryptoProvider = cryptoProvider
         self.secureDataStore = secureDataStore
-        self.remoteDataProvider = RestAPI(baseURL: configuration.serviceUrl, sslValidationStrategy: configuration.sslValidationStrategy)
+        self.remoteDataProvider = RestAPI(config: networkConfiguration, cryptoProvider: cryptoProvider)
     }
     
     /// Internal constructor, suitable for unit tests.
     internal init(configuration: CertStoreConfiguration, cryptoProvider: CryptoProvider, secureDataStore: SecureDataStore, remoteDataProvider: RemoteDataProvider) {
-        configuration.validate(cryptoProvider: cryptoProvider)
+        configuration.validate()
         self.configuration = configuration
         self.cryptoProvider = cryptoProvider
         self.secureDataStore = secureDataStore

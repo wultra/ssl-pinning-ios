@@ -17,6 +17,10 @@
 @testable import WultraSSLPinning
 
 class TestingRemoteDataProvider: RemoteDataProvider {
+    
+    init(networkConfig: NetworkConfiguration) {
+        self.networkConfig = networkConfig
+    }
 
     struct Interceptor {
         var called_getFingerprints = 0
@@ -28,17 +32,17 @@ class TestingRemoteDataProvider: RemoteDataProvider {
         case networkError
     }
     
-    typealias Response = (data: Data?, headers: [String:String])
+    let networkConfig: NetworkConfiguration
     
     var interceptor = Interceptor()
     
     var reportError = false
-    var reportData: Data?
+    var reportData: ServerResponse?
     
     var simulateResponseTime: TimeInterval = 0.200
     var simulateResponseTimeVariability: TimeInterval = 0.8
     
-    var dataGenerator: (([String:String])->Response)?
+    var dataGenerator: (()->ServerResponse?)?
     
     @discardableResult
     func setReportError(_ enabled: Bool) -> TestingRemoteDataProvider {
@@ -70,25 +74,29 @@ class TestingRemoteDataProvider: RemoteDataProvider {
     @discardableResult
     @available(iOS 13.0, macOS 10.15, watchOS 6.0, tvOS 13.0, *)
     func signResponse(with privateKey: ECDSA.PrivateKey) -> TestingRemoteDataProvider {
-        self.dataGenerator = { requestHeaders in
-            guard let data = self.reportData else {
-                return (nil, [:])
-            }
-            guard let challenge = requestHeaders["X-Cert-Pinning-Challenge"] else {
-                return (nil, [:])
-            }
-            var dataToSign = challenge.data(using: .utf8)!
-            dataToSign.append("&".data(using: .ascii)!)
-            dataToSign.append(data)
-            let signature = ECDSA.sign(privateKey: privateKey, data: dataToSign).base64EncodedString()
-            return (data, ["x-cert-pinning-signature" : signature])
-        }
+//        self.dataGenerator = { requestHeaders in
+//            guard let data = self.reportData else {
+//                return (nil, [:])
+//            }
+//            guard let challenge = requestHeaders["X-Cert-Pinning-Challenge"] else {
+//                return (nil, [:])
+//            }
+//            var dataToSign = challenge.data(using: .utf8)!
+//            dataToSign.append("&".data(using: .ascii)!)
+//            dataToSign.append(data)
+//            let signature = ECDSA.sign(privateKey: privateKey, data: dataToSign).base64EncodedString()
+//            return (data, ["x-cert-pinning-signature" : signature])
+//        }
+//        return self
+        dataGenerator = { return self.reportData }
         return self
     }
 
     // MARK: - RemoteDataProvider impl
     
-    func getFingerprints(request: RemoteDataRequest, completion: @escaping (RemoteDataResponse) -> Void) {
+    var config: NetworkConfiguration { .testConfig }
+    
+    func getData(currentDate: Date, completion: @escaping (Result<ServerResponse, Error>) -> Void) {
         interceptor.called_getFingerprints += 1
         DispatchQueue.global().async {
             if self.simulateResponseTime > 0 {
@@ -96,20 +104,20 @@ class TestingRemoteDataProvider: RemoteDataProvider {
                 Thread.sleep(forTimeInterval: interval)
             }
             // Now generate the result
-            let response: Response
+            let response: ServerResponse?
             if !self.reportError {
                 if let generator = self.dataGenerator {
-                    response = generator(request.requestHeaders)
+                    response = generator()
                 } else {
-                    response = (self.reportData, [:])
+                    response = self.reportData
                 }
             } else {
-                response = (nil, [:])
+                response = nil
             }
-            if let data = response.data {
-                completion(RemoteDataResponse(result: .success(data), responseHeaders: response.headers))
+            if let data = response {
+                completion(.success(data))
             } else {
-                completion(RemoteDataResponse(result: .failure(SimulatedError.networkError), responseHeaders: response.headers))
+                completion(.failure(SimulatedError.networkError))
             }
         }
     }

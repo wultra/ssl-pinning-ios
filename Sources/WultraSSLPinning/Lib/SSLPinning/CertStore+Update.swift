@@ -120,24 +120,17 @@ public extension CertStore {
 
     /// Private function implemens the update operation.
     private func doUpdate(currentDate: Date, completionQueue: DispatchQueue?, completion: ((UpdateResult, Error?)->Void)?) -> Void {
-        // Prepare challenge and request headers in case that challenge must be used
-        var requestHeaders = [String:String]()
-        let requestChallenge: String?
-        if configuration.useChallenge {
-            let randomChallenge = cryptoProvider.getRandomData(length: 16).base64EncodedString()
-            requestHeaders["X-Cert-Pinning-Challenge"] = randomChallenge
-            requestChallenge = randomChallenge
-        } else {
-            requestChallenge = nil
-        }
-        // Fetch fingerprints data from the remote data provider
-        let remoteDataRequest = RemoteDataRequest(requestHeaders: requestHeaders)
-        remoteDataProvider.getFingerprints(request: remoteDataRequest) { response in
+        
+        let now = Date()
+        
+        remoteDataProvider.getData(currentDate: now) { dataResult in
+            
             let result: UpdateResult
             let error: Error?
-            switch response.result {
-            case .success(let data):
-                result = self.processReceivedData(data, challenge: requestChallenge, responseHeaders: response.responseHeaders, currentDate: currentDate)
+            
+            switch dataResult {
+            case .success(let success):
+                result = self.processResponseData(currentDate: now, response: success)
                 error = nil
             case .failure(let err):
                 result = .networkError
@@ -151,38 +144,10 @@ public extension CertStore {
     
     /// Private function processes the received data and returns update result.
     /// The function also updates list of cached certificates, when there's a change in the data.
-    private func processReceivedData(_ data: Data, challenge: String?, responseHeaders: [String:String], currentDate: Date) -> UpdateResult {
+    private func processResponseData(currentDate: Date, response: ServerResponse) -> UpdateResult {
         
         // Import public key (may crash in fatalError for invalid configuration)
-        let publicKey = cryptoProvider.importECPublicKey(publicKeyBase64: configuration.publicKey)
-        
-        // Validate signature
-        if configuration.useChallenge {
-            guard let challenge = challenge else {
-                WultraDebug.fatalError("Challenge must be set")
-            }
-            guard let signature = responseHeaders["x-cert-pinning-signature"] else {
-                WultraDebug.error("CertStore: Missing signature header.")
-                return .invalidSignature
-            }
-            guard let signatureData = Data(base64Encoded: signature) else {
-                return .invalidSignature
-            }
-            var signedData = Data(challenge.utf8)
-            signedData.append(Data("&".utf8))
-            signedData.append(data)
-            guard cryptoProvider.ecdsaValidateSignatures(signedData: SignedData(data: signedData, signature: signatureData), publicKey: publicKey) else {
-                WultraDebug.error("CertStore: Invalid signature in X-Cert-Pinning-Signature header.")
-                return .invalidSignature
-            }
-        }
-        
-        // Try decode data to response object
-        guard let response = try? jsonDecoder().decode(GetFingerprintsResponse.self, from: data) else {
-            // Failed to decode JSON to our model object
-            WultraDebug.error("CertStore: Failed to parse JSON received from the server.")
-            return .invalidData
-        }
+        let publicKey = cryptoProvider.importECPublicKey(publicKeyBase64: remoteDataProvider.config.publicKey)
         
         // Try to update cached data with the newly received objects.
         // The `updateCachedData` method guarantees atomicity of the operation.
@@ -208,7 +173,7 @@ public extension CertStore {
                     // then it will also filter duplicities received from the server.
                     continue
                 }
-                if !configuration.useChallenge {
+                if !remoteDataProvider.config.useChallenge {
                     // Validate partial signature
                     guard let signedData = entry.dataForSignatureValidation else {
                         // Failed to construct bytes for signature validation.

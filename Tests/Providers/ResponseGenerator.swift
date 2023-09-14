@@ -16,11 +16,11 @@
 
 @testable import WultraSSLPinning
 
-fileprivate extension GetFingerprintsResponse.Entry {
+fileprivate extension FingerprintEntry {
     
     /// Creates a new entry for common name and desired expiration
-    static func create(commonName: String, expiration: Expiration, fingerprint: Data?, signature: Data?) -> GetFingerprintsResponse.Entry {
-        return GetFingerprintsResponse.Entry(
+    static func create(commonName: String, expiration: Expiration, fingerprint: Data?, signature: Data?) -> FingerprintEntry {
+        return FingerprintEntry(
             name: commonName,
             fingerprint: fingerprint ?? .random(count: 32),
             expires: expiration.toDate,
@@ -29,17 +29,17 @@ fileprivate extension GetFingerprintsResponse.Entry {
     }
 }
 
-extension GetFingerprintsResponse {
+extension ServerResponse {
     
     /// Creates a response with single fingerprint
-    static func single(commonName: String, expiration: Expiration, fingerprint: Data? = nil, timestamp: Date? = nil) -> GetFingerprintsResponse {
-        return GetFingerprintsResponse(fingerprints: [.create(commonName: commonName, expiration: expiration, fingerprint: fingerprint, signature: nil)], timestamp: timestamp)
+    static func single(commonName: String, expiration: Expiration, fingerprint: Data? = nil, timestamp: Date? = nil) -> ServerResponse {
+        return ServerResponse(fingerprints: [.create(commonName: commonName, expiration: expiration, fingerprint: fingerprint, signature: nil)], timestamp: timestamp)
     }
 }
 
 class ResponseGenerator {
 
-    var fingerprints: [GetFingerprintsResponse.Entry] = []
+    var fingerprints: [FingerprintEntry] = []
     var useTimestamp = false
     var signData: ((Data) -> Data)?
     
@@ -96,7 +96,7 @@ class ResponseGenerator {
     }
     
     /// Create entry for list of entries
-    private func createEntry(commonName: String, expiration: Expiration, fingerprint: Data?) -> GetFingerprintsResponse.Entry {
+    private func createEntry(commonName: String, expiration: Expiration, fingerprint: Data?) -> FingerprintEntry {
         let fingerprint = fingerprint ?? Data.random(count: 32)
         let signature: Data?
         if let signData = signData {
@@ -113,8 +113,8 @@ class ResponseGenerator {
     }
         
     /// Generates response data from fingerprints.
-    func data() -> Data {
+    func data() -> ServerResponse {
         let now = useTimestamp ? Date() : nil
-        return GetFingerprintsResponse(fingerprints: fingerprints, timestamp: now).toJSON()
+        return ServerResponse(fingerprints: fingerprints, timestamp: now)
     }
 }

@@ -34,17 +34,19 @@ public extension CertStore {
     /// ```
     /// extension CertStore {
     ///     static var shared: CertStore {
-    ///         let config = CertStoreConfiguration(
+    ///         let config = CertStoreConfiguration()
+    ///         let networkConfig = NetworkConfiguration(
     ///             serviceUrl: URL(string: "https://...")!,
     ///             publicKey: "...."
     ///         )
-    ///         return .powerAuthCertStore(configuration: config)
+    ///         return .powerAuthCertStore(configuration: config, networkConfiguration: networkConfig)
     ///     }
     /// }
     /// ```
-    static func powerAuthCertStore(configuration: CertStoreConfiguration) -> CertStore {
+    static func powerAuthCertStore(configuration: CertStoreConfiguration, networkConfiguration: NetworkConfiguration) -> CertStore {
         return CertStore(
             configuration: configuration,
+            networkConfiguration: networkConfiguration,
             cryptoProvider: PowerAuthCryptoProvider(),
             secureDataStore: PowerAuthSecureDataStore()
         )
@@ -64,11 +66,12 @@ public extension CertStore {
 /// extension CertStore {
 ///     /// Singleton for `CertStore`
 ///     static var shared: CertStore {
-///         let config = CertStoreConfiguration(
+///         let config = CertStoreConfiguration()
+///         let networkConfig = NetworkConfiguration(
 ///             serviceUrl: URL(string: "https://...")!,
-///             publicKey: "BASE64...KEY"
+///             publicKey: "...."
 ///         )
-///         return .powerAuthCertStore(configuration: config)
+///         return .powerAuthCertStore(configuration: config, networkConfiguration: networkConfig)
 ///     }
 /// }
 ///
