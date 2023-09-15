@@ -50,11 +50,12 @@
 		BFEA9AEB2142C569008D9EE4 /* CertStoreTests_LoadSave.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFEA9AE92142C531008D9EE4 /* CertStoreTests_LoadSave.swift */; };
 		BFF51838251A16720061DAAF /* ECDSA.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFF51837251A16720061DAAF /* ECDSA.swift */; };
 		DC63522B2AB32807002C35B4 /* AppUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC63522A2AB32807002C35B4 /* AppUpdate.swift */; };
-		DC63522D2AB32C77002C35B4 /* AppUpdateConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC63522C2AB32C77002C35B4 /* AppUpdateConfiguration.swift */; };
 		DC63522F2AB3308E002C35B4 /* NetworkConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC63522E2AB3308E002C35B4 /* NetworkConfiguration.swift */; };
 		DC6352312AB34662002C35B4 /* JSONUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6352302AB34662002C35B4 /* JSONUtils.swift */; };
 		DC6352332AB457CE002C35B4 /* RequestChallenge.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6352322AB457CE002C35B4 /* RequestChallenge.swift */; };
 		DC6352382AB475E1002C35B4 /* MulticastDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6352372AB475E1002C35B4 /* MulticastDelegate.swift */; };
+		DC63523B2AB48EF9002C35B4 /* MobileUtilityServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC63523A2AB48EF9002C35B4 /* MobileUtilityServer.swift */; };
+		DC63523D2AB48FD4002C35B4 /* SemVer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC63523C2AB48FD4002C35B4 /* SemVer.swift */; };
 		DC8664C7270B430E00FE2B3F /* PowerAuth2.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC8664C5270B430E00FE2B3F /* PowerAuth2.xcframework */; };
 		DC8664C9270B430E00FE2B3F /* PowerAuthCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC8664C6270B430E00FE2B3F /* PowerAuthCore.xcframework */; };
 /* End PBXBuildFile section */
@@ -134,11 +135,12 @@
 		BFEA9AE92142C531008D9EE4 /* CertStoreTests_LoadSave.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertStoreTests_LoadSave.swift; sourceTree = "<group>"; };
 		BFF51837251A16720061DAAF /* ECDSA.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ECDSA.swift; sourceTree = "<group>"; };
 		DC63522A2AB32807002C35B4 /* AppUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdate.swift; sourceTree = "<group>"; };
-		DC63522C2AB32C77002C35B4 /* AppUpdateConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdateConfiguration.swift; sourceTree = "<group>"; };
 		DC63522E2AB3308E002C35B4 /* NetworkConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkConfiguration.swift; sourceTree = "<group>"; };
 		DC6352302AB34662002C35B4 /* JSONUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONUtils.swift; sourceTree = "<group>"; };
 		DC6352322AB457CE002C35B4 /* RequestChallenge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestChallenge.swift; sourceTree = "<group>"; };
 		DC6352372AB475E1002C35B4 /* MulticastDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MulticastDelegate.swift; sourceTree = "<group>"; };
+		DC63523A2AB48EF9002C35B4 /* MobileUtilityServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileUtilityServer.swift; sourceTree = "<group>"; };
+		DC63523C2AB48FD4002C35B4 /* SemVer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SemVer.swift; sourceTree = "<group>"; };
 		DC8664C5270B430E00FE2B3F /* PowerAuth2.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = PowerAuth2.xcframework; path = Carthage/Build/PowerAuth2.xcframework; sourceTree = "<group>"; };
 		DC8664C6270B430E00FE2B3F /* PowerAuthCore.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = PowerAuthCore.xcframework; path = Carthage/Build/PowerAuthCore.xcframework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -280,6 +282,7 @@
 		BFCB816A213D954500615ADA /* Lib */ = {
 			isa = PBXGroup;
 			children = (
+				DC6352392AB48EDF002C35B4 /* MobileUtilityServer */,
 				DC6352272AB324D7002C35B4 /* Common */,
 				DC6352292AB327D6002C35B4 /* AppUpdate */,
 				DC6352252AB324A6002C35B4 /* SSLPinning */,
@@ -369,9 +372,17 @@
 			isa = PBXGroup;
 			children = (
 				DC63522A2AB32807002C35B4 /* AppUpdate.swift */,
-				DC63522C2AB32C77002C35B4 /* AppUpdateConfiguration.swift */,
+				DC63523C2AB48FD4002C35B4 /* SemVer.swift */,
 			);
 			path = AppUpdate;
+			sourceTree = "<group>";
+		};
+		DC6352392AB48EDF002C35B4 /* MobileUtilityServer */ = {
+			isa = PBXGroup;
+			children = (
+				DC63523A2AB48EF9002C35B4 /* MobileUtilityServer.swift */,
+			);
+			path = MobileUtilityServer;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -519,10 +530,12 @@
 				DC63522F2AB3308E002C35B4 /* NetworkConfiguration.swift in Sources */,
 				BFABCD5A2149804A00A9221F /* UpdateScheduler.swift in Sources */,
 				BFCB8179213D9FEB00615ADA /* SecureDataStore.swift in Sources */,
+				DC63523D2AB48FD4002C35B4 /* SemVer.swift in Sources */,
 				BFCB818C213EAE0900615ADA /* PowerAuthIntegration.swift in Sources */,
 				DC6352382AB475E1002C35B4 /* MulticastDelegate.swift in Sources */,
 				BF8BB774213F05B40097315B /* RestAPI.swift in Sources */,
 				BFCB8193213EB59700615ADA /* CertificateInfo.swift in Sources */,
+				DC63523B2AB48EF9002C35B4 /* MobileUtilityServer.swift in Sources */,
 				BFCB817E213DA71100615ADA /* PowerAuthSecureDataStore.swift in Sources */,
 				DC6352332AB457CE002C35B4 /* RequestChallenge.swift in Sources */,
 				DC6352312AB34662002C35B4 /* JSONUtils.swift in Sources */,
@@ -538,7 +551,6 @@
 				BFCB8180213DAAC200615ADA /* PowerAuthCryptoProvider.swift in Sources */,
 				BFCB8191213EB4D100615ADA /* ServerResponse.swift in Sources */,
 				BF8BB771213F03510097315B /* RemoteDataProvider.swift in Sources */,
-				DC63522D2AB32C77002C35B4 /* AppUpdateConfiguration.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

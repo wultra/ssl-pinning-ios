@@ -56,13 +56,13 @@ public class AppUpdate {
     ///
     /// - Parameter configuration: Configuration for the AppUpdate object
     /// - Parameter cryptoProvider: Instance of `CryptoProvider` object
-    convenience public init(configuration: AppUpdateConfiguration, networkConfiguration: NetworkConfiguration, cryptoProvider: CryptoProvider) {
+    convenience public init(networkConfiguration: NetworkConfiguration, cryptoProvider: CryptoProvider) {
         let restAPI = RestAPI(config: networkConfiguration, cryptoProvider: cryptoProvider)
-        self.init(configuration: configuration, remoteDataProvider: restAPI)
+        self.init(remoteDataProvider: restAPI)
     }
     
     /// Internal constructor, suitable for unit tests.
-    internal init(configuration: AppUpdateConfiguration, remoteDataProvider: RemoteDataProvider) {
+    internal init(remoteDataProvider: RemoteDataProvider) {
         self.remoteDataProvider = remoteDataProvider
         remoteDataProvider.delegates.add(self)
     }
