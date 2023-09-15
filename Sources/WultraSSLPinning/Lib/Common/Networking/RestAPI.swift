@@ -65,7 +65,7 @@ internal class RestAPI: NSObject, URLSessionDelegate, RemoteDataProvider {
         case internalError(message: String)
     }
     
-    func getData(currentDate: Date, completion: @escaping (Result<ServerResponse, Error>) -> Void) {
+    func getData(completion: @escaping (Result<ServerResponse, Error>) -> Void) {
         executionQueue.async { [weak self] in
             guard let this = self else {
                 return
@@ -75,14 +75,8 @@ internal class RestAPI: NSObject, URLSessionDelegate, RemoteDataProvider {
             urlRequest.addValue("application/json", forHTTPHeaderField: "Accept")
             urlRequest.httpMethod = "GET"
             
-            let requestChallenge: String?
-            if this.config.useChallenge {
-                let randomChallenge = this.cryptoProvider.getRandomData(length: 16).base64EncodedString()
-                urlRequest.addValue(randomChallenge, forHTTPHeaderField: "X-Cert-Pinning-Challenge")
-                requestChallenge = randomChallenge
-            } else {
-                requestChallenge = nil
-            }
+            let challenge = this.config.useChallenge ? RequestChallenge(cryptoProvider: this.cryptoProvider) : nil
+            challenge?.addToRequest(&urlRequest)
             
             RestAPI.logRequest(request: urlRequest)
             
@@ -103,7 +97,7 @@ internal class RestAPI: NSObject, URLSessionDelegate, RemoteDataProvider {
                     WultraDebug.print("RestAPI: HTTP request failed with error: \(error)")
                     completion(.failure(error))
                 } else if let data = data {
-                    this.processReceivedData(data, challenge: requestChallenge, responseHeaders: headers, requestDate: currentDate, completion: completion)
+                    this.processReceivedData(data, challenge: challenge, responseHeaders: headers, completion: completion)
                 } else {
                     WultraDebug.print("RestAPI: HTTP request finished with empty response.")
                     completion(.failure(NetworkError.noDataProvided))
@@ -114,33 +108,11 @@ internal class RestAPI: NSObject, URLSessionDelegate, RemoteDataProvider {
     
     /// Private function processes the received data and returns update result.
     /// The function also updates list of cached certificates, when there's a change in the data.
-    private func processReceivedData(_ data: Data, challenge: String?, responseHeaders: [String:String], requestDate: Date, completion: @escaping (Result<ServerResponse, Error>) -> Void) {
+    private func processReceivedData(_ data: Data, challenge: RequestChallenge?, responseHeaders: [String:String], completion: @escaping (Result<ServerResponse, Error>) -> Void) {
         
-        // Import public key (may crash in fatalError for invalid configuration)
-        let publicKey = cryptoProvider.importECPublicKey(publicKeyBase64: config.publicKey)
-        
-        // Validate signature
-        if config.useChallenge {
-            guard let challenge = challenge else {
-                WultraDebug.fatalError("Challenge must be set")
-            }
-            guard let signature = responseHeaders["x-cert-pinning-signature"] else {
-                WultraDebug.error("CertStore: Missing signature header.")
-                completion(.failure(NetworkError.invalidSignature))
-                return
-            }
-            guard let signatureData = Data(base64Encoded: signature) else {
-                completion(.failure(NetworkError.invalidSignature))
-                return
-            }
-            var signedData = Data(challenge.utf8)
-            signedData.append(Data("&".utf8))
-            signedData.append(data)
-            guard cryptoProvider.ecdsaValidateSignatures(signedData: SignedData(data: signedData, signature: signatureData), publicKey: publicKey) else {
-                WultraDebug.error("CertStore: Invalid signature in X-Cert-Pinning-Signature header.")
-                completion(.failure(NetworkError.invalidSignature))
-                return
-            }
+        if let challenge, !challenge.verifyData(data, forHTTPHeaders: responseHeaders, withKey: config.publicKey) {
+            completion(.failure(NetworkError.invalidSignature))
+            return
         }
         
         // Try decode data to response object

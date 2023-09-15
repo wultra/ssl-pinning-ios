@@ -18,8 +18,10 @@
 
 class TestingRemoteDataProvider: RemoteDataProvider {
     
-    init(networkConfig: NetworkConfiguration) {
-        self.networkConfig = networkConfig
+    init(networkConfig: NetworkConfiguration, cryptoProvider: CryptoProvider) {
+        networkConfig.validate(cryptoProvider: cryptoProvider)
+        self.config = networkConfig
+        self.cryptoProvider = cryptoProvider
     }
 
     struct Interceptor {
@@ -32,17 +34,21 @@ class TestingRemoteDataProvider: RemoteDataProvider {
         case networkError
     }
     
-    let networkConfig: NetworkConfiguration
+    typealias Response = (object: ServerResponse?, responseData: Data?, signature: String?)
+    
+    let config: NetworkConfiguration
+    let cryptoProvider: CryptoProvider
     
     var interceptor = Interceptor()
     
     var reportError = false
-    var reportData: ServerResponse?
+    var reportResponse: ServerResponse?
     
     var simulateResponseTime: TimeInterval = 0.200
     var simulateResponseTimeVariability: TimeInterval = 0.8
     
-    var dataGenerator: (()->ServerResponse?)?
+    var dataGenerator: (()->Response)?
+    var challenge: RequestChallenge?
     
     @discardableResult
     func setReportError(_ enabled: Bool) -> TestingRemoteDataProvider {
@@ -74,29 +80,27 @@ class TestingRemoteDataProvider: RemoteDataProvider {
     @discardableResult
     @available(iOS 13.0, macOS 10.15, watchOS 6.0, tvOS 13.0, *)
     func signResponse(with privateKey: ECDSA.PrivateKey) -> TestingRemoteDataProvider {
-//        self.dataGenerator = { requestHeaders in
-//            guard let data = self.reportData else {
-//                return (nil, [:])
-//            }
-//            guard let challenge = requestHeaders["X-Cert-Pinning-Challenge"] else {
-//                return (nil, [:])
-//            }
-//            var dataToSign = challenge.data(using: .utf8)!
-//            dataToSign.append("&".data(using: .ascii)!)
-//            dataToSign.append(data)
-//            let signature = ECDSA.sign(privateKey: privateKey, data: dataToSign).base64EncodedString()
-//            return (data, ["x-cert-pinning-signature" : signature])
-//        }
-//        return self
-        dataGenerator = { return self.reportData }
+        challenge = .init(cryptoProvider: cryptoProvider)
+        self.dataGenerator = {
+            guard let reportResponse = self.reportResponse else {
+                return (nil, nil, nil)
+            }
+            guard let challenge = self.challenge else {
+                return (nil, nil, nil)
+            }
+            let responseData = reportResponse.toJSON()
+            var dataToSign = challenge.challenge.data(using: .utf8)!
+            dataToSign.append("&".data(using: .ascii)!)
+            dataToSign.append(responseData)
+            let signature = ECDSA.sign(privateKey: privateKey, data: dataToSign).base64EncodedString()
+            return (reportResponse, responseData, signature)
+        }
         return self
     }
 
     // MARK: - RemoteDataProvider impl
     
-    var config: NetworkConfiguration { .testConfig }
-    
-    func getData(currentDate: Date, completion: @escaping (Result<ServerResponse, Error>) -> Void) {
+    func getData(completion: @escaping (Result<ServerResponse, Error>) -> Void) {
         interceptor.called_getFingerprints += 1
         DispatchQueue.global().async {
             if self.simulateResponseTime > 0 {
@@ -104,21 +108,36 @@ class TestingRemoteDataProvider: RemoteDataProvider {
                 Thread.sleep(forTimeInterval: interval)
             }
             // Now generate the result
-            let response: ServerResponse?
+            let response: Response
             if !self.reportError {
                 if let generator = self.dataGenerator {
                     response = generator()
                 } else {
-                    response = self.reportData
+                    response = (self.reportResponse, nil, nil)
                 }
             } else {
-                response = nil
-            }
-            if let data = response {
-                completion(.success(data))
-            } else {
                 completion(.failure(SimulatedError.networkError))
+                return
             }
+            
+            guard let object = response.object else {
+                completion(.failure(SimulatedError.networkError))
+                return
+            }
+            
+            
+            if let signature = response.signature, let data = response.responseData {
+                guard let challenge = self.challenge else {
+                    completion(.failure(SimulatedError.networkError))
+                    return
+                }
+                guard challenge.verifyData(data, forSignature: signature, withKey: self.config.publicKey) else {
+                    completion(.failure(SimulatedError.networkError))
+                    return
+                }
+            }
+            
+            completion(.success(object))
         }
     }
 }

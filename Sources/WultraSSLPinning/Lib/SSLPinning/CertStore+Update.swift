@@ -121,16 +121,14 @@ public extension CertStore {
     /// Private function implemens the update operation.
     private func doUpdate(currentDate: Date, completionQueue: DispatchQueue?, completion: ((UpdateResult, Error?)->Void)?) -> Void {
         
-        let now = Date()
-        
-        remoteDataProvider.getData(currentDate: now) { dataResult in
+        remoteDataProvider.getData { dataResult in
             
             let result: UpdateResult
             let error: Error?
             
             switch dataResult {
             case .success(let success):
-                result = self.processResponseData(currentDate: now, response: success)
+                result = self.processResponseData(currentDate: currentDate, response: success)
                 error = nil
             case .failure(let err):
                 result = .networkError

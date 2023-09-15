@@ -38,7 +38,8 @@ class CertStoreTests_Basics: XCTestCase {
             networkConfig: .init(
                 serviceUrl: URL(string: "https://example.org/pinning-service")!,
                 publicKey: ""
-            )
+            ),
+            cryptoProvider: cryptoProvider
         )
         certStore = CertStore(
             configuration: config,
@@ -73,7 +74,7 @@ class CertStoreTests_Basics: XCTestCase {
             
             remoteDataProvider
                 .setNoLatency()
-                .reportData = responseGenerator
+                .reportResponse = responseGenerator
                     .removeAll()
                     .data()
             
@@ -114,7 +115,7 @@ class CertStoreTests_Basics: XCTestCase {
             
             remoteDataProvider
                 .setNoLatency()
-                .reportData = responseGenerator
+                .reportResponse = responseGenerator
                     .removeAll()
                     .data()
             
@@ -158,7 +159,7 @@ class CertStoreTests_Basics: XCTestCase {
             
             remoteDataProvider
                 .setNoLatency()
-                .reportData = responseGenerator
+                .reportResponse = responseGenerator
                     .removeAll()
                     .append(commonName: .testCommonName_1, expiration: .expired, fingerprint: .testFingerprint_1)
                     .data()
@@ -203,7 +204,7 @@ class CertStoreTests_Basics: XCTestCase {
             
             remoteDataProvider
                 .setNoLatency()
-                .reportData = responseGenerator
+                .reportResponse = responseGenerator
                     .removeAll()
                     .append(commonName: .testCommonName_1, expiration: .valid, fingerprint: .testFingerprint_1)
                     .data()
@@ -273,7 +274,7 @@ class CertStoreTests_Basics: XCTestCase {
             remoteDataProvider
                 .setNoLatency()
                 .setReportError(false)
-                .reportData = responseGenerator
+                .reportResponse = responseGenerator
                     .removeAll()
                     .append(commonName: .testCommonName_1, expiration: .valid, fingerprint: .testFingerprint_1)
                     .data()
@@ -290,6 +291,8 @@ class CertStoreTests_Basics: XCTestCase {
             XCTAssertNil(reportedError)
             
             // Test complete invalid data
+            
+            // TODO: fix
             
 //            remoteDataProvider
 //                .setNoLatency()

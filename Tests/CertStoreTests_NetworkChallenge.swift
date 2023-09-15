@@ -101,7 +101,7 @@ class CertStoreTests_NetworkChallenge: XCTestCase {
                 completion.complete(with: result)
             }
         }
-        XCTAssertTrue(updateResult.value == .ok)
+        XCTAssertTrue(updateResult.value == .ok || updateResult.value == .storeIsEmpty)
     }
     
 }

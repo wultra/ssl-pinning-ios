@@ -27,5 +27,5 @@ internal protocol RemoteDataProvider: AnyObject {
     var config: NetworkConfiguration { get }
     
     /// Gets data containing fingerprints from the remote location.
-    func getData(currentDate: Date, completion: @escaping (Result<ServerResponse, Error>) -> Void)
+    func getData(completion: @escaping (Result<ServerResponse, Error>) -> Void)
 }

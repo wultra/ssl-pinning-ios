@@ -38,7 +38,8 @@ class CertStoreTests_Update: XCTestCase {
             networkConfig: .init(
                 serviceUrl: URL(string: "https://example.org/pinning-service")!,
                 publicKey: ""
-            )
+            ),
+            cryptoProvider: cryptoProvider
         )
         certStore = CertStore(
             configuration: config,
@@ -79,7 +80,7 @@ class CertStoreTests_Update: XCTestCase {
         WultraDebug.print(" [ 1   ] Elapsed time: \(-refDate.timeIntervalSinceNow)")
         remoteDataProvider
             .setNoLatency()
-            .reportData = responseGenerator
+            .reportResponse = responseGenerator
                 .removeAll()
                 .append(commonName: .testCommonName_1, expiration: .soon, fingerprint: .testFingerprint_1)
                 .data()
@@ -316,7 +317,7 @@ class CertStoreTests_Update: XCTestCase {
         XCTAssertTrue(validationResult == .empty)
         
         remoteDataProvider
-            .reportData = responseGenerator
+            .reportResponse = responseGenerator
                 .append(commonName: .testCommonName_1, expiration: .valid, fingerprint: .testFingerprint_2)
                 .data()
         

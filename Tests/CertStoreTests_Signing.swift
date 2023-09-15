@@ -41,7 +41,7 @@ class CertStoreTests_Signing: XCTestCase {
         )
         cryptoProvider = PowerAuthCryptoProvider()
         dataStore = TestingSecureDataStore()
-        remoteDataProvider = TestingRemoteDataProvider(networkConfig: networkConfig)
+        remoteDataProvider = TestingRemoteDataProvider(networkConfig: networkConfig, cryptoProvider: cryptoProvider)
         certStore = CertStore(
             configuration: config,
             cryptoProvider: cryptoProvider,
@@ -61,7 +61,7 @@ class CertStoreTests_Signing: XCTestCase {
         
         prepareStore(useChallenge: false)
         
-        remoteDataProvider.reportData = responseGenerator
+        remoteDataProvider.reportResponse = responseGenerator
             .signEntry(with: keyPair.privateKey)
             .append(commonName: .testCommonName_1, expiration: .never, fingerprint: .testFingerprint_1)
             .append(commonName: .testCommonName_2, expiration: .never, fingerprint: .testFingerprint_2)
@@ -72,12 +72,12 @@ class CertStoreTests_Signing: XCTestCase {
                 completion.complete(with: result)
             }
         }
-        XCTAssertTrue(updateResult.value == .ok)
+        XCTAssertEqual(updateResult.value, .ok)
         
         var validateResult = certStore.validate(commonName: .testCommonName_1, fingerprint: .testFingerprint_1)
-        XCTAssertTrue(validateResult == .trusted)
+        XCTAssertEqual(validateResult, .trusted)
         validateResult = certStore.validate(commonName: .testCommonName_2, fingerprint: .testFingerprint_2)
-        XCTAssertTrue(validateResult == .trusted)
+        XCTAssertEqual(validateResult, .trusted)
     }
     
     func testSigningWithChallenge() {
@@ -85,7 +85,7 @@ class CertStoreTests_Signing: XCTestCase {
         prepareStore(useChallenge: true)
         
         remoteDataProvider.signResponse(with: keyPair.privateKey)
-        remoteDataProvider.reportData = responseGenerator
+        remoteDataProvider.reportResponse = responseGenerator
             .append(commonName: .testCommonName_1, expiration: .never, fingerprint: .testFingerprint_1)
             .append(commonName: .testCommonName_2, expiration: .never, fingerprint: .testFingerprint_2)
             .data()
