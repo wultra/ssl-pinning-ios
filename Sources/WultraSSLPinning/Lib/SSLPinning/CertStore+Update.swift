@@ -142,7 +142,7 @@ public extension CertStore {
     
     /// Private function processes the received data and returns update result.
     /// The function also updates list of cached certificates, when there's a change in the data.
-    private func processResponseData(currentDate: Date, response: ServerResponse) -> UpdateResult {
+    fileprivate func processResponseData(currentDate: Date, response: ServerResponse) -> UpdateResult {
         
         // Import public key (may crash in fatalError for invalid configuration)
         let publicKey = cryptoProvider.importECPublicKey(publicKeyBase64: remoteDataProvider.config.publicKey)
@@ -241,5 +241,16 @@ extension CryptoProvider {
                 WultraDebug.fatalError("CertStoreConfiguration contains invalid public key.")
         }
         return publicKey
+    }
+}
+
+extension CertStore: RemoveDataProviderDelegate {
+    func serverDataUpdated(response: ServerResponse, tags: [String]) {
+        // Only process the response when it came outside of CertStore
+        // to avoid double processing
+        if !tags.contains(updateTag) {
+            // we dont care about the result here
+            _ = processResponseData(currentDate: Date(), response: response)
+        }
     }
 }

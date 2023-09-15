@@ -21,9 +21,17 @@ import Foundation
 internal class RestAPI: NSObject, URLSessionDelegate, RemoteDataProvider {
     
     let config: NetworkConfiguration
+    let delegates = MulticastDelegate<RemoveDataProviderDelegate>()
+    
     private let cryptoProvider: CryptoProvider
-    private let executionQueue: DispatchQueue
-    private let delegateQueue: OperationQueue
+    private let executionQueue = DispatchQueue(label: "WultraUtilityServerNetworking")
+    private let delegateQueue: OperationQueue = {
+        let q = OperationQueue()
+        q.name = "WultraUtilityServerDelegation"
+        q.maxConcurrentOperationCount = 1
+        return q
+    }()
+    private var callbacksWaiting = [(tag: String?, callback: GetDataComppletion)]()
     private lazy var session: URLSession = {
         return URLSession(configuration: .ephemeral, delegate: self, delegateQueue: delegateQueue)
     }()
@@ -44,12 +52,8 @@ internal class RestAPI: NSObject, URLSessionDelegate, RemoteDataProvider {
 
     init(config: NetworkConfiguration, cryptoProvider: CryptoProvider) {
         config.validate(cryptoProvider: cryptoProvider)
-        let dispatchQueue = DispatchQueue(label: "WultraCertStoreNetworking")
         self.config = config
         self.cryptoProvider = cryptoProvider
-        self.executionQueue = dispatchQueue
-        self.delegateQueue = OperationQueue()
-        self.delegateQueue.underlyingQueue = dispatchQueue
     }
     
     enum NetworkError: Error {
@@ -65,50 +69,62 @@ internal class RestAPI: NSObject, URLSessionDelegate, RemoteDataProvider {
         case internalError(message: String)
     }
     
-    func getData(completion: @escaping (Result<ServerResponse, Error>) -> Void) {
-        executionQueue.async { [weak self] in
-            guard let this = self else {
+    func getData(tag: String?, completion: @escaping GetDataComppletion) {
+        
+        delegateQueue.addOperation {
+            self.callbacksWaiting.append((tag, completion))
+            guard self.callbacksWaiting.count == 1 else {
                 return
             }
-            
-            var urlRequest = URLRequest(url: this.config.serviceUrl)
-            urlRequest.addValue("application/json", forHTTPHeaderField: "Accept")
-            urlRequest.httpMethod = "GET"
-            
-            let challenge = this.config.useChallenge ? RequestChallenge(cryptoProvider: this.cryptoProvider) : nil
-            challenge?.addToRequest(&urlRequest)
-            
-            RestAPI.logRequest(request: urlRequest)
-            
-            this.session.dataTask(with: urlRequest) { (data, response, error) in
-                
-                RestAPI.logResponse(response: response, data: data, error: error)
-                
-                guard let response = response as? HTTPURLResponse else {
-                    completion(.failure(NetworkError.internalError(message: "Invalid HTTPURLResponse object")))
+            self.executionQueue.async { [weak self] in
+                guard let this = self else {
                     return
                 }
-                let headers = response.allStringHeaders
-                let statusCode = response.statusCode
-                if statusCode / 100 != 2 {
-                    WultraDebug.print("RestAPI: HTTP request failed with status code: \(statusCode)")
-                    completion(.failure(NetworkError.invalidHttpStatusCode(statusCode: statusCode)))
-                } else if let error = error {
-                    WultraDebug.print("RestAPI: HTTP request failed with error: \(error)")
-                    completion(.failure(error))
-                } else if let data = data {
-                    this.processReceivedData(data, challenge: challenge, responseHeaders: headers, completion: completion)
-                } else {
-                    WultraDebug.print("RestAPI: HTTP request finished with empty response.")
-                    completion(.failure(NetworkError.noDataProvided))
-                }
-            }.resume()
+                
+                var urlRequest = URLRequest(url: this.config.serviceUrl)
+                urlRequest.addValue("application/json", forHTTPHeaderField: "Accept")
+                urlRequest.httpMethod = "GET"
+                
+                let challenge = this.config.useChallenge ? RequestChallenge(cryptoProvider: this.cryptoProvider) : nil
+                challenge?.addToRequest(&urlRequest)
+                
+                RestAPI.logRequest(request: urlRequest)
+                
+                this.session.dataTask(with: urlRequest) { (data, response, error) in
+                    
+                    let completion = { (result: Result<ServerResponse, Error>) -> Void in
+                        self?.callbacksWaiting.forEach { $0.callback(result) }
+                        self?.callbacksWaiting.removeAll()
+                    }
+                    
+                    RestAPI.logResponse(response: response, data: data, error: error)
+                    
+                    guard let response = response as? HTTPURLResponse else {
+                        completion(.failure(NetworkError.internalError(message: "Invalid HTTPURLResponse object")))
+                        return
+                    }
+                    let headers = response.allStringHeaders
+                    let statusCode = response.statusCode
+                    if statusCode / 100 != 2 {
+                        WultraDebug.print("RestAPI: HTTP request failed with status code: \(statusCode)")
+                        completion(.failure(NetworkError.invalidHttpStatusCode(statusCode: statusCode)))
+                    } else if let error = error {
+                        WultraDebug.print("RestAPI: HTTP request failed with error: \(error)")
+                        completion(.failure(error))
+                    } else if let data = data {
+                        this.processReceivedData(data, challenge: challenge, responseHeaders: headers, completion: completion)
+                    } else {
+                        WultraDebug.print("RestAPI: HTTP request finished with empty response.")
+                        completion(.failure(NetworkError.noDataProvided))
+                    }
+                }.resume()
+            }
         }
     }
     
     /// Private function processes the received data and returns update result.
     /// The function also updates list of cached certificates, when there's a change in the data.
-    private func processReceivedData(_ data: Data, challenge: RequestChallenge?, responseHeaders: [String:String], completion: @escaping (Result<ServerResponse, Error>) -> Void) {
+    private func processReceivedData(_ data: Data, challenge: RequestChallenge?, responseHeaders: [String:String], completion: @escaping GetDataComppletion) {
         
         if let challenge, !challenge.verifyData(data, forHTTPHeaders: responseHeaders, withKey: config.publicKey) {
             completion(.failure(NetworkError.invalidSignature))
@@ -123,7 +139,7 @@ internal class RestAPI: NSObject, URLSessionDelegate, RemoteDataProvider {
             return
         }
         
-        // TODO: delegates
+        delegates.invoke { $0.serverDataUpdated(response: response, tags: self.callbacksWaiting.compactMap { $0.tag }) }
         
         completion(.success(response))
     }

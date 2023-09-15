@@ -18,6 +18,8 @@
 
 class TestingRemoteDataProvider: RemoteDataProvider {
     
+    let delegates = MulticastDelegate<RemoveDataProviderDelegate>()
+    
     init(networkConfig: NetworkConfiguration, cryptoProvider: CryptoProvider) {
         networkConfig.validate(cryptoProvider: cryptoProvider)
         self.config = networkConfig
@@ -100,7 +102,7 @@ class TestingRemoteDataProvider: RemoteDataProvider {
 
     // MARK: - RemoteDataProvider impl
     
-    func getData(completion: @escaping (Result<ServerResponse, Error>) -> Void) {
+    func getData(tag: String?, completion: @escaping (Result<ServerResponse, Error>) -> Void) {
         interceptor.called_getFingerprints += 1
         DispatchQueue.global().async {
             if self.simulateResponseTime > 0 {

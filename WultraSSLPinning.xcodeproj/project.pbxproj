@@ -54,6 +54,7 @@
 		DC63522F2AB3308E002C35B4 /* NetworkConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC63522E2AB3308E002C35B4 /* NetworkConfiguration.swift */; };
 		DC6352312AB34662002C35B4 /* JSONUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6352302AB34662002C35B4 /* JSONUtils.swift */; };
 		DC6352332AB457CE002C35B4 /* RequestChallenge.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6352322AB457CE002C35B4 /* RequestChallenge.swift */; };
+		DC6352382AB475E1002C35B4 /* MulticastDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6352372AB475E1002C35B4 /* MulticastDelegate.swift */; };
 		DC8664C7270B430E00FE2B3F /* PowerAuth2.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC8664C5270B430E00FE2B3F /* PowerAuth2.xcframework */; };
 		DC8664C9270B430E00FE2B3F /* PowerAuthCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC8664C6270B430E00FE2B3F /* PowerAuthCore.xcframework */; };
 /* End PBXBuildFile section */
@@ -137,6 +138,7 @@
 		DC63522E2AB3308E002C35B4 /* NetworkConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkConfiguration.swift; sourceTree = "<group>"; };
 		DC6352302AB34662002C35B4 /* JSONUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONUtils.swift; sourceTree = "<group>"; };
 		DC6352322AB457CE002C35B4 /* RequestChallenge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestChallenge.swift; sourceTree = "<group>"; };
+		DC6352372AB475E1002C35B4 /* MulticastDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MulticastDelegate.swift; sourceTree = "<group>"; };
 		DC8664C5270B430E00FE2B3F /* PowerAuth2.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = PowerAuth2.xcframework; path = Carthage/Build/PowerAuth2.xcframework; sourceTree = "<group>"; };
 		DC8664C6270B430E00FE2B3F /* PowerAuthCore.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = PowerAuthCore.xcframework; path = Carthage/Build/PowerAuthCore.xcframework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -358,6 +360,7 @@
 				BFCB818F213EB4AF00615ADA /* Networking */,
 				BF026B012141CC9700A47E90 /* WultraDebug.swift */,
 				DC6352302AB34662002C35B4 /* JSONUtils.swift */,
+				DC6352372AB475E1002C35B4 /* MulticastDelegate.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -517,6 +520,7 @@
 				BFABCD5A2149804A00A9221F /* UpdateScheduler.swift in Sources */,
 				BFCB8179213D9FEB00615ADA /* SecureDataStore.swift in Sources */,
 				BFCB818C213EAE0900615ADA /* PowerAuthIntegration.swift in Sources */,
+				DC6352382AB475E1002C35B4 /* MulticastDelegate.swift in Sources */,
 				BF8BB774213F05B40097315B /* RestAPI.swift in Sources */,
 				BFCB8193213EB59700615ADA /* CertificateInfo.swift in Sources */,
 				BFCB817E213DA71100615ADA /* PowerAuthSecureDataStore.swift in Sources */,

@@ -26,6 +26,20 @@ internal protocol RemoteDataProvider: AnyObject {
     
     var config: NetworkConfiguration { get }
     
+    var delegates: MulticastDelegate<RemoveDataProviderDelegate> { get }
+    
     /// Gets data containing fingerprints from the remote location.
-    func getData(completion: @escaping (Result<ServerResponse, Error>) -> Void)
+    func getData(tag: String?, completion: @escaping GetDataComppletion)
+}
+
+extension RemoteDataProvider {
+    func getData(completion: @escaping GetDataComppletion) {
+        getData(tag: nil, completion: completion)
+    }
+}
+
+internal typealias GetDataComppletion = (Result<ServerResponse, Error>) -> Void
+
+internal protocol RemoveDataProviderDelegate: AnyObject {
+    func serverDataUpdated(response: ServerResponse, tags: [String])
 }
