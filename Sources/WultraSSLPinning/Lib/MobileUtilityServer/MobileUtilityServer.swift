@@ -39,19 +39,21 @@ public class MobileUtilityServer {
     }
 }
 
-public extension NetworkConfiguration {
+public extension URL {
     
-    static func createMobileUtilityServerURL(baseURL: URL, appName: String) -> URL {
+    static func mobileUtilityServerURL(baseURL: String, appName: String) -> URL? {
+        var urlString = baseURL
+        if urlString.hasSuffix("/") {
+            urlString.removeLast()
+        }
         var appStr = "unknown"
         if let appSemVer = Bundle.main.semanticVersion {
             appStr = "\(appSemVer.major).\(appSemVer.minor).\(appSemVer.patch)"
         }
         let osSemVer = ProcessInfo.processInfo.operatingSystemSemanticVersion
         let osStr = "\(osSemVer.major).\(osSemVer.minor).\(osSemVer.patch)"
-        let relativePath = "app/init?appName=\(appName)&appVersion=\(appStr)&osVersion=\(osStr)&platform=IOS"
-        
-        var url = baseURL
-        url.appendPathComponent(relativePath)
-        return url
+        urlString += "/app/init?appName=\(appName)&appVersion=\(appStr)&osVersion=\(osStr)&platform=IOS"
+        WultraDebug.print("Creating MobileUtilityServer URL: \(urlString)")
+        return URL(string: urlString)
     }
 }
