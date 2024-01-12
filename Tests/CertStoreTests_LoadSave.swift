@@ -34,7 +34,13 @@ class CertStoreTests_LoadSave: XCTestCase {
         self.config = config
         cryptoProvider = TestingCryptoProvider()
         dataStore = TestingSecureDataStore()
-        remoteDataProvider = TestingRemoteDataProvider()
+        remoteDataProvider = TestingRemoteDataProvider(
+            networkConfig: .init(
+                serviceUrl: URL(string: "https://example.org/pinning-service")!,
+                publicKey: ""
+            ),
+            cryptoProvider: cryptoProvider
+        )
         certStore = CertStore(
             configuration: config,
             cryptoProvider: cryptoProvider,
@@ -63,7 +69,7 @@ class CertStoreTests_LoadSave: XCTestCase {
         // At first, we need to update an empty store
         remoteDataProvider
             .setNoLatency()
-            .reportData = responseGenerator
+            .reportResponse = responseGenerator
                 .removeAll()
                 .append(commonName: .testCommonName_1, expiration: .valid, fingerprint: .testFingerprint_Fallback)
                 .append(commonName: .testCommonName_1, expiration: .never, fingerprint: .testFingerprint_1)
@@ -134,7 +140,7 @@ class CertStoreTests_LoadSave: XCTestCase {
         // At first, we need to update an empty store
         remoteDataProvider
             .setNoLatency()
-            .reportData = responseGenerator
+            .reportResponse = responseGenerator
                 .removeAll()
                 .append(commonName: .testCommonName_1, expiration: .valid, fingerprint: .testFingerprint_Fallback)
                 .append(commonName: .testCommonName_1, expiration: .never, fingerprint: .testFingerprint_1)

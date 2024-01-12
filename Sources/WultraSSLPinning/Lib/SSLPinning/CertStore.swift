@@ -28,19 +28,17 @@ public class CertStore {
     /// Initializes `CertStore` with provided configuration, crypto provider and secure data store.
     ///
     /// - Parameter configuration: Configuration for the CertStore object
+    /// - Parameter networkConfiguration: Configuration for the underlying HTTP REST client
     /// - Parameter cryptoProvider: Instance of `CryptoProvider` object
     /// - Parameter secureDataStore: Instance of `SecureDataStore` object
-    public init(configuration: CertStoreConfiguration, cryptoProvider: CryptoProvider, secureDataStore: SecureDataStore) {
-        configuration.validate(cryptoProvider: cryptoProvider)
-        self.configuration = configuration
-        self.cryptoProvider = cryptoProvider
-        self.secureDataStore = secureDataStore
-        self.remoteDataProvider = RestAPI(baseURL: configuration.serviceUrl, sslValidationStrategy: configuration.sslValidationStrategy)
+    convenience public init(configuration: CertStoreConfiguration, networkConfiguration: NetworkConfiguration, cryptoProvider: CryptoProvider, secureDataStore: SecureDataStore) {
+        let restAPI = RestAPI(config: networkConfiguration, cryptoProvider: cryptoProvider)
+        self.init(configuration: configuration, cryptoProvider: cryptoProvider, secureDataStore: secureDataStore, remoteDataProvider: restAPI)
     }
     
     /// Internal constructor, suitable for unit tests.
     internal init(configuration: CertStoreConfiguration, cryptoProvider: CryptoProvider, secureDataStore: SecureDataStore, remoteDataProvider: RemoteDataProvider) {
-        configuration.validate(cryptoProvider: cryptoProvider)
+        configuration.validate()
         self.configuration = configuration
         self.cryptoProvider = cryptoProvider
         self.secureDataStore = secureDataStore
@@ -78,6 +76,7 @@ public class CertStore {
     let cryptoProvider: CryptoProvider
     let secureDataStore: SecureDataStore
     let remoteDataProvider: RemoteDataProvider
+    let updateTag = "CertStore"
     
     // MARK: - Private members
     

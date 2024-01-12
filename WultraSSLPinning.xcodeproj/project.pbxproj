@@ -43,12 +43,19 @@
 		BFCB8188213EAC1300615ADA /* CertStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB8187213EAC1300615ADA /* CertStore.swift */; };
 		BFCB818A213EAD1300615ADA /* CertStoreConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB8189213EAD1300615ADA /* CertStoreConfiguration.swift */; };
 		BFCB818C213EAE0900615ADA /* PowerAuthIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB818B213EAE0900615ADA /* PowerAuthIntegration.swift */; };
-		BFCB8191213EB4D100615ADA /* GetFingerprintsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB8190213EB4D100615ADA /* GetFingerprintsResponse.swift */; };
+		BFCB8191213EB4D100615ADA /* ServerResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB8190213EB4D100615ADA /* ServerResponse.swift */; };
 		BFCB8193213EB59700615ADA /* CertificateInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB8192213EB59700615ADA /* CertificateInfo.swift */; };
 		BFE92F46213EC6C00078E2A1 /* CertStore+Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE92F45213EC6C00078E2A1 /* CertStore+Validation.swift */; };
 		BFE92F48213ECE5F0078E2A1 /* CertStore+Update.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE92F47213ECE5F0078E2A1 /* CertStore+Update.swift */; };
 		BFEA9AEB2142C569008D9EE4 /* CertStoreTests_LoadSave.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFEA9AE92142C531008D9EE4 /* CertStoreTests_LoadSave.swift */; };
 		BFF51838251A16720061DAAF /* ECDSA.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFF51837251A16720061DAAF /* ECDSA.swift */; };
+		DC63522B2AB32807002C35B4 /* AppUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC63522A2AB32807002C35B4 /* AppUpdate.swift */; };
+		DC63522F2AB3308E002C35B4 /* NetworkConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC63522E2AB3308E002C35B4 /* NetworkConfiguration.swift */; };
+		DC6352312AB34662002C35B4 /* JSONUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6352302AB34662002C35B4 /* JSONUtils.swift */; };
+		DC6352332AB457CE002C35B4 /* RequestChallenge.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6352322AB457CE002C35B4 /* RequestChallenge.swift */; };
+		DC6352382AB475E1002C35B4 /* MulticastDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6352372AB475E1002C35B4 /* MulticastDelegate.swift */; };
+		DC63523B2AB48EF9002C35B4 /* MobileUtilityServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC63523A2AB48EF9002C35B4 /* MobileUtilityServer.swift */; };
+		DC63523D2AB48FD4002C35B4 /* SemVer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC63523C2AB48FD4002C35B4 /* SemVer.swift */; };
 		DC8664C7270B430E00FE2B3F /* PowerAuth2.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC8664C5270B430E00FE2B3F /* PowerAuth2.xcframework */; };
 		DC8664C9270B430E00FE2B3F /* PowerAuthCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC8664C6270B430E00FE2B3F /* PowerAuthCore.xcframework */; };
 /* End PBXBuildFile section */
@@ -121,12 +128,19 @@
 		BFCB8187213EAC1300615ADA /* CertStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertStore.swift; sourceTree = "<group>"; };
 		BFCB8189213EAD1300615ADA /* CertStoreConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertStoreConfiguration.swift; sourceTree = "<group>"; };
 		BFCB818B213EAE0900615ADA /* PowerAuthIntegration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerAuthIntegration.swift; sourceTree = "<group>"; };
-		BFCB8190213EB4D100615ADA /* GetFingerprintsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetFingerprintsResponse.swift; sourceTree = "<group>"; };
+		BFCB8190213EB4D100615ADA /* ServerResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerResponse.swift; sourceTree = "<group>"; };
 		BFCB8192213EB59700615ADA /* CertificateInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateInfo.swift; sourceTree = "<group>"; };
 		BFE92F45213EC6C00078E2A1 /* CertStore+Validation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CertStore+Validation.swift"; sourceTree = "<group>"; };
 		BFE92F47213ECE5F0078E2A1 /* CertStore+Update.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CertStore+Update.swift"; sourceTree = "<group>"; };
 		BFEA9AE92142C531008D9EE4 /* CertStoreTests_LoadSave.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertStoreTests_LoadSave.swift; sourceTree = "<group>"; };
 		BFF51837251A16720061DAAF /* ECDSA.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ECDSA.swift; sourceTree = "<group>"; };
+		DC63522A2AB32807002C35B4 /* AppUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdate.swift; sourceTree = "<group>"; };
+		DC63522E2AB3308E002C35B4 /* NetworkConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkConfiguration.swift; sourceTree = "<group>"; };
+		DC6352302AB34662002C35B4 /* JSONUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONUtils.swift; sourceTree = "<group>"; };
+		DC6352322AB457CE002C35B4 /* RequestChallenge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestChallenge.swift; sourceTree = "<group>"; };
+		DC6352372AB475E1002C35B4 /* MulticastDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MulticastDelegate.swift; sourceTree = "<group>"; };
+		DC63523A2AB48EF9002C35B4 /* MobileUtilityServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileUtilityServer.swift; sourceTree = "<group>"; };
+		DC63523C2AB48FD4002C35B4 /* SemVer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SemVer.swift; sourceTree = "<group>"; };
 		DC8664C5270B430E00FE2B3F /* PowerAuth2.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = PowerAuth2.xcframework; path = Carthage/Build/PowerAuth2.xcframework; sourceTree = "<group>"; };
 		DC8664C6270B430E00FE2B3F /* PowerAuthCore.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = PowerAuthCore.xcframework; path = Carthage/Build/PowerAuthCore.xcframework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -183,17 +197,6 @@
 				BF1FE2C2251DE6AF00A3374F /* RemoteObject.swift */,
 			);
 			path = Helpers;
-			sourceTree = "<group>";
-		};
-		BF8BB772213F05350097315B /* Service */ = {
-			isa = PBXGroup;
-			children = (
-				BF026B012141CC9700A47E90 /* WultraDebug.swift */,
-				BF8BB770213F03510097315B /* RemoteDataProvider.swift */,
-				BF8BB773213F05B40097315B /* RestAPI.swift */,
-				BFABCD592149804A00A9221F /* UpdateScheduler.swift */,
-			);
-			path = Service;
 			sourceTree = "<group>";
 		};
 		BF8BB77C214021EF0097315B /* Tests */ = {
@@ -279,14 +282,10 @@
 		BFCB816A213D954500615ADA /* Lib */ = {
 			isa = PBXGroup;
 			children = (
-				BFCB818F213EB4AF00615ADA /* Model */,
-				BFCB817C213DA6C200615ADA /* Protocols */,
-				BF8BB772213F05350097315B /* Service */,
-				BFCB8187213EAC1300615ADA /* CertStore.swift */,
-				BFCB8189213EAD1300615ADA /* CertStoreConfiguration.swift */,
-				BFE92F47213ECE5F0078E2A1 /* CertStore+Update.swift */,
-				BFE92F45213EC6C00078E2A1 /* CertStore+Validation.swift */,
-				BF8BB76E213EFC100097315B /* CertStore+Storage.swift */,
+				DC6352392AB48EDF002C35B4 /* MobileUtilityServer */,
+				DC6352272AB324D7002C35B4 /* Common */,
+				DC6352292AB327D6002C35B4 /* AppUpdate */,
+				DC6352252AB324A6002C35B4 /* SSLPinning */,
 			);
 			path = Lib;
 			sourceTree = "<group>";
@@ -310,14 +309,16 @@
 			path = Protocols;
 			sourceTree = "<group>";
 		};
-		BFCB818F213EB4AF00615ADA /* Model */ = {
+		BFCB818F213EB4AF00615ADA /* Networking */ = {
 			isa = PBXGroup;
 			children = (
-				BF8BB775213FDA420097315B /* CachedData.swift */,
-				BFCB8192213EB59700615ADA /* CertificateInfo.swift */,
-				BFCB8190213EB4D100615ADA /* GetFingerprintsResponse.swift */,
+				BF8BB770213F03510097315B /* RemoteDataProvider.swift */,
+				BF8BB773213F05B40097315B /* RestAPI.swift */,
+				BFCB8190213EB4D100615ADA /* ServerResponse.swift */,
+				DC63522E2AB3308E002C35B4 /* NetworkConfiguration.swift */,
+				DC6352322AB457CE002C35B4 /* RequestChallenge.swift */,
 			);
-			path = Model;
+			path = Networking;
 			sourceTree = "<group>";
 		};
 		BFD52C312142A33700D7F396 /* Providers */ = {
@@ -330,6 +331,58 @@
 				BF7DD40321428E9100766D03 /* ResponseGenerator.swift */,
 			);
 			path = Providers;
+			sourceTree = "<group>";
+		};
+		DC6352252AB324A6002C35B4 /* SSLPinning */ = {
+			isa = PBXGroup;
+			children = (
+				DC6352262AB324BF002C35B4 /* Model */,
+				BFABCD592149804A00A9221F /* UpdateScheduler.swift */,
+				BFCB8187213EAC1300615ADA /* CertStore.swift */,
+				BFCB8189213EAD1300615ADA /* CertStoreConfiguration.swift */,
+				BFE92F47213ECE5F0078E2A1 /* CertStore+Update.swift */,
+				BFE92F45213EC6C00078E2A1 /* CertStore+Validation.swift */,
+				BF8BB76E213EFC100097315B /* CertStore+Storage.swift */,
+			);
+			path = SSLPinning;
+			sourceTree = "<group>";
+		};
+		DC6352262AB324BF002C35B4 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				BF8BB775213FDA420097315B /* CachedData.swift */,
+				BFCB8192213EB59700615ADA /* CertificateInfo.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		DC6352272AB324D7002C35B4 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				BFCB817C213DA6C200615ADA /* Protocols */,
+				BFCB818F213EB4AF00615ADA /* Networking */,
+				BF026B012141CC9700A47E90 /* WultraDebug.swift */,
+				DC6352302AB34662002C35B4 /* JSONUtils.swift */,
+				DC6352372AB475E1002C35B4 /* MulticastDelegate.swift */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+		DC6352292AB327D6002C35B4 /* AppUpdate */ = {
+			isa = PBXGroup;
+			children = (
+				DC63522A2AB32807002C35B4 /* AppUpdate.swift */,
+				DC63523C2AB48FD4002C35B4 /* SemVer.swift */,
+			);
+			path = AppUpdate;
+			sourceTree = "<group>";
+		};
+		DC6352392AB48EDF002C35B4 /* MobileUtilityServer */ = {
+			isa = PBXGroup;
+			children = (
+				DC63523A2AB48EF9002C35B4 /* MobileUtilityServer.swift */,
+			);
+			path = MobileUtilityServer;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -474,14 +527,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DC63522F2AB3308E002C35B4 /* NetworkConfiguration.swift in Sources */,
 				BFABCD5A2149804A00A9221F /* UpdateScheduler.swift in Sources */,
 				BFCB8179213D9FEB00615ADA /* SecureDataStore.swift in Sources */,
+				DC63523D2AB48FD4002C35B4 /* SemVer.swift in Sources */,
 				BFCB818C213EAE0900615ADA /* PowerAuthIntegration.swift in Sources */,
+				DC6352382AB475E1002C35B4 /* MulticastDelegate.swift in Sources */,
 				BF8BB774213F05B40097315B /* RestAPI.swift in Sources */,
 				BFCB8193213EB59700615ADA /* CertificateInfo.swift in Sources */,
+				DC63523B2AB48EF9002C35B4 /* MobileUtilityServer.swift in Sources */,
 				BFCB817E213DA71100615ADA /* PowerAuthSecureDataStore.swift in Sources */,
+				DC6352332AB457CE002C35B4 /* RequestChallenge.swift in Sources */,
+				DC6352312AB34662002C35B4 /* JSONUtils.swift in Sources */,
 				BFCB818A213EAD1300615ADA /* CertStoreConfiguration.swift in Sources */,
 				BFCB8188213EAC1300615ADA /* CertStore.swift in Sources */,
+				DC63522B2AB32807002C35B4 /* AppUpdate.swift in Sources */,
 				BF026B022141CC9700A47E90 /* WultraDebug.swift in Sources */,
 				BFE92F46213EC6C00078E2A1 /* CertStore+Validation.swift in Sources */,
 				BFE92F48213ECE5F0078E2A1 /* CertStore+Update.swift in Sources */,
@@ -489,7 +549,7 @@
 				BF8BB76F213EFC100097315B /* CertStore+Storage.swift in Sources */,
 				BF8BB776213FDA420097315B /* CachedData.swift in Sources */,
 				BFCB8180213DAAC200615ADA /* PowerAuthCryptoProvider.swift in Sources */,
-				BFCB8191213EB4D100615ADA /* GetFingerprintsResponse.swift in Sources */,
+				BFCB8191213EB4D100615ADA /* ServerResponse.swift in Sources */,
 				BF8BB771213F03510097315B /* RemoteDataProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

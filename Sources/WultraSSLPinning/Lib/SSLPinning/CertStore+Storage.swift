@@ -24,7 +24,7 @@ internal extension CertStore {
         guard let encodedData = secureDataStore.loadData(forKey: self.instanceIdentifier) else {
             return nil
         }
-        guard let cachedData = try? jsonDecoder().decode(CachedData.self, from: encodedData) else {
+        guard let cachedData = try? JSONUtils.decoder.decode(CachedData.self, from: encodedData) else {
             return nil
         }
         return cachedData
@@ -32,7 +32,7 @@ internal extension CertStore {
     
     /// Saves cached data to the underlying persistent storage.
     func saveDataToCache(data: CachedData) {
-        guard let encodedData = try? jsonEncoder().encode(data) else {
+        guard let encodedData = try? JSONUtils.encoder.encode(data) else {
             return
         }
         secureDataStore.save(data: encodedData, forKey: self.instanceIdentifier)
@@ -43,25 +43,9 @@ internal extension CertStore {
         guard let fallbackData = configuration.fallbackCertificatesData else {
             return []
         }
-        guard let fallback = try? jsonDecoder().decode(GetFingerprintsResponse.self, from: fallbackData) else {
+        guard let fallback = try? JSONUtils.decoder.decode(ServerResponse.self, from: fallbackData) else {
             return []
         }
         return fallback.fingerprints.map { CertificateInfo(from: $0) }
-    }
-    
-    /// Returns new instance of `JSONDecoder`, preconfigured for our data types deserialization.
-    func jsonDecoder() -> JSONDecoder {
-        let decoder = JSONDecoder()
-        decoder.dataDecodingStrategy = .base64
-        decoder.dateDecodingStrategy = .secondsSince1970
-        return decoder
-    }
-    
-    /// Returns new instance of `JSONEncoder`, preconfigured for our data types serialization.
-    func jsonEncoder() -> JSONEncoder {
-        let encoder = JSONEncoder()
-        encoder.dataEncodingStrategy = .base64
-        encoder.dateEncodingStrategy = .secondsSince1970
-        return encoder
     }
 }

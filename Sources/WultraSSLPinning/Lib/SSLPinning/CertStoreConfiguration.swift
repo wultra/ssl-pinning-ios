@@ -18,21 +18,8 @@ import Foundation
 
 ///
 /// The `CertStoreConfiguration` structure contains configuration for the `CertStore` class.
-/// You need to construct this structure with at least `serviceUrl` and `publicKey` properties.
 ///
 public struct CertStoreConfiguration {
-    
-    /// Required property, defines URL for getting certificate fingerprints.
-    public let serviceUrl: URL
-    
-    /// Required property, contains ECC public key which will be used for validating data received from the server.
-    /// The BASE64 string is expected. If the invalid key is provided, then the libray will crash on fatal error
-    /// on the first attempt to use the public key.
-    public let publicKey: String
-    
-    /// If `true`, then the random challenge is generated for each HTTP request. It's is expected, that the response
-    /// body is signed with ECDSA and must be valid. The signature is calculated from CHALLENGE + '&' + BODY.
-    public let useChallenge: Bool
     
     /// Optional property, defines the set of common names which are expected in certificate validation. By setting
     /// this propery, you tell the store to treat all certificates issued for other common names as untrusted.
@@ -82,47 +69,21 @@ public struct CertStoreConfiguration {
     /// The default value is 2 weeks.
     public let expirationUpdateTreshold: TimeInterval
     
-    /// Defines the validation strategy for HTTPS connections initiated from the library itself. The default
-    /// validation strategy implements a default URLSession handling.
-    ///
-    /// Be aware that altering this option may put your application at risk. You should not ship your application
-    /// to production with SSL validation turned off.
-    public let sslValidationStrategy: SSLValidationStrategy
-    
     /// Default constructor.
     public init(
-        serviceUrl: URL,
-        publicKey: String,
-        useChallenge: Bool = false,
         expectedCommonNames: [String]? = nil,
         identifier: String? = nil,
         fallbackCertificatesData: Data? = nil,
         periodicUpdateInterval: TimeInterval = 7*24*60*60,
-        expirationUpdateTreshold: TimeInterval = 14*24*60*60,
-        sslValidationStrategy: SSLValidationStrategy = .default)
+        expirationUpdateTreshold: TimeInterval = 14*24*60*60)
     {
-        self.serviceUrl = serviceUrl
-        self.publicKey = publicKey
-        self.useChallenge = useChallenge
         self.expectedCommonNames = expectedCommonNames
         self.identifier = identifier
         self.fallbackCertificatesData = fallbackCertificatesData
         self.periodicUpdateInterval = periodicUpdateInterval
         self.expirationUpdateTreshold = expirationUpdateTreshold
-        self.sslValidationStrategy = sslValidationStrategy
     }
 }
-
-/// Validation strategy decides how HTTPS requests initiated from the library should be handled.
-public enum SSLValidationStrategy {
-    
-    /// Will use default URLSession handling
-    case `default`
-    
-    /// Will trust https connections with invalid certificates
-    case noValidation
-}
-
 
 // MARK: - Internal validation
 
@@ -131,20 +92,10 @@ extension CertStoreConfiguration {
     /// Performs configuration validation. The result is typically "fatal error" in case that
     /// configuration contains data which cannot be used for `CertStore` operation, or warning
     /// printed to the debug output.
-    func validate(cryptoProvider: CryptoProvider) {
-        // Check "http"
-        if serviceUrl.absoluteString.hasPrefix("http:") {
-            WultraDebug.warning("CertStore: '.serviceUrl' should point to 'https' server.")
-        }
-        if sslValidationStrategy == .noValidation {
-            WultraDebug.warning("CertStore: '.sslValidationStrategy.noValidation' should not be used in production.")
-        }
+    func validate() {
         // Validate fallback certificate data
         if let fallbackData = fallbackCertificatesData {
-            let decoder = JSONDecoder()
-            decoder.dataDecodingStrategy = .base64
-            decoder.dateDecodingStrategy = .secondsSince1970
-            if let fallback = try? decoder.decode(GetFingerprintsResponse.self, from: fallbackData) {
+            if let fallback = try? JSONUtils.decoder.decode(ServerResponse.self, from: fallbackData) {
                 for fallbackEntry in fallback.fingerprints {
                     if let expectedCNs = expectedCommonNames {
                         if !expectedCNs.contains(fallbackEntry.name) {
@@ -159,29 +110,10 @@ extension CertStoreConfiguration {
                 WultraDebug.fatalError("CertStore: '.fallbackCertificatesData' contains invalid JSON.")
             }
         }
-        // Validate EC public key (will crash on fatal error, for invalid key)
-        _ = cryptoProvider.importECPublicKey(publicKeyBase64: publicKey)
         
         // Negative TimeIntervals are always fatal
         if periodicUpdateInterval < 0 || expirationUpdateTreshold < 0 {
             WultraDebug.fatalError("CertStoreConfiguration contains negative TimeInterval.")
         }
     }
-}
-
-extension SSLValidationStrategy {
-    
-   /// Internal function implements SSL chain validation depending on validation strategy.
-   func validate(challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-       switch self {
-       case .noValidation:
-           if let st = challenge.protectionSpace.serverTrust {
-               completionHandler(.useCredential, URLCredential(trust: st))
-           } else {
-               completionHandler(.performDefaultHandling, nil)
-           }
-       case .default:
-           completionHandler(.performDefaultHandling, nil)
-       }
-   }
 }
