@@ -44,9 +44,9 @@ Before you start using the library, you should also check our other related proj
 
 ### Requirements
 
-- iOS 11.0+
-- tvOS 11.0+
-- Xcode 14+
+- iOS 12.0+
+- tvOS 12.0+
+- Xcode 15+
 - Swift 5.0+
 
 ### Swift Package Manager
@@ -57,7 +57,7 @@ Once you have your Swift package set up, adding this lbirary as a dependency is 
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/wultra/ssl-pinning-ios.git", .upToNextMajor(from: "1.5.0"))
+    .package(url: "https://github.com/wultra/ssl-pinning-ios.git", .upToNextMajor(from: "1.6.0"))
 ]
 ```
 
@@ -72,7 +72,7 @@ $ gem install cocoapods
 To integrate framework into your Xcode project using CocoaPods, specify it in your `Podfile`:
 
 ```ruby
-platform :ios, '11.0'
+platform :ios, '12.0'
 target '<Your Target App>' do
   pod 'WultraSSLPinning/PowerAuthIntegration'
 end
