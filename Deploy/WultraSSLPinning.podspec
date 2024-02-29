@@ -10,8 +10,8 @@ Pod::Spec.new do |s|
   s.source = { :git => 'https://github.com/wultra/ssl-pinning-ios.git', :tag => s.version }
   # Deployment targets
   s.swift_version = '5.0'
-  s.ios.deployment_target = '11.0'
-  s.tvos.deployment_target = '11.0'
+  s.ios.deployment_target = '12.0'
+  s.tvos.deployment_target = '12.0'
   # Sources
   
   # Lib is defautl subspec
@@ -26,8 +26,8 @@ Pod::Spec.new do |s|
   s.subspec 'PowerAuthIntegration' do |sub|
     sub.source_files = 'Sources/WultraSSLPinning/Plugins/PowerAuth/**/*.swift'
     sub.dependency 'WultraSSLPinning/Lib'
-    sub.dependency 'PowerAuth2', '>= 1.7.0'
-    sub.dependency 'PowerAuthCore', '>= 1.7.0'
+    sub.dependency 'PowerAuth2', '~> 1.8.0'
+    sub.dependency 'PowerAuthCore', '~> 1.8.0'
   end
 
 end

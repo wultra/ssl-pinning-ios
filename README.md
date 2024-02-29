@@ -25,13 +25,13 @@
 <!-- end -->
 ## Introduction
 
-The SSL pinning (or [public key, or certificate pinning](https://en.wikipedia.org/wiki/Transport_Layer_Security#Certificate_pinning)) is a technique mitigating [Man-in-the-middle attacks](https://en.wikipedia.org/wiki/Man-in-the-middle_attack) against the secure HTTP communication. The typical iOS solution is to bundle the hash of the certificate, or the exact data of the certificate to the application and validate the incoming challenge in the `URLSessionDelegate`. This in general works well, but it has, unfortunately, one major drawback of the certificate's expiration date. The certificate expiration forces you to update your application regularly before the certificate expires, but still, some percentage of the users don't update their apps automatically. So, the users on the older version, will not be able to contact the application servers.
+The SSL pinning (or [public key, or certificate pinning](https://en.wikipedia.org/wiki/Transport_Layer_Security#Certificate_pinning)) is a technique mitigating [Man-in-the-middle attacks](https://en.wikipedia.org/wiki/Man-in-the-middle_attack) against the secure HTTP communication. The typical iOS solution is to bundle the hash of the certificate, or the exact data of the certificate to the application and validate the incoming challenge in the `URLSessionDelegate`. This in general works well, but it has, unfortunately, one major drawback - the certificate's expiration date. The certificate expiration forces you to update your application regularly before the certificate expires, but still, some percentage of the users don't update their apps automatically. So, the users on the older version, will not be able to contact the application servers.
 
-The solution to this problem is the dynamic SSL pinning, where the list of certificate fingerprints are securely downloaded from the remote server. The `WultraSSLPinning` library does precisely this:
+The solution to this problem is dynamic SSL pinning, where the list of certificate fingerprints is securely downloaded from the remote server. The `WultraSSLPinning` library does precisely this:
 
 - Manages the dynamic list of certificates, downloaded from the remote server
-- All entries in the list are signed with your private key and validated in the library with using the public key (we're using ECDSA-SHA-256 algorithm)
-- Provides easy to use fingerprint validation on the TLS handshake.
+- All entries in the list are signed with your private key and validated in the library using the public key (we're using the ECDSA-SHA-256 algorithm)
+- Provides easy-to-use fingerprint validation on the TLS handshake.
 
 Before you start using the library, you should also check our other related projects:
 
@@ -44,20 +44,20 @@ Before you start using the library, you should also check our other related proj
 
 ### Requirements
 
-- iOS 11.0+
-- tvOS 11.0+
-- Xcode 14+
+- iOS 12.0+
+- tvOS 12.0+
+- Xcode 15+
 - Swift 5.0+
 
 ### Swift Package Manager
 
 The [Swift Package Manager](https://swift.org/package-manager) is a tool for automating the distribution of Swift code and is integrated into the `swift` compiler. 
 
-Once you have your Swift package set up, adding this lbirary as a dependency is as easy as adding it to the `dependencies` value of your `Package.swift`.
+Once you have your Swift package set up, adding this library as a dependency is as easy as adding it to the `dependencies` value of your `Package.swift`.
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/wultra/ssl-pinning-ios.git", .upToNextMajor(from: "1.5.0"))
+    .package(url: "https://github.com/wultra/ssl-pinning-ios.git", .upToNextMajor(from: "1.6.0"))
 ]
 ```
 
@@ -69,16 +69,16 @@ dependencies: [
 $ gem install cocoapods
 ```
 
-To integrate framework into your Xcode project using CocoaPods, specify it in your `Podfile`:
+To integrate the framework into your Xcode project using CocoaPods, specify it in your `Podfile`:
 
 ```ruby
-platform :ios, '11.0'
+platform :ios, '12.0'
 target '<Your Target App>' do
   pod 'WultraSSLPinning/PowerAuthIntegration'
 end
 ```
 
-The current version of the library depends on [PowerAuth2](https://github.com/wultra/powerauth-mobile-sdk) framework, version `0.19.1` and greater.
+The current version of the library depends on the [PowerAuth2](https://github.com/wultra/powerauth-mobile-sdk) framework, version `0.19.1` and greater.
 
 ### Carthage
 
@@ -105,14 +105,14 @@ Run `carthage update` to build the framework and drag the built `WultraSSLPinnin
 The library provides the following core types:
 
 - `CertStore` - the main class which provides all tasks for dynamic pinning  
-- `CertStoreConfiguration` - the configuration structure for `CertStore` class
+- `CertStoreConfiguration` - the configuration structure for the `CertStore` class
 
-The next chapters of this document will explain how to configure and use `CertStore` for the SSL pinning purposes.
+The next chapters of this document will explain how to configure and use `CertStore` for SSL pinning purposes.
 
 
 ## Configuration
 
-Following code will configure `CertStore` object with basic configuration, with using `PowerAuth2` as cryptographic provider & secure storage provider:
+The following code will configure the `CertStore` object with basic configuration, using `PowerAuth2` as the cryptographic provider & secure storage provider:
 ```swift
 import WultraSSLPinning
 
@@ -123,27 +123,27 @@ let configuration = CertStoreConfiguration(
 )
 let certStore = CertStore.powerAuthCertStore(configuration: configuration)
 ```
-*We'll use `certStore` variable in the rest of the documentation as a reference to already configured `CertStore` instance.*
+*We'll use the `certStore` variable in the rest of the documentation as a reference to the already configured `CertStore` instance.*
 
 The configuration has the following properties:
 
 - `serviceUrl` - parameter defining URL with a remote list of certificates. It is recommended that `serviceUrl` points to a different domain than you're going to protect with pinning. See the [FAQ](#faq) section for more details.
 - `publicKey` - contains the public key counterpart to the private key, used for data signing. The Base64 formatted string is expected.
-- `useChallenge` - parameter that defines whether remote server requires challenge request header:
+- `useChallenge` - parameter that defines whether the remote server requires a challenge request header:
   - use `true` in case you're connecting to [Mobile Utility Server](https://github.com/wultra/mobile-utility-server) or similar service.
-  - use `false` in case the remote server provides a static data, generated by [SSL Pinning Tool](https://github.com/wultra/ssl-pinning-tool).
+  - use `false` in case the remote server provides static data, generated by [SSL Pinning Tool](https://github.com/wultra/ssl-pinning-tool).
 - `expectedCommonNames` - an optional array of strings, defining which domains you expect in certificate validation.
 - `identifier` - optional string identifier for scenarios, where multiple `CertStore` instances are used in the application
 - `fallbackCertificatesData` - optional hardcoded data for fallback fingerprints. See the next chapter of this document for details.
-- `periodicUpdateInterval` - defines how often will `CertStore` update the fingerprints silently at the background. The default value is 1 week.
-- `expirationUpdateTreshold` - defines time window before the next certificate will expire. In this time window `CertStore` will try to update the list of fingerprints more often than usual. Default value is 2 weeks before the next expiration.
+- `periodicUpdateInterval` - defines how often `CertStore` updates the fingerprints silently in the background. The default value is 1 week.
+- `expirationUpdateTreshold` - defines the time window before the next certificate will expire. In this time window `CertStore` will try to update the list of fingerprints more often than usual. The default value is 2 weeks before the next expiration.
 - `sslValidationStrategy` - defines the validation strategy for HTTPS connections initiated from the library itself. The `.default` value performs standard certificate chain validation provided by the operating system. Be aware that altering this option may put your application at risk. You should not ship your application to production with SSL validation turned off.
 
 ### Predefined fingerprint
 
-The `CertStoreConfiguration` may contain an optional data with predefined certificates fingerprints. This technique can speed up the first application's startup when the database of fingerprints is empty. You still need to update your application, once the fallback fingerprints expire. 
+The `CertStoreConfiguration` may contain optional data with predefined certificate fingerprints. This technique can speed up the first application's startup when the database of fingerprints is empty. You still need to update your application, once the fallback fingerprints expire. 
 
-To configure the property, you need to provide JSON data with fallback fingerprints. The JSON should contain the same data as are usually received from the server, except that "signature" property is not validated (but must be provided in JSON). For example:
+To configure the property, you need to provide JSON data with fallback fingerprints. The JSON should contain the same data as is usually received from the server, except that the "signature" property is not validated (but must be provided in JSON). For example:
 
 ```swift
 {
@@ -186,12 +186,12 @@ extension CertStore {
 
 ## Update fingerprints
 
-To update list of fingerprints from the remote server, use the following code:
+To update the list of fingerprints from the remote server, use the following code:
 ```swift
 certStore.update { (result, error) in
    if result == .ok {
        // everything's OK, 
-       // No action is required, or silent update was started
+       // No action is required, or a silent update was started
    } else if result == .storeIsEmpty {
        // Update succeeded, but it looks like the remote list contains
        // already expired fingerprints. The certStore will probably not be able
@@ -203,12 +203,12 @@ certStore.update { (result, error) in
 }
 ```
 
-You have to typically call the update on your application's startup, before you initiate the secure HTTP request to the server, which certificate's expected to be validated with the pinning. The update function works in two basic modes:
+You have to typically call the update on your application's startup before you initiate the secure HTTP request to the server, which certificate's expected to be validated with the pinning. The update function works in two basic modes:
 
-- **Blocking mode**, when your application has to wait for downloading the list of certificates. This typically happens when all certificate fingerprints did expire, or on the application's first start (e.g. there's no list of certificates)
-- **Silent update mode**, when the callback is queued immediately to the completion queue, but the `CertStore` performs the update on the background. The purpose of the silent update is to do not block your app's startup, but still keep that the list of fingerprints is up to date. The periodicity of the updates are determined automatically by the `CertStore`, but don't worry, we don't want to eat your users' data plan :)
+- **Blocking mode**, when your application has to wait to download the list of certificates. This typically happens when all certificate fingerprints expire, or on the application's first start (e.g. there's no list of certificates)
+- **Silent update mode**, when the callback is queued immediately to the completion queue, but the `CertStore` performs the update in the background. The purpose of the silent update is to not block your app's startup, but still keep the list of fingerprints up to date. The periodicity of the updates is determined automatically by the `CertStore`, but don't worry, we don't want to eat your users' data plan :)
 
-You can optionally provide the completion dispatch queue for scheduling the completion block. This may be useful for situations when you're calling update from other than "main" thread (for example, from your own networking code). The default queue for the completion is `.main`.
+You can optionally provide the completion dispatch queue for scheduling the completion block. This may be useful for situations when you're calling updates from other than the "main" thread (for example, from your own networking code). The default queue for the completion is `.main`.
 
 ## Fingerprint validation
 
@@ -232,11 +232,11 @@ let validationResult = certStore.validate(commonName: commonName, certificateDat
 let validationResult = certStore.validate(challenge: challenge)
 ```
 
-Each `validate` methods returns `CertStore.ValidationResult` enumeration with following options:
+Each `validate` method returns `CertStore.ValidationResult` enumeration with the following options:
 
 - `trusted` - the server certificate is trusted. You can continue with the communication
 
-  The right response on this situation is to continue with the ongoing TLS handshake (e.g. report
+  The right response to this situation is to continue with the ongoing TLS handshake (e.g. report
   [.performDefaultHandling](https://developer.apple.com/documentation/foundation/urlsession/authchallengedisposition)
   to the completion callback)
    
@@ -244,7 +244,7 @@ Each `validate` methods returns `CertStore.ValidationResult` enumeration with fo
 
   The untrusted result means that `CertStore` has some fingerprints stored in its
   database, but none matches the value you requested for validation. The right
-  response on this situation is always to cancel the ongoing TLS handshake (e.g. report
+  response to this situation is always to cancel the ongoing TLS handshake (e.g. report
   [.cancelAuthenticationChallenge](https://developer.apple.com/documentation/foundation/urlsession/authchallengedisposition)
   to the completion callback)
 
@@ -252,7 +252,7 @@ Each `validate` methods returns `CertStore.ValidationResult` enumeration with fo
 
   The "empty" validation result typically means that the `CertStore` should update
   the list of certificates immediately. Before you do this, you should check whether
-  the requested common name is what's you're expecting. To simplify this step, you can set 
+  the requested common name is what you're expecting. To simplify this step, you can set 
   the list of expected common names in the `CertStoreConfiguration` and treat all others as untrusted.
     
   For all situations, the right response on this situation is always to cancel the ongoing
@@ -286,7 +286,7 @@ class YourUrlSessionDelegate: NSObject, URLSessionDelegate {
 
 ## PowerAuth integration
 
-The `WultraSSLPinning/PowerAuthIntegration` cocoapod sub-spec provides a several additional classes which enhances the PowerAuth SDK functionality. The most important one is the `PowerAuthSslPinningValidationStrategy` class, which implements SSL pinning with using fingerprints, stored in the `CertStore`. You can simply instantiate this object from the existing `CertStore` and set it to the `PowerAuthClientConfiguration`. Then the class will provide SSL pinning for all communication initiated from the PowerAuth SDK.
+The `WultraSSLPinning/PowerAuthIntegration` cocoapod sub-spec provides several additional classes which enhance the PowerAuth SDK functionality. The most important one is the `PowerAuthSslPinningValidationStrategy` class, which implements SSL pinning using fingerprints, stored in the `CertStore`. You can simply instantiate this object from the existing `CertStore` and set it to the `PowerAuthClientConfiguration`. Then the class will provide SSL pinning for all communication initiated from the PowerAuth SDK.
 
 For example, this is how the configuration sequence may look like if you want to use both, `PowerAuthSDK` and `CertStore`, as singletons:
 
@@ -332,16 +332,16 @@ extension PowerAuthSDK {
 
 ## FAQ
 
-### Why different domain for `serviceUrl`?
+### Why a different domain for `serviceUrl`?
 
-iOS is using TLS cache for all secure connections to the remote servers. The cache keeps already established connection alive for a while, to speed up the next HTTPS request (see [Apple's Technical Q&A](https://developer.apple.com/library/archive/qa/qa1727/_index.html) for more information). Unfortunately, you don't have the direct control on that cache, so you cannot close already established connection. That unfortunately, opens a small door for the attacker. Imagine this scenario:
+iOS is using a TLS cache for all secure connections to the remote servers. The cache keeps already established connection alive for a while, to speed up the next HTTPS request (see [Apple's Technical Q&A](https://developer.apple.com/library/archive/qa/qa1727/_index.html) for more information). Unfortunately, you don't have direct control of that cache, so you cannot close an already established connection. That, unfortunately, opens a small door for the attacker. Imagine this scenario:
 
 1. The connection to get the remote list of fingerprints should not be protected with pinning. The list must be accessed for all costs, so protecting it with the pinning may cause the cert store to deadlock itself (or simply move it to the next level, where you need to update the fingerprint which must protect getting the list of new fingerprints)
 2. You usually need to update the list of fingerprints at the application's startup, before everything else. 
-3. Due to step 1., the attacker can trick your app to get the list of certificates with using his rogue CA. This will not allow him to insert a new entry to the list, but that's not the point.
+3. Due to step 1., the attacker can trick your app to get the list of certificates by using his rogue CA. This will not allow him to insert a new entry to the list, but that's not the point.
 4. If your API is on the same domain, then your app's connection will reuse the already established connection (opened in step 2. or 3.), via the MitM. And that's it.
 
-Well, not everything's lost. If you're using `URLSession` (probably yes), then you can re-create a new `URLSession`, because it has its own TLS cache. But all this is not well documented, so that's why we recommend putting the list of fingerprints on the different domain, to avoid this kind of conflicts in the TLS cache at all.
+Well, not everything's lost. If you're using `URLSession` (probably yes), then you can re-create a new `URLSession`, because it has its own TLS cache. But all this is not well documented, so that's why we recommend putting the list of fingerprints on the different domains, to avoid this kind of conflict in the TLS cache at all.
 
 
 ### Can the library provide more debug information?
@@ -353,15 +353,15 @@ WultraDebug.verboseLevel = .all
 
 ### Why dependency on PowerAuth2?
 
-The library requires several cryptographic primitives, which are typically not available in iOS (like ECDSA). The `PowerAuth2` already provides this functions, and most of our clients are already using PowerAuth2 framework in their applications. So, for our purposes, it makes sense to glue both libraries together.
+The library requires several cryptographic primitives, which are typically not available in iOS (like ECDSA). The `PowerAuth2` already provides these functions, and most of our clients are already using the PowerAuth2 framework in their applications. So, for our purposes, it makes sense to glue both libraries together.
 
-But not everything is lost. The core of the library is using `CryptoProvider` protocol and therefore is implementation independent. We'll provide the standalone version of the pinning library later. 
+But not everything is lost. The core of the library uses the `CryptoProvider` protocol and therefore is implementation independent. We'll provide the standalone version of the pinning library later. 
 
 ---
 
 ## License
 
-All sources are licensed using Apache 2.0 license. You can use them with no restriction. If you are using this library, please let us know. We will be happy to share and promote your project.
+All sources are licensed using Apache 2.0 license. You can use them with no restrictions. If you are using this library, please let us know. We will be happy to share and promote your project.
 
 ## Contact
 

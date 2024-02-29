@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/wultra/powerauth-mobile-sdk-spm.git",
       "state" : {
-        "revision" : "095be6adfc057501a7cb9a7351697a1b6ed9e64b",
-        "version" : "1.7.8"
+        "revision" : "2aacf6135fe6985d9ad56178e6b3a6068b77f4f1",
+        "version" : "1.8.0"
       }
     }
   ],
