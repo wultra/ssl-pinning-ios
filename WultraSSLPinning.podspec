@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name = 'WultraSSLPinning'
-  s.version = '1.6.0'
+  s.version = '1.9.0'
   # Metadata
   s.license = { :type => 'Apache License, Version 2.0', :file => 'LICENSE' }
   s.summary = 'Dynamic SSL pinning written in Swift'
@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.author = { 'Wultra s.r.o.' => 'support@wultra.com' }
   s.source = { :git => 'https://github.com/wultra/ssl-pinning-ios.git', :tag => s.version }
   # Deployment targets
-  s.swift_version = '5.0'
+  s.swift_version = '5.9'
   s.ios.deployment_target = '12.0'
   s.tvos.deployment_target = '12.0'
   # Sources
@@ -26,8 +26,8 @@ Pod::Spec.new do |s|
   s.subspec 'PowerAuthIntegration' do |sub|
     sub.source_files = 'Sources/WultraSSLPinning/Plugins/PowerAuth/**/*.swift'
     sub.dependency 'WultraSSLPinning/Lib'
-    sub.dependency 'PowerAuth2', '~> 1.8.0'
-    sub.dependency 'PowerAuthCore', '~> 1.8.0'
+    sub.dependency 'PowerAuth2', '~> 1.9.0'
+    sub.dependency 'PowerAuthCore', '~> 1.9.0'
   end
 
 end

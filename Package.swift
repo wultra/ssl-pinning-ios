@@ -13,7 +13,7 @@ let package = Package(
             targets: ["WultraSSLPinning"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/wultra/powerauth-mobile-sdk-spm.git", .upToNextMinor(from: "1.8.0"))
+        .package(url: "https://github.com/wultra/powerauth-mobile-sdk-spm.git", .upToNextMinor(from: "1.9.0"))
     ],
     targets: [
         .target(
