@@ -1,0 +1,16 @@
+name: tests
+
+on:
+  pull_request:
+
+jobs:
+  tests:
+    name: Tests
+    runs-on: macos-15
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v4
+      - name: Set proper xcode version
+        run: sh ./scripts/xcodeselect.sh
+      - name: Run Tests
+        run: ./Scripts/test.sh -url ${{ secrets.TESTS_URL }} -appname ${{ secrets.TESTS_APP_NAME }} -urltopin ${{ secrets.TESTS_URL_TO_PIN }} -login ${{ secrets.TESTS_LOGIN }} -password ${{ secrets.TESTS_PASSWORD }} 
