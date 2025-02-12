@@ -17,7 +17,10 @@
 import XCTest
 @testable import WultraSSLPinning
 
-class PowerAuthCryptoProviderTests: XCTestCase {
+class ConcreteCryptoProviderTests: XCTestCase {
+    
+    // concrete crypto provider implementation
+    private let providers: [CryptoProvider] = [ PowerAuthCryptoProvider(), CryptoKitCryptoProvider() ]
     
     func testSha256() {
         // Prepare test data
@@ -36,19 +39,19 @@ class PowerAuthCryptoProviderTests: XCTestCase {
             )
         ]
         // Validate expected results
-        let cp = PowerAuthCryptoProvider()
-        vectors.forEach { (input, hash) in
-            guard let inputBytes = input.data(using: .utf8) else {
-                XCTFail("Wrong test data")
-                return
-            }
-            guard let expected  = Data.fromHex(hash) else {
-                XCTFail("Wrong test data")
-                return
-            }
-            let calculated = cp.hashSha256(data: inputBytes)
-            XCTAssertEqual(expected, calculated)
-        }
+        providers.forEach { cp in
+            vectors.forEach { input, hash in
+                guard let inputBytes = input.data(using: .utf8) else {
+                    XCTFail("Wrong test data")
+                    return
+                }
+                guard let expected  = Data.fromHex(hash) else {
+                    XCTFail("Wrong test data")
+                    return
+                }
+                let calculated = cp.hashSha256(data: inputBytes)
+                XCTAssertEqual(expected, calculated)
+            }}
     }
     
     func testEcdsaSignatureValidation1() {
@@ -64,15 +67,15 @@ class PowerAuthCryptoProviderTests: XCTestCase {
             XCTFail("Invalid test data")
             return
         }
-        // Validate signature
-        let cp = PowerAuthCryptoProvider()
-        guard let publicKey = cp.importECPublicKey(publicKey: publicKeyData) else {
-            XCTFail("Invalid test data")
-            return
+        providers.forEach { cp in
+            guard let publicKey = cp.importECPublicKey(publicKey: publicKeyData) else {
+                XCTFail("Invalid test data")
+                return
+            }
+            let signedDataObject = SignedData(data: signedData, signature: signature)
+            let result = cp.ecdsaValidateSignatures(signedData: signedDataObject, publicKey: publicKey)
+            XCTAssertTrue(result)
         }
-        let signedDataObject = SignedData(data: signedData, signature: signature)
-        let result = cp.ecdsaValidateSignatures(signedData: signedDataObject, publicKey: publicKey)
-        XCTAssertTrue(result)
     }
     
     func testEcdsaSignatureValidation2() {
@@ -88,15 +91,15 @@ class PowerAuthCryptoProviderTests: XCTestCase {
                 XCTFail("Invalid test data")
                 return
         }
-        // Validate signature
-        let cp = PowerAuthCryptoProvider()
-        guard let publicKey = cp.importECPublicKey(publicKey: publicKeyData) else {
-            XCTFail("Invalid test data")
-            return
+        providers.forEach { cp in
+            guard let publicKey = cp.importECPublicKey(publicKey: publicKeyData) else {
+                XCTFail("Invalid test data")
+                return
+            }
+            let signedDataObject = SignedData(data: signedData, signature: signature)
+            let result = cp.ecdsaValidateSignatures(signedData: signedDataObject, publicKey: publicKey)
+            XCTAssertTrue(result)
         }
-        let signedDataObject = SignedData(data: signedData, signature: signature)
-        let result = cp.ecdsaValidateSignatures(signedData: signedDataObject, publicKey: publicKey)
-        XCTAssertTrue(result)
     }
     
 }

@@ -25,11 +25,28 @@ public class CertStore {
     
     // MARK: - Public interface
     
+    /// Initializes `CertStore` with provided configuration.
+    ///
+    /// - Parameter configuration: Configuration for the CertStore object
+    /// - Parameter cryptoProvider: Instance of `CryptoProvider` object. Basic `CryptoKitCryptoProvider` instance provided when nil.
+    /// - Parameter secureDataStore: Instance of `SecureDataStore` object. Basic `KeychainDataStore` instance provided when nil.
+    @available(iOS 13.0, *)
+    public init(configuration: CertStoreConfiguration, cryptoProvider: CryptoProvider? = nil, secureDataStore: SecureDataStore? = nil) {
+        let provider = cryptoProvider ?? CryptoKitCryptoProvider()
+        let dataStore = secureDataStore ?? KeychainDataStore()
+        configuration.validate(cryptoProvider: provider)
+        self.configuration = configuration
+        self.cryptoProvider = provider
+        self.secureDataStore = dataStore
+        self.remoteDataProvider = RestAPI(baseURL: configuration.serviceUrl, sslValidationStrategy: configuration.sslValidationStrategy)
+    }
+    
     /// Initializes `CertStore` with provided configuration, crypto provider and secure data store.
     ///
     /// - Parameter configuration: Configuration for the CertStore object
     /// - Parameter cryptoProvider: Instance of `CryptoProvider` object
     /// - Parameter secureDataStore: Instance of `SecureDataStore` object
+    @available(iOS, introduced: 11.0, obsoleted: 12.0, message: "This method is no longer available in iOS 13 and later.")
     public init(configuration: CertStoreConfiguration, cryptoProvider: CryptoProvider, secureDataStore: SecureDataStore) {
         configuration.validate(cryptoProvider: cryptoProvider)
         self.configuration = configuration

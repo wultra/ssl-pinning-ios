@@ -28,6 +28,12 @@ public class PowerAuthCryptoProvider: CryptoProvider {
     
     // MARK: - CryptoProvider protocol
     
+    /// Validates whether data has not been modified.
+    ///
+    /// - Parameter signedData: Signed data and the signature
+    /// - Parameter publicKey: EC public key. Must be `PowerAuthCoreECPublicKey` otherwise will result in fatal error.
+    ///
+    /// - Returns true if all signatures are correct
     public func ecdsaValidateSignatures(signedData: SignedData, publicKey: ECPublicKey) -> Bool {
         // Cast abstract interface to PowerAuthCoreECPublicKey
         guard let ecKey = publicKey as? PowerAuthCoreECPublicKey else {

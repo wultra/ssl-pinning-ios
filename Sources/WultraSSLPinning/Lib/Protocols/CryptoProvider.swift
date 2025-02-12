@@ -24,8 +24,7 @@ public protocol CryptoProvider: AnyObject {
     
     /// Validates whether data has not been modified.
     ///
-    /// - Parameter data: Data which has been signed with private key
-    /// - Parameter signedData: Array of SignedData structures
+    /// - Parameter signedData: Signed data and the signature
     /// - Parameter publicKey: EC public key
     ///
     /// - Returns true if all signatures are correct
@@ -63,6 +62,6 @@ public struct SignedData {
 
 /// The `ECPublicKey` protocol is an abstract interface representing
 /// a public key in EC based cryptography.
-public protocol ECPublicKey: AnyObject {
+public protocol ECPublicKey {
 }
 
