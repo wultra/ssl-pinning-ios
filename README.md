@@ -15,6 +15,7 @@
     - [Update fingerprints](#update-fingerprints)
     - [Fingerprint validation](#fingerprint-validation)
     - [PowerAuth integration](#powerauth-integration)
+- [Migration Guide](#migration-guide)
 - [FAQ](#faq)
 - [License](#license)
 - [Contact](#contact)
@@ -304,6 +305,19 @@ public class PowerAuthSslPinningValidationStrategy: NSObject, PowerAuthClientSsl
 ```
 
 > If you used this library in the version `1.7.x` or older, you can still use `WultraSSLPinning/PowerAuthIntegration` pod that provides out-of-the-box integration with the PowerAuth SDK. This integration will be removed in the future.
+ 
+## Migration guide
+
+### 1.7.x to 1.8.x
+
+All PowerAuth helpers in the `WultraSSLPinning/PowerAuthIntegration` pod were deprecated.
+
+All PowerAuth helpers are no longer available for Swift Package Manager integration.
+
+- Use `CertStore` initializer directly instead of `CertStore.powerAuthCertStore`
+- `PowerAuthSecureDataStore` can be replaced by the `KeychainSecureDataStore` with the same parameters.
+- `PowerAuthCryptoProvider` can be replaced by the `CryptoKitCryptoProvider`.
+- Replace `PowerAuthSslPinningValidationStrategy` by your own implementation ([example](#powerauth-integration))
 
 ## FAQ
 
