@@ -14,6 +14,7 @@
 // and limitations under the License.
 //
 
+import Foundation
 import CryptoKit
 
 /// The `CryptoKitCryptoProvider` implements `CryptoProvider` interface with using

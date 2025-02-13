@@ -14,6 +14,9 @@
 // and limitations under the License.
 //
 
+import Foundation
+import Security
+
 /// The `KeychainSecureDataStore` implements `SecureDataStore` interface with the
 /// system keychain as underlying data storage. To initialize the data store,
 /// you have to provide keychain identifier and optional access group, if the cached

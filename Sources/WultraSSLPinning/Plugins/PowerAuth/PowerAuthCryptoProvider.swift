@@ -14,7 +14,7 @@
 // and limitations under the License.
 //
 
-#if canImport(PowerAuthCore) // for SwiftPM in case that the PowerAuth is not available.
+#if canImport(PowerAuthCore) // for SwiftPM - PowerAuth is not available.
 
 import PowerAuthCore
 
