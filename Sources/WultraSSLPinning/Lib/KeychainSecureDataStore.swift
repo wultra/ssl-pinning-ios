@@ -14,26 +14,26 @@
 // and limitations under the License.
 //
 
-/// The `KeychainDataStore` implements `SecureDataStore` interface with the
+/// The `KeychainSecureDataStore` implements `SecureDataStore` interface with the
 /// system keychain as underlying data storage. To initialize the data store,
 /// you have to provide keychain identifier and optional access group, if the cached
 /// data has to be stored across multiple applications.
-public class KeychainDataStore: SecureDataStore {
+public class KeychainSecureDataStore: SecureDataStore {
     
     /// Used for the `kSecAttrService` property to uniquely identify this keychain accessor.
     let keychainIdentifier: String
     
     /// AccessGroup is used for the `kSecAttrAccessGroup` property to identify which Keychain Access Group this entry belongs to.
-    /// This allows you to use the `KeychainDataStore` with shared keychain access between different applications.
+    /// This allows you to use the `KeychainSecureDataStore` with shared keychain access between different applications.
     public let accessGroup: String?
     
-    public static let defaultKeychainIdentifier = "com.wultra.DefaultWultraCertStore"
+    public static let defaultKeychainIdentifier = "com.wultra.WultraCertStore"
     
     /// Initializes secure data store based on system keychain services.
     ///
     /// - Parameter keychainIdentifier: Identifier of the service.
     /// - Parameter accessGroup: Access group for the Keychain Sharing
-    public init(keychainIdentifier: String = KeychainDataStore.defaultKeychainIdentifier, accessGroup: String? = nil) {
+    public init(keychainIdentifier: String = KeychainSecureDataStore.defaultKeychainIdentifier, accessGroup: String? = nil) {
         self.keychainIdentifier = keychainIdentifier
         self.accessGroup = accessGroup
     }
@@ -43,6 +43,12 @@ public class KeychainDataStore: SecureDataStore {
     public func save(data: Data, forKey key: String) -> Bool {
         var keychainQueryDictionary: [String: Any] = setupKeychainQueryDictionary(forKey: key)
         
+        
+        // Assign default protection - Protect the keychain entry so it's only valid when the device is unlocked
+        keychainQueryDictionary[SecAttrAccessible] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+        // Do not synchronize in the icloud
+        keychainQueryDictionary[SecAttrSynchronizable] = kCFBooleanFalse
+        // Set the data
         keychainQueryDictionary[SecValueData] = data
         
         let status: OSStatus = SecItemAdd(keychainQueryDictionary as CFDictionary, nil)
@@ -103,20 +109,13 @@ public class KeychainDataStore: SecureDataStore {
         
         // Uniquely identify this keychain accessor
         keychainQueryDictionary[SecAttrService] = keychainIdentifier
-        // Assign default protection - Protect the keychain entry so it's only valid when the device is unlocked
-        keychainQueryDictionary[SecAttrAccessible] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
         
         // Set the keychain access group if defined
         if let accessGroup = self.accessGroup {
             keychainQueryDictionary[SecAttrAccessGroup] = accessGroup
         }
         
-        // Uniquely identify the account who will be accessing the keychain
-        let encodedIdentifier: Data? = key.data(using: String.Encoding.utf8)
-        
-        keychainQueryDictionary[SecAttrGeneric] = encodedIdentifier
-        keychainQueryDictionary[SecAttrAccount] = encodedIdentifier
-        keychainQueryDictionary[SecAttrSynchronizable] = kCFBooleanFalse
+        keychainQueryDictionary[SecAttrAccount] = key
         
         return keychainQueryDictionary
     }
@@ -129,7 +128,6 @@ public class KeychainDataStore: SecureDataStore {
     private let SecAttrAccessible = kSecAttrAccessible as String
     private let SecClass = kSecClass as String
     private let SecAttrService = kSecAttrService as String
-    private let SecAttrGeneric = kSecAttrGeneric as String
     private let SecAttrAccount = kSecAttrAccount as String
     private let SecAttrAccessGroup = kSecAttrAccessGroup as String
     private let SecAttrSynchronizable = kSecAttrSynchronizable as String

@@ -52,7 +52,7 @@
 		DC68CFD32D5BA08300D7468C /* PowerAuth2.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC8664C5270B430E00FE2B3F /* PowerAuth2.xcframework */; };
 		DC68CFD52D5BA08300D7468C /* PowerAuthCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC8664C6270B430E00FE2B3F /* PowerAuthCore.xcframework */; };
 		DC68CFD82D5CAD0300D7468C /* CryptoKitCryptoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC68CFD72D5CACFF00D7468C /* CryptoKitCryptoProvider.swift */; };
-		DC68CFDC2D5CD59700D7468C /* KeychainDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC68CFDB2D5CD59400D7468C /* KeychainDataStore.swift */; };
+		DC68CFDC2D5CD59700D7468C /* KeychainSecureDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC68CFDB2D5CD59400D7468C /* KeychainSecureDataStore.swift */; };
 		DC68CFDE2D5CE6E600D7468C /* ConcreteDataStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC68CFDD2D5CE6E600D7468C /* ConcreteDataStoreTests.swift */; };
 		DC68CFFA2D5CF89B00D7468C /* PowerAuth2.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC8664C5270B430E00FE2B3F /* PowerAuth2.xcframework */; };
 		DC68CFFB2D5CF89B00D7468C /* PowerAuth2.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DC8664C5270B430E00FE2B3F /* PowerAuth2.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -157,7 +157,7 @@
 		BFF51837251A16720061DAAF /* ECDSA.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ECDSA.swift; sourceTree = "<group>"; };
 		DC68CFD12D5B5ACA00D7468C /* Configs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Configs; sourceTree = "<group>"; };
 		DC68CFD72D5CACFF00D7468C /* CryptoKitCryptoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoKitCryptoProvider.swift; sourceTree = "<group>"; };
-		DC68CFDB2D5CD59400D7468C /* KeychainDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainDataStore.swift; sourceTree = "<group>"; };
+		DC68CFDB2D5CD59400D7468C /* KeychainSecureDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSecureDataStore.swift; sourceTree = "<group>"; };
 		DC68CFDD2D5CE6E600D7468C /* ConcreteDataStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcreteDataStoreTests.swift; sourceTree = "<group>"; };
 		DC68CFE32D5CF7B700D7468C /* TestHostApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestHostApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		DC8664C5270B430E00FE2B3F /* PowerAuth2.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = PowerAuth2.xcframework; path = Carthage/Build/PowerAuth2.xcframework; sourceTree = "<group>"; };
@@ -215,7 +215,7 @@
 			isa = PBXGroup;
 			children = (
 				BFCB816A213D954500615ADA /* Lib */,
-				BFCB8168213D954500615ADA /* Plugins */,
+				DC68D0042D5E000E00D7468C /* Plugins */,
 			);
 			path = WultraSSLPinning;
 			sourceTree = "<group>";
@@ -330,14 +330,6 @@
 			path = Sources;
 			sourceTree = "<group>";
 		};
-		BFCB8168213D954500615ADA /* Plugins */ = {
-			isa = PBXGroup;
-			children = (
-				BFCB8170213D9D5E00615ADA /* PowerAuth */,
-			);
-			path = Plugins;
-			sourceTree = "<group>";
-		};
 		BFCB816A213D954500615ADA /* Lib */ = {
 			isa = PBXGroup;
 			children = (
@@ -350,7 +342,7 @@
 				BFE92F45213EC6C00078E2A1 /* CertStore+Validation.swift */,
 				BF8BB76E213EFC100097315B /* CertStore+Storage.swift */,
 				DC68CFD72D5CACFF00D7468C /* CryptoKitCryptoProvider.swift */,
-				DC68CFDB2D5CD59400D7468C /* KeychainDataStore.swift */,
+				DC68CFDB2D5CD59400D7468C /* KeychainSecureDataStore.swift */,
 			);
 			path = Lib;
 			sourceTree = "<group>";
@@ -394,6 +386,14 @@
 				BF7DD40321428E9100766D03 /* ResponseGenerator.swift */,
 			);
 			path = Providers;
+			sourceTree = "<group>";
+		};
+		DC68D0042D5E000E00D7468C /* Plugins */ = {
+			isa = PBXGroup;
+			children = (
+				BFCB8170213D9D5E00615ADA /* PowerAuth */,
+			);
+			path = Plugins;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -583,7 +583,7 @@
 				BFCB817E213DA71100615ADA /* PowerAuthSecureDataStore.swift in Sources */,
 				DC68CFD82D5CAD0300D7468C /* CryptoKitCryptoProvider.swift in Sources */,
 				BFCB818A213EAD1300615ADA /* CertStoreConfiguration.swift in Sources */,
-				DC68CFDC2D5CD59700D7468C /* KeychainDataStore.swift in Sources */,
+				DC68CFDC2D5CD59700D7468C /* KeychainSecureDataStore.swift in Sources */,
 				BFCB8188213EAC1300615ADA /* CertStore.swift in Sources */,
 				BF026B022141CC9700A47E90 /* WultraDebug.swift in Sources */,
 				BFE92F46213EC6C00078E2A1 /* CertStore+Validation.swift in Sources */,
@@ -814,6 +814,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = "$(SRCROOT)/Sources/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -840,6 +841,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = "$(SRCROOT)/Sources/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

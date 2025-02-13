@@ -18,7 +18,6 @@ import CryptoKit
 
 /// The `CryptoKitCryptoProvider` implements `CryptoProvider` interface with using
 /// functions provided from the CryptoKit.
-@available(iOS 13.0, *)
 public class CryptoKitCryptoProvider: CryptoProvider {
     
     /// Public constructor
@@ -34,7 +33,7 @@ public class CryptoKitCryptoProvider: CryptoProvider {
         
         // Cast abstract interface to PowerAuthCoreECPublicKey
         guard let ecKey = publicKey as? P256.Signing.PublicKey else {
-            WultraDebug.fatalError("Invalid ECPublicKey object.")
+            WultraDebug.fatalError("Invalid ECPublicKey object (P256.Signing.PublicKey expected).")
         }
         
         do {

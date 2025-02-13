@@ -14,6 +14,8 @@
 // and limitations under the License.
 //
 
+#if canImport(PowerAuth2) // for SwiftPM in case that the PowerAuth is not available.
+
 import PowerAuth2
 
 ///
@@ -22,10 +24,8 @@ import PowerAuth2
 /// you have to provide keychain identifier and optional access group, if the cached
 /// data has to be stored across multiple applications.
 ///
+@available(*, deprecated, message: "Use KeychainSecureDataStore instead with the same keychainIdentifier and accessGroup. This class will be removed in the future.")
 public class PowerAuthSecureDataStore: SecureDataStore {
-    
-    /// The default keychain identifier.
-    public static let defaultKeychainIdentifier = "com.wultra.WultraCertStore"
     
     /// Underlying keychain object used for data storage.
     private let keychain: PowerAuthKeychain
@@ -35,7 +35,7 @@ public class PowerAuthSecureDataStore: SecureDataStore {
     ///
     /// - Parameter keychainIdentifier: Identifier of the service
     /// - Parameter accessGroup: Access group for the Keychain Sharing
-    public init(keychainIdentifier: String = PowerAuthSecureDataStore.defaultKeychainIdentifier, accessGroup: String? = nil) {
+    public init(keychainIdentifier: String = KeychainSecureDataStore.defaultKeychainIdentifier, accessGroup: String? = nil) {
         keychain = PowerAuthKeychain(identifier: keychainIdentifier, accessGroup: accessGroup)
     }
     
@@ -57,3 +57,5 @@ public class PowerAuthSecureDataStore: SecureDataStore {
         keychain.deleteData(forKey: key)
     }
 }
+
+#endif
