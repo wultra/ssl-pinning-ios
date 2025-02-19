@@ -1,0 +1,7 @@
+{
+    "url"           : "https://my-us-deployment.my-company.com",
+    "appName"       : "my-test-app",
+    "urlToPin"      : "https://github.com",
+    "adminLogin"    : "loginToAdminConsole",
+    "adminPassword" : "passwordToAdminConsole"
+}

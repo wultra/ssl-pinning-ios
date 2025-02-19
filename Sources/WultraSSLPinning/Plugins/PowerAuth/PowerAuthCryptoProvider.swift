@@ -14,6 +14,8 @@
 // and limitations under the License.
 //
 
+#if canImport(PowerAuthCore) // for SwiftPM - PowerAuth is not available.
+
 import PowerAuthCore
 
 ///
@@ -21,6 +23,7 @@ import PowerAuthCore
 /// functions provided by the PowerAuth SDK. If your application is already using
 /// PowerAuth, then this is the recommended implementation for you.
 ///
+@available(*, deprecated, message: "Use CryptoKitCryptoProvider instead. This class will be removed in the future.")
 public class PowerAuthCryptoProvider: CryptoProvider {
     
     /// Public constructor
@@ -28,6 +31,12 @@ public class PowerAuthCryptoProvider: CryptoProvider {
     
     // MARK: - CryptoProvider protocol
     
+    /// Validates whether data has not been modified.
+    ///
+    /// - Parameter signedData: Signed data and the signature
+    /// - Parameter publicKey: EC public key. Must be `PowerAuthCoreECPublicKey` otherwise will result in fatal error.
+    ///
+    /// - Returns true if all signatures are correct
     public func ecdsaValidateSignatures(signedData: SignedData, publicKey: ECPublicKey) -> Bool {
         // Cast abstract interface to PowerAuthCoreECPublicKey
         guard let ecKey = publicKey as? PowerAuthCoreECPublicKey else {
@@ -63,3 +72,5 @@ public class PowerAuthCryptoProvider: CryptoProvider {
 extension PowerAuthCoreECPublicKey: ECPublicKey {
     // Makes `PowerAuthCoreECPublicKey` compatible with `ECPublicKey` interface
 }
+
+#endif

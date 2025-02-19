@@ -25,12 +25,16 @@ public class CertStore {
     
     // MARK: - Public interface
     
-    /// Initializes `CertStore` with provided configuration, crypto provider and secure data store.
+    /// Initializes `CertStore` with provided configuration.
     ///
     /// - Parameter configuration: Configuration for the CertStore object
-    /// - Parameter cryptoProvider: Instance of `CryptoProvider` object
-    /// - Parameter secureDataStore: Instance of `SecureDataStore` object
-    public init(configuration: CertStoreConfiguration, cryptoProvider: CryptoProvider, secureDataStore: SecureDataStore) {
+    /// - Parameter cryptoProvider: Instance of `CryptoProvider` object. Basic `CryptoKitCryptoProvider` instance by defaut.
+    /// - Parameter secureDataStore: Instance of `SecureDataStore` object. Basic `KeychainSecureDataStore` instance by default.
+    public init(
+        configuration: CertStoreConfiguration,
+        cryptoProvider: CryptoProvider = CryptoKitCryptoProvider(),
+        secureDataStore: SecureDataStore = KeychainSecureDataStore()
+    ) {
         configuration.validate(cryptoProvider: cryptoProvider)
         self.configuration = configuration
         self.cryptoProvider = cryptoProvider

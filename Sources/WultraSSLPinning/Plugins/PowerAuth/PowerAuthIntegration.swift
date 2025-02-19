@@ -14,6 +14,8 @@
 // and limitations under the License.
 //
 
+#if canImport(PowerAuth2) // for SwiftPM - PowerAuth is not available.
+
 import PowerAuth2
 
 public extension CertStore {
@@ -22,6 +24,7 @@ public extension CertStore {
     /// The constructed validation strategy object will use this instance of `CertStore` for server certificate
     /// validation. Note that the function always constructs new object, so it's effective to create just one instance
     /// of the validator per `CertStore`.
+    @available(*, deprecated, message: "This method will be removed in the future. Please use your own implementation.")
     func powerAuthSslValidationStrategy() -> PowerAuthClientSslValidationStrategy {
         return PowerAuthSslPinningValidationStrategy(certStore: self)
     }
@@ -42,6 +45,7 @@ public extension CertStore {
     ///     }
     /// }
     /// ```
+    @available(*, deprecated, message: "Use direct CertStore initializer with the default parameters instead. PowerAuthCryptoProvider and PowerAuthSecureDataStore will be removed in future.")
     static func powerAuthCertStore(configuration: CertStoreConfiguration) -> CertStore {
         return CertStore(
             configuration: configuration,
@@ -90,6 +94,8 @@ public extension CertStore {
 /// }
 /// ```
 ///
+
+@available(*, deprecated, message: "This class will be removed in the future. Please use your own implementation.")
 public class PowerAuthSslPinningValidationStrategy: NSObject, PowerAuthClientSslValidationStrategy {
     
     /// `CertStore` object which actually implements the SSL pinning.
@@ -113,3 +119,5 @@ public class PowerAuthSslPinningValidationStrategy: NSObject, PowerAuthClientSsl
         }
     }
 }
+
+#endif
