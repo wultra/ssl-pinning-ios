@@ -48,6 +48,8 @@
 		BFE92F48213ECE5F0078E2A1 /* CertStore+Update.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE92F47213ECE5F0078E2A1 /* CertStore+Update.swift */; };
 		BFEA9AEB2142C569008D9EE4 /* CertStoreTests_LoadSave.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFEA9AE92142C531008D9EE4 /* CertStoreTests_LoadSave.swift */; };
 		BFF51838251A16720061DAAF /* ECDSA.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFF51837251A16720061DAAF /* ECDSA.swift */; };
+		DC2FEDCF2D84476D00135820 /* CertStoreTests_Domains.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2FEDCE2D84476D00135820 /* CertStoreTests_Domains.swift */; };
+		DC2FEDD12D848C8500135820 /* CertStoreTests_Chain.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC2FEDD02D848C8500135820 /* CertStoreTests_Chain.swift */; };
 		DC68CFD22D5B5ACA00D7468C /* Configs in Resources */ = {isa = PBXBuildFile; fileRef = DC68CFD12D5B5ACA00D7468C /* Configs */; };
 		DC68CFD32D5BA08300D7468C /* PowerAuth2.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC8664C5270B430E00FE2B3F /* PowerAuth2.xcframework */; };
 		DC68CFD52D5BA08300D7468C /* PowerAuthCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC8664C6270B430E00FE2B3F /* PowerAuthCore.xcframework */; };
@@ -155,6 +157,8 @@
 		BFE92F47213ECE5F0078E2A1 /* CertStore+Update.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CertStore+Update.swift"; sourceTree = "<group>"; };
 		BFEA9AE92142C531008D9EE4 /* CertStoreTests_LoadSave.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertStoreTests_LoadSave.swift; sourceTree = "<group>"; };
 		BFF51837251A16720061DAAF /* ECDSA.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ECDSA.swift; sourceTree = "<group>"; };
+		DC2FEDCE2D84476D00135820 /* CertStoreTests_Domains.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertStoreTests_Domains.swift; sourceTree = "<group>"; };
+		DC2FEDD02D848C8500135820 /* CertStoreTests_Chain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertStoreTests_Chain.swift; sourceTree = "<group>"; };
 		DC68CFD12D5B5ACA00D7468C /* Configs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Configs; sourceTree = "<group>"; };
 		DC68CFD72D5CACFF00D7468C /* CryptoKitCryptoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoKitCryptoProvider.swift; sourceTree = "<group>"; };
 		DC68CFDB2D5CD59400D7468C /* KeychainSecureDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSecureDataStore.swift; sourceTree = "<group>"; };
@@ -263,6 +267,8 @@
 				BF7DD3EE21414AAA00766D03 /* Helpers */,
 				BF7DD40B21429EDC00766D03 /* CertStoreTestConfigs.swift */,
 				BF7DD40621429CBA00766D03 /* CertStoreTests_Basics.swift */,
+				DC2FEDCE2D84476D00135820 /* CertStoreTests_Domains.swift */,
+				DC2FEDD02D848C8500135820 /* CertStoreTests_Chain.swift */,
 				BFEA9AE92142C531008D9EE4 /* CertStoreTests_LoadSave.swift */,
 				BF8BB77D214021EF0097315B /* CertStoreTests_Update.swift */,
 				BF1FE298251B4E1B00A3374F /* CertStoreTests_Signing.swift */,
@@ -557,6 +563,7 @@
 				BF7DD40A21429DC300766D03 /* CertStoreTests_Basics.swift in Sources */,
 				BF7DD3CB214022FC00766D03 /* AsyncHelper.swift in Sources */,
 				BF1FE2A4251C999600A3374F /* CertStoreTests_Network.swift in Sources */,
+				DC2FEDCF2D84476D00135820 /* CertStoreTests_Domains.swift in Sources */,
 				BFF51838251A16720061DAAF /* ECDSA.swift in Sources */,
 				BF7DD3CE21402A3100766D03 /* ConcreteCryptoProviderTests.swift in Sources */,
 				BFABCD6021498E0500A9221F /* CertificateInfoTests.swift in Sources */,
@@ -567,6 +574,7 @@
 				BF7DD3D121402B5000766D03 /* HexadecimalHelper.swift in Sources */,
 				BF7DD40521428EC900766D03 /* ResponseGenerator.swift in Sources */,
 				BF7DD40F2142A16E00766D03 /* Expiration.swift in Sources */,
+				DC2FEDD12D848C8500135820 /* CertStoreTests_Chain.swift in Sources */,
 				BF7DD3FF2142878000766D03 /* DataExtension.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

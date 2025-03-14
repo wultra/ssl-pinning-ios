@@ -48,18 +48,18 @@ class ResponseGenerator {
     
     /// Appends a new item at the end of fingerprints
     @discardableResult
-    func append(commonName: String, expiration: Expiration = .valid, fingerprint: Data? = nil) -> ResponseGenerator {
+    func append(commonName: String, expiration: Expiration = .valid, fingerprint: Data? = nil, maxIndex: Int? = nil, domains: [String]? = nil) -> ResponseGenerator {
         fingerprints.append(
-            createEntry(commonName: commonName, expiration: expiration, fingerprint: fingerprint)
+            createEntry(commonName: commonName, expiration: expiration, fingerprint: fingerprint, maxIndex: maxIndex, domains: domains)
         )
         return self
     }
     
     /// Inserts a new intem at the beginning of fingerprints.
     @discardableResult
-    func insertFirst(commonName: String, expiration: Expiration = .valid, fingerprint: Data? = nil) -> ResponseGenerator {
+    func insertFirst(commonName: String, expiration: Expiration = .valid, fingerprint: Data? = nil, maxIndex: Int? = nil, domains: [String]? = nil) -> ResponseGenerator {
         fingerprints.insert(
-            createEntry(commonName: commonName, expiration: expiration, fingerprint: fingerprint),
+            createEntry(commonName: commonName, expiration: expiration, fingerprint: fingerprint, maxIndex: maxIndex, domains: domains),
             at: 0
         )
         return self
@@ -99,7 +99,7 @@ class ResponseGenerator {
     }
     
     /// Create entry for list of entries
-    private func createEntry(commonName: String, expiration: Expiration, fingerprint: Data?) -> GetFingerprintsResponse.Entry {
+    private func createEntry(commonName: String, expiration: Expiration, fingerprint: Data?, maxIndex: Int? = nil, domains: [String]? = nil) -> GetFingerprintsResponse.Entry {
         let fingerprint = fingerprint ?? Data.random(count: 32)
         let signature: Data?
         if let signData = signData {
@@ -112,7 +112,7 @@ class ResponseGenerator {
         } else {
             signature = .random(count: 64)
         }
-        return .create(commonName: commonName, expiration: expiration, fingerprint: fingerprint, signature: signature)
+        return .create(commonName: commonName, expiration: expiration, fingerprint: fingerprint, signature: signature, maxIndex: maxIndex, domains: domains)
     }
         
     /// Generates response data from fingerprints.

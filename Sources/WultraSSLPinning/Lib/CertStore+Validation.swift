@@ -65,42 +65,24 @@ public extension CertStore {
     /// - Returns: validation result
     func validate(challenge: URLAuthenticationChallenge) -> ValidationResult {
         
-        // Gets list of fingerprint entries (which is thread safe operation)
-        let now = Date()
-        let certificates = getCertificates().filter { $0.isExpired(forDate: now) == false }
-        
-        let host = challenge.protectionSpace.host
-        
-        // Check whether store is empty
-        guard certificates.count > 0 else {
-            return .empty
-        }
-        
-        // var maxIndexToLookInto = 0
-        //certificates.filter { $0.domains == nil || $0.domains!.contains(host) }.compactMap { $0.maxIndex }.max()
-        
-        let certCandidates = certificates.filter { $0.domains == nil || $0.domains!.contains(host) }
-        
-        guard certCandidates.isEmpty == false else {
-            return .empty
-        }
-        
         guard let serverTrust = challenge.protectionSpace.serverTrust else {
             return .untrusted
         }
         
+        let certificates = getNonExpiredCertificates(domain: challenge.protectionSpace.host)
+        guard certificates.isEmpty == false else {
+            return .empty
+        }
+        
         let chain = CertificateChain(serverTrust: serverTrust, cryptoProvider: cryptoProvider)
         
-        for info in certCandidates {
-            if info.isExpired(forDate: now) {
-                continue
-            }
+        for info in certificates {
             let maxIndex = info.maxIndex ?? 0
             for depth in 0...maxIndex {
                 guard let cert = chain.getAtIndex(depth) else {
                     continue
                 }
-                if info.fingerprint == cert.fingerprint && info.commonName == cert.commonName {
+                if validate(storedCertificate: info, commonName: cert.commonName, fingerprint: cert.fingerprint) {
                     return .trusted
                 }
             }
@@ -109,13 +91,28 @@ public extension CertStore {
         return .untrusted
     }
     
-    internal func validate(commonName: String, fingerprint: Data) -> ValidationResult {
-        let now = Date()
-        let certificates = getCertificates().filter { $0.isExpired(forDate: now) == false && $0.commonName == commonName }
+    func validate(commonName: String, fingerprint: Data, domain: String? = nil) -> ValidationResult {
+        let certificates = getNonExpiredCertificates(domain: domain).filter { $0.commonName == commonName }
         guard certificates.isEmpty == false else {
             return .empty
         }
-        return certificates.contains { $0.commonName == commonName && $0.fingerprint == fingerprint } ? .trusted : .untrusted
+        return certificates.contains { validate(storedCertificate: $0, commonName: commonName, fingerprint: fingerprint) } ? .trusted : .untrusted
+    }
+    
+    private func validate(storedCertificate: CertificateInfo, commonName: String, fingerprint: Data) -> Bool {
+        return storedCertificate.commonName == commonName && storedCertificate.fingerprint == fingerprint
+    }
+    
+    private func getNonExpiredCertificates(domain: String? = nil, commonName: String? = nil) -> [CertificateInfo] {
+        let now = Date()
+        var certificates = getCertificates().filter { $0.isExpired(forDate: now) == false }
+        if let domain {
+            certificates = certificates.filter { $0.domains == nil || $0.domains!.contains(domain) }
+        }
+        if let commonName {
+            certificates = certificates.filter { $0.commonName == commonName }
+        }
+        return certificates
     }
 }
 
@@ -154,8 +151,6 @@ private class CertificateChain {
         let fingerprint = cryptoProvider.hashSha256(data: certData)
         
         let extractedCertificate = ExtractedCertificate(
-            certificate: serverCert,
-            certificateData: certData,
             commonName: commonName,
             fingerprint: fingerprint
         )
@@ -167,8 +162,6 @@ private class CertificateChain {
 }
 
 private struct ExtractedCertificate {
-    let certificate: SecCertificate
-    let certificateData: Data
     let commonName: String
     let fingerprint: Data
 }
