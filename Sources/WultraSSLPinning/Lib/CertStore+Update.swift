@@ -226,13 +226,6 @@ public extension CertStore {
                         break
                     }
                 }
-                if let expectedCN = self.configuration.expectedCommonNames {
-                    if !expectedCN.contains(newCI.commonName) {
-                        // CertStore will store this CI, but validation will ignore this entry, due to fact, that it's not
-                        // in "expectedCommonNames" list.
-                        WultraDebug.warning("CertStore: Loaded data contains name, which will not be trusted. CN = '\(entry.name)'")
-                    }
-                }
                 // Everything looks fine, just append newCI to the list of new certificates.
                 newCertificates.append(newCI)
             }

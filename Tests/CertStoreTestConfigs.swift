@@ -45,18 +45,6 @@ extension CertStoreConfiguration {
             expirationUpdateTreshold: .testUpdateInterval_ExpirationThreshold
         )
     }
-    
-    static func testConfigWithExpectedCommonNames(_ commonNames: [String]) -> CertStoreConfiguration {
-        return CertStoreConfiguration(
-            serviceUrl: URL(string: "https://foo.wultra.com")!,
-            publicKey: "BEG6g28LNWRcmdFzexSNTKPBYZnDtKrCyiExFKbktttfKAF7wG4Cx1Nycr5PwCoICG1dRseLyuDxUilAmppPxAo=",
-            expectedCommonNames: commonNames,
-            identifier: nil,
-            fallbackCertificatesData: nil,
-            periodicUpdateInterval: .testUpdateInterval_PeriodicUpdate,
-            expirationUpdateTreshold: .testUpdateInterval_ExpirationThreshold
-        )
-    }
 }
 
 // MARK: - Constants used in tests

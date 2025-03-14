@@ -34,10 +34,6 @@ public struct CertStoreConfiguration {
     /// body is signed with ECDSA and must be valid. The signature is calculated from CHALLENGE + '&' + BODY.
     public let useChallenge: Bool
     
-    /// Optional property, defines the set of common names which are expected in certificate validation. By setting
-    /// this propery, you tell the store to treat all certificates issued for other common names as untrusted.
-    public let expectedCommonNames: [String]?
-    
     /// Defines instance identifier for case that your application requires more than one instance of CertStore.
     /// The identifier is then used for data identification in the underlying persistend data storage.
     ///
@@ -94,7 +90,6 @@ public struct CertStoreConfiguration {
         serviceUrl: URL,
         publicKey: String,
         useChallenge: Bool = false,
-        expectedCommonNames: [String]? = nil,
         identifier: String? = nil,
         fallbackCertificatesData: Data? = nil,
         periodicUpdateInterval: TimeInterval = 7*24*60*60,
@@ -104,7 +99,6 @@ public struct CertStoreConfiguration {
         self.serviceUrl = serviceUrl
         self.publicKey = publicKey
         self.useChallenge = useChallenge
-        self.expectedCommonNames = expectedCommonNames
         self.identifier = identifier
         self.fallbackCertificatesData = fallbackCertificatesData
         self.periodicUpdateInterval = periodicUpdateInterval
@@ -146,11 +140,6 @@ extension CertStoreConfiguration {
             decoder.dateDecodingStrategy = .secondsSince1970
             if let fallback = try? decoder.decode(GetFingerprintsResponse.self, from: fallbackData) {
                 for fallbackEntry in fallback.fingerprints {
-                    if let expectedCNs = expectedCommonNames {
-                        if !expectedCNs.contains(fallbackEntry.name) {
-                            WultraDebug.warning("CertStore: certificate '\(fallbackEntry.name)' in '.fallbackCertificatesData' is issued for common name, which is not included in 'expectedCommonNames'.")
-                        }
-                    }
                     if fallbackEntry.expires.timeIntervalSinceNow < 0 {
                         WultraDebug.warning("CertStore: certificate '\(fallbackEntry.name)' in '.fallbackCertificateData' is already expired.")
                     }

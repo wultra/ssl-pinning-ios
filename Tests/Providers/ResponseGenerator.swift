@@ -19,12 +19,14 @@
 fileprivate extension GetFingerprintsResponse.Entry {
     
     /// Creates a new entry for common name and desired expiration
-    static func create(commonName: String, expiration: Expiration, fingerprint: Data?, signature: Data?) -> GetFingerprintsResponse.Entry {
+    static func create(commonName: String, expiration: Expiration, fingerprint: Data?, signature: Data?, maxIndex: Int? = nil, domains: [String]? = nil) -> GetFingerprintsResponse.Entry {
         return GetFingerprintsResponse.Entry(
             name: commonName,
             fingerprint: fingerprint ?? .random(count: 32),
             expires: expiration.toDate,
-            signature: signature
+            signature: signature,
+            maxIndex: maxIndex,
+            domains: domains
         )
     }
 }
@@ -32,8 +34,8 @@ fileprivate extension GetFingerprintsResponse.Entry {
 extension GetFingerprintsResponse {
     
     /// Creates a response with single fingerprint
-    static func single(commonName: String, expiration: Expiration, fingerprint: Data? = nil, timestamp: Date? = nil) -> GetFingerprintsResponse {
-        return GetFingerprintsResponse(fingerprints: [.create(commonName: commonName, expiration: expiration, fingerprint: fingerprint, signature: nil)], timestamp: timestamp)
+    static func single(commonName: String, expiration: Expiration, fingerprint: Data? = nil, maxIndex: Int? = nil, domains: [String]? = nil, timestamp: Date? = nil, domainsToIgnore: [String]? = nil) -> GetFingerprintsResponse {
+        return GetFingerprintsResponse(fingerprints: [.create(commonName: commonName, expiration: expiration, fingerprint: fingerprint, signature: nil, maxIndex: maxIndex, domains: domains)], timestamp: timestamp, domainsToIgnore: domainsToIgnore)
     }
 }
 
@@ -41,6 +43,7 @@ class ResponseGenerator {
 
     var fingerprints: [GetFingerprintsResponse.Entry] = []
     var useTimestamp = false
+    var domainsToIgnore: [String]? = nil
     var signData: ((Data) -> Data)?
     
     /// Appends a new item at the end of fingerprints
@@ -115,6 +118,6 @@ class ResponseGenerator {
     /// Generates response data from fingerprints.
     func data() -> Data {
         let now = useTimestamp ? Date() : nil
-        return GetFingerprintsResponse(fingerprints: fingerprints, timestamp: now).toJSON()
+        return GetFingerprintsResponse(fingerprints: fingerprints, timestamp: now, domainsToIgnore: domainsToIgnore).toJSON()
     }
 }

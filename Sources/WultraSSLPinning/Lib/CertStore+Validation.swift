@@ -58,84 +58,117 @@ public extension CertStore {
     
     // MARK: - Various validate methods
     
-    /// Validates whether provided certificate fingerprint is valid for given common name.
-    ///
-    /// - Parameter commonName: A common name from server's certificate
-    /// - Parameter fingerprint: A SHA-256 fingerprint calculated from certificate's data
-    ///
-    /// - Returns: validation result
-    func validate(commonName: String, fingerprint: Data) -> ValidationResult {
-        
-        // Check expected common names
-        if let expected = configuration.expectedCommonNames {
-            guard expected.contains(commonName) else {
-                return .untrusted
-            }
-        }
-        
-        // Gets list of fingerprint entries (which is thread safe operation)
-        let certificates = getCertificates()
-        
-        // Check whether store is empty
-        guard certificates.count > 0 else {
-            return .empty
-        }
-        
-        // Current date
-        let now = Date()
-        // Match attempts counts whether we tested at least one certificate.
-        // If not, then the store is empty for the requested common name.
-        var matchAttempts = 0
-        // Interate over all entries and look for common name & entry
-        // Also filter an already expired certificates (including the fallback one)
-        for info in certificates {
-            if info.isExpired(forDate: now) {
-                continue
-            }
-            if info.commonName == commonName {
-                if info.fingerprint == fingerprint {
-                    return .trusted
-                }
-                matchAttempts += 1
-            }
-        }
-        // If matchAttempts is greater than 0, then it means that we have certificate for
-        // a requested common name, but none matched. In this case, the result is "untrusted".
-        //
-        // On opposite to that, if no fingerprint comparison was performed, then it means
-        // that the database has some certificates, but none for requested common name.
-        // That's basically means that we cannot determine validity of the certificate
-        // and therefore the "empty" result is returned.
-        return matchAttempts > 0 ? .untrusted : .empty
-    }
-    
-    /// Validates whether provided certificate data in DER format is valid for given common name.
-    ///
-    /// - Parameter commonName: A common name from server's certificate
-    /// - Parameter certificateData: Server certificate in DER format
-    ///
-    /// - Returns: validation result
-    func validate(commonName: String, certificateData: Data) -> ValidationResult {
-        let fingerprint = cryptoProvider.hashSha256(data: certificateData)
-        return validate(commonName: commonName, fingerprint: fingerprint)
-    }
-    
     /// Validates whether provided authentication challenge contains server certificate and its fingerprint is known.
     ///
     /// - Parameter challenge: An authentication challenge to be validated
     ///
     /// - Returns: validation result
     func validate(challenge: URLAuthenticationChallenge) -> ValidationResult {
-        // Acquire various nullable objects at first
-        guard let serverTrust = challenge.protectionSpace.serverTrust,
-            let serverCert = SecTrustGetCertificateAtIndex(serverTrust, 0),
-            let commonName = SecCertificateCopySubjectSummary(serverCert) as String? else {
-                return .untrusted
-        }
-        // Acquire certificate data in DER format
-        let certData = SecCertificateCopyData(serverCert) as Data
         
-        // Now validate commonName & certificate data
-        return validate(commonName: commonName, certificateData: certData)
+        // Gets list of fingerprint entries (which is thread safe operation)
+        let now = Date()
+        let certificates = getCertificates().filter { $0.isExpired(forDate: now) == false }
+        
+        let host = challenge.protectionSpace.host
+        
+        // Check whether store is empty
+        guard certificates.count > 0 else {
+            return .empty
+        }
+        
+        // var maxIndexToLookInto = 0
+        //certificates.filter { $0.domains == nil || $0.domains!.contains(host) }.compactMap { $0.maxIndex }.max()
+        
+        let certCandidates = certificates.filter { $0.domains == nil || $0.domains!.contains(host) }
+        
+        guard certCandidates.isEmpty == false else {
+            return .empty
+        }
+        
+        guard let serverTrust = challenge.protectionSpace.serverTrust else {
+            return .untrusted
+        }
+        
+        let chain = CertificateChain(serverTrust: serverTrust, cryptoProvider: cryptoProvider)
+        
+        for info in certCandidates {
+            if info.isExpired(forDate: now) {
+                continue
+            }
+            let maxIndex = info.maxIndex ?? 0
+            for depth in 0...maxIndex {
+                guard let cert = chain.getAtIndex(depth) else {
+                    continue
+                }
+                if info.fingerprint == cert.fingerprint && info.commonName == cert.commonName {
+                    return .trusted
+                }
+            }
+        }
+        
+        return .untrusted
     }
+    
+    internal func validate(commonName: String, fingerprint: Data) -> ValidationResult {
+        let now = Date()
+        let certificates = getCertificates().filter { $0.isExpired(forDate: now) == false && $0.commonName == commonName }
+        guard certificates.isEmpty == false else {
+            return .empty
+        }
+        return certificates.contains { $0.commonName == commonName && $0.fingerprint == fingerprint } ? .trusted : .untrusted
+    }
+}
+
+private class CertificateChain {
+    
+    private let serverTrust: SecTrust
+    private let chainCount: Int
+    private let cryptoProvider: CryptoProvider
+    private var extractedCertificates: [Int: ExtractedCertificate] = [:]
+    
+    init(serverTrust: SecTrust, cryptoProvider: CryptoProvider) {
+        self.serverTrust = serverTrust
+        self.chainCount = SecTrustGetCertificateCount(serverTrust) as Int
+        self.cryptoProvider = cryptoProvider
+    }
+    
+    func getAtIndex(_ index: Int) -> ExtractedCertificate? {
+        guard index >= 0 && index <= chainCount-1 else {
+            return nil
+        }
+        if let cert = extractedCertificates[index] {
+            return cert
+        }
+        
+        guard let serverCert = SecTrustGetCertificateAtIndex(serverTrust, index) else {
+            return nil
+        }
+        var name: CFString?
+        
+        // get the common name
+        guard SecCertificateCopyCommonName(serverCert, &name) == errSecSuccess, let commonName = name as String? else {
+            return nil
+        }
+        
+        let certData = SecCertificateCopyData(serverCert) as Data
+        let fingerprint = cryptoProvider.hashSha256(data: certData)
+        
+        let extractedCertificate = ExtractedCertificate(
+            certificate: serverCert,
+            certificateData: certData,
+            commonName: commonName,
+            fingerprint: fingerprint
+        )
+            
+        extractedCertificates[index] = extractedCertificate
+        return extractedCertificate
+    }
+    
+}
+
+private struct ExtractedCertificate {
+    let certificate: SecCertificate
+    let certificateData: Data
+    let commonName: String
+    let fingerprint: Data
 }

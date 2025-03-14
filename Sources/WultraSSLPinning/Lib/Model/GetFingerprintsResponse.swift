@@ -21,6 +21,7 @@ import Foundation
 internal struct GetFingerprintsResponse: Codable {
 
     struct Entry: Codable {
+        
         /// Common name
         let name: String
         
@@ -34,6 +35,10 @@ internal struct GetFingerprintsResponse: Codable {
         /// Property is optional for servers that supports challenge in request
         /// and provides signature for the whole response.
         let signature: Data?
+        
+        let maxIndex: Int?
+        
+        let domains: [String]?
     }
 
     /// List of Entry objects
@@ -41,6 +46,8 @@ internal struct GetFingerprintsResponse: Codable {
     
     /// Optional timestamp, received from servers that supports challenge & signed responses.
     let timestamp: Date?
+    
+    let domainsToIgnore: [String]?
 }
 
 extension GetFingerprintsResponse.Entry {
