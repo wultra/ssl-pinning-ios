@@ -32,11 +32,17 @@ internal struct CertificateInfo: Codable {
     /// Certificate's expiration date
     let expires: Date
     
+    /// Certificate depth in the TLS chain. 0 is the leaf certificate,
+    /// 1..N-1 are intermediate certificates, and N is the root certificate.
+    /// Default is 0.
+    let depth: Int
+    
     /// Minimized keys for (de)serialization
     enum CodingKeys: String, CodingKey {
         case commonName = "n"
         case fingerprint = "f"
         case expires = "e"
+        case depth = "d"
     }
 }
 
@@ -46,17 +52,24 @@ extension CertificateInfo: Equatable {
     static func == (lhs: CertificateInfo, rhs: CertificateInfo) -> Bool {
         return lhs.commonName == rhs.commonName &&
                 lhs.fingerprint == rhs.fingerprint &&
-                lhs.expires == rhs.expires
+                lhs.expires == rhs.expires &&
+                lhs.depth == rhs.depth
     }
 }
 
 extension CertificateInfo {
+    
+    /// Convenience initializer that defaults `depth` to 0 (leaf certificate).
+    init(commonName: String, fingerprint: Data, expires: Date) {
+        self.init(commonName: commonName, fingerprint: fingerprint, expires: expires, depth: 0)
+    }
     
     /// Helper constructor initializes `CertificateInfo` structure from object received from the server.
     init(from responseEntry: GetFingerprintsResponse.Entry) {
         commonName = responseEntry.name
         fingerprint = responseEntry.fingerprint
         expires = responseEntry.expires
+        depth = responseEntry.depth ?? 0 // leaf certificate as default to keep backward compatibility
     }
     
     /// Returns true if certificate is expired. (e.g. "expires" date is lesser than the provided date).
