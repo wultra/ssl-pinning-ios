@@ -34,6 +34,10 @@ internal struct GetFingerprintsResponse: Codable {
         /// Property is optional for servers that supports challenge in request
         /// and provides signature for the whole response.
         let signature: Data?
+        
+        /// Certificate depth in the TLS chain. 0 is the leaf certificate (default),
+        /// 1..N-1 are intermediate certificates, and N is the root certificate.
+        let depth: Int?
     }
 
     /// List of Entry objects
@@ -41,6 +45,9 @@ internal struct GetFingerprintsResponse: Codable {
     
     /// Optional timestamp, received from servers that supports challenge & signed responses.
     let timestamp: Date?
+    
+    /// Optional domain-specific SSL pinning configuration.
+    let domainsConfig: DomainsConfig?
 }
 
 extension GetFingerprintsResponse.Entry {
