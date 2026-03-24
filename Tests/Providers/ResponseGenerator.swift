@@ -19,12 +19,13 @@
 fileprivate extension GetFingerprintsResponse.Entry {
     
     /// Creates a new entry for common name and desired expiration
-    static func create(commonName: String, expiration: Expiration, fingerprint: Data?, signature: Data?) -> GetFingerprintsResponse.Entry {
+    static func create(commonName: String, expiration: Expiration, fingerprint: Data?, signature: Data?, depth: Int? = nil) -> GetFingerprintsResponse.Entry {
         return GetFingerprintsResponse.Entry(
             name: commonName,
             fingerprint: fingerprint ?? .random(count: 32),
             expires: expiration.toDate,
-            signature: signature
+            signature: signature,
+            depth: depth
         )
     }
 }
@@ -32,8 +33,8 @@ fileprivate extension GetFingerprintsResponse.Entry {
 extension GetFingerprintsResponse {
     
     /// Creates a response with single fingerprint
-    static func single(commonName: String, expiration: Expiration, fingerprint: Data? = nil, timestamp: Date? = nil) -> GetFingerprintsResponse {
-        return GetFingerprintsResponse(fingerprints: [.create(commonName: commonName, expiration: expiration, fingerprint: fingerprint, signature: nil)], timestamp: timestamp)
+    static func single(commonName: String, expiration: Expiration, fingerprint: Data? = nil, timestamp: Date? = nil, domainsConfig: DomainsConfig? = nil) -> GetFingerprintsResponse {
+        return GetFingerprintsResponse(fingerprints: [.create(commonName: commonName, expiration: expiration, fingerprint: fingerprint, signature: nil)], timestamp: timestamp, domainsConfig: domainsConfig)
     }
 }
 
@@ -42,21 +43,22 @@ class ResponseGenerator {
     var fingerprints: [GetFingerprintsResponse.Entry] = []
     var useTimestamp = false
     var signData: ((Data) -> Data)?
+    var domainsConfig: DomainsConfig?
     
     /// Appends a new item at the end of fingerprints
     @discardableResult
-    func append(commonName: String, expiration: Expiration = .valid, fingerprint: Data? = nil) -> ResponseGenerator {
+    func append(commonName: String, expiration: Expiration = .valid, fingerprint: Data? = nil, depth: Int? = nil) -> ResponseGenerator {
         fingerprints.append(
-            createEntry(commonName: commonName, expiration: expiration, fingerprint: fingerprint)
+            createEntry(commonName: commonName, expiration: expiration, fingerprint: fingerprint, depth: depth)
         )
         return self
     }
     
     /// Inserts a new intem at the beginning of fingerprints.
     @discardableResult
-    func insertFirst(commonName: String, expiration: Expiration = .valid, fingerprint: Data? = nil) -> ResponseGenerator {
+    func insertFirst(commonName: String, expiration: Expiration = .valid, fingerprint: Data? = nil, depth: Int? = nil) -> ResponseGenerator {
         fingerprints.insert(
-            createEntry(commonName: commonName, expiration: expiration, fingerprint: fingerprint),
+            createEntry(commonName: commonName, expiration: expiration, fingerprint: fingerprint, depth: depth),
             at: 0
         )
         return self
@@ -75,6 +77,14 @@ class ResponseGenerator {
     @discardableResult
     func removeAll() -> ResponseGenerator {
         fingerprints.removeAll()
+        domainsConfig = nil
+        return self
+    }
+    
+    /// Set a DomainsConfig to be included in the response.
+    @discardableResult
+    func setDomainsConfig(_ config: DomainsConfig?) -> ResponseGenerator {
+        self.domainsConfig = config
         return self
     }
     
@@ -96,7 +106,7 @@ class ResponseGenerator {
     }
     
     /// Create entry for list of entries
-    private func createEntry(commonName: String, expiration: Expiration, fingerprint: Data?) -> GetFingerprintsResponse.Entry {
+    private func createEntry(commonName: String, expiration: Expiration, fingerprint: Data?, depth: Int? = nil) -> GetFingerprintsResponse.Entry {
         let fingerprint = fingerprint ?? Data.random(count: 32)
         let signature: Data?
         if let signData = signData {
@@ -109,12 +119,12 @@ class ResponseGenerator {
         } else {
             signature = .random(count: 64)
         }
-        return .create(commonName: commonName, expiration: expiration, fingerprint: fingerprint, signature: signature)
+        return .create(commonName: commonName, expiration: expiration, fingerprint: fingerprint, signature: signature, depth: depth)
     }
         
     /// Generates response data from fingerprints.
     func data() -> Data {
         let now = useTimestamp ? Date() : nil
-        return GetFingerprintsResponse(fingerprints: fingerprints, timestamp: now).toJSON()
+        return GetFingerprintsResponse(fingerprints: fingerprints, timestamp: now, domainsConfig: domainsConfig).toJSON()
     }
 }
