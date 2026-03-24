@@ -60,16 +60,41 @@ public extension CertStore {
     
     /// Validates whether provided certificate fingerprint is valid for given common name.
     ///
+    /// When `DomainsConfig` is available from a server update and the domain has `sslPinningRequired` set to `false`,
+    /// the validation returns `.trusted` immediately without checking the fingerprint.
+    ///
     /// - Parameter commonName: A common name from server's certificate
     /// - Parameter fingerprint: A SHA-256 fingerprint calculated from certificate's data
     ///
     /// - Returns: validation result
     func validate(commonName: String, fingerprint: Data) -> ValidationResult {
+        // when no depth is specified, compare leaf certificate (default behaviour)
+        return validate(commonName: commonName, fingerprint: fingerprint, depth: 0)
+    }
+    
+    /// Validates whether provided certificate fingerprint at a specific chain depth is valid for given common name.
+    ///
+    /// When `DomainsConfig` is available from a server update and the domain has `sslPinningRequired` set to `false`,
+    /// the validation returns `.trusted` immediately without checking the fingerprint.
+    ///
+    /// - Parameter commonName: A common name from the leaf server certificate
+    /// - Parameter fingerprint: A SHA-256 fingerprint calculated from certificate's data
+    /// - Parameter depth: The certificate depth in the TLS chain (0 = leaf, 1..N-1 = intermediate, N = root)
+    ///
+    /// - Returns: validation result
+    func validate(commonName: String, fingerprint: Data, depth: Int) -> ValidationResult {
         
         // Check expected common names
         if let expected = configuration.expectedCommonNames {
             guard expected.contains(commonName) else {
                 return .untrusted
+            }
+        }
+        
+        if let domainsConfig = getCachedData()?.domainsConfig {
+            // Check if pinning is required for this domain
+            if domainsConfig.isPinningRequired(for: commonName) == false {
+                return .trusted
             }
         }
         
@@ -86,19 +111,20 @@ public extension CertStore {
         // Match attempts counts whether we tested at least one certificate.
         // If not, then the store is empty for the requested common name.
         var matchAttempts = 0
-        // Interate over all entries and look for common name & entry
-        // Also filter an already expired certificates (including the fallback one)
+        // Iterate over all entries and look for common name & fingerprint.
+        // Also filter an already expired certificates (including the fallback one).
         for info in certificates {
             if info.isExpired(forDate: now) {
                 continue
             }
-            if info.commonName == commonName {
+            if info.commonName == commonName && info.depth == depth {
                 if info.fingerprint == fingerprint {
                     return .trusted
                 }
                 matchAttempts += 1
             }
         }
+        
         // If matchAttempts is greater than 0, then it means that we have certificate for
         // a requested common name, but none matched. In this case, the result is "untrusted".
         //
