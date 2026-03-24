@@ -69,7 +69,7 @@ public extension CertStore {
     /// - Returns: validation result
     func validate(commonName: String, fingerprint: Data) -> ValidationResult {
         // when no depth is specified, compare leaf certificate (default behaviour)
-        return validate(commonName: commonName, fingerprint: fingerprint, depth: 0)
+        return validateFingerprint(commonName: commonName, fingerprint: fingerprint, depth: 0)
     }
     
     /// Validates whether provided certificate fingerprint at a specific chain depth is valid for given common name.
@@ -83,6 +83,82 @@ public extension CertStore {
     ///
     /// - Returns: validation result
     func validate(commonName: String, fingerprint: Data, depth: Int) -> ValidationResult {
+        return validateFingerprint(commonName: commonName, fingerprint: fingerprint, depth: depth)
+    }
+    
+    /// Validates whether provided certificate data in DER format is valid for given common name.
+    ///
+    /// - Parameter commonName: A common name from server's certificate
+    /// - Parameter certificateData: Server certificate in DER format
+    ///
+    /// - Returns: validation result
+    func validate(commonName: String, certificateData: Data) -> ValidationResult {
+        return validate(commonName: commonName, certificateData: certificateData, depth: 0)
+    }
+    
+    /// Validates whether provided certificate data in DER format is valid for given common name.
+    ///
+    /// - Parameter commonName: A common name from server's certificate
+    /// - Parameter certificateData: Server certificate in DER format
+    /// - Parameter depth: The certificate depth in the TLS chain (0 = leaf, 1..N-1 = intermediate, N = root)
+    ///
+    /// - Returns: validation result
+    func validate(commonName: String, certificateData: Data, depth: Int) -> ValidationResult {
+        let fingerprint = cryptoProvider.hashSha256(data: certificateData)
+        return validateFingerprint(commonName: commonName, fingerprint: fingerprint, depth: depth)
+    }
+    
+    /// Validates whether provided authentication challenge contains server certificate and its fingerprint is known.
+    ///
+    /// - Parameter challenge: An authentication challenge to be validated
+    ///
+    /// - Returns: validation result
+    func validate(challenge: URLAuthenticationChallenge) -> ValidationResult {
+        return validate(challenge: challenge, depth: 0)
+    }
+    
+    /// Validates whether provided authentication challenge contains server certificate and its fingerprint is known.
+    ///
+    /// - Parameter challenge: An authentication challenge to be validated
+    /// - Parameter depth: The certificate depth in the TLS chain (0 = leaf, 1..N-1 = intermediate, N = root)
+    ///
+    /// - Returns: validation result
+    func validate(challenge: URLAuthenticationChallenge, depth: Int) -> ValidationResult {
+        // Acquire various nullable objects at first
+        guard let serverTrust = challenge.protectionSpace.serverTrust else {
+            return .untrusted
+        }
+        
+        // Handle leaf certificate for common name, which should be fetched from leaf certificate
+        guard let leafCert = SecTrustGetCertificateAtIndex(serverTrust, 0),
+              let commonName = SecCertificateCopySubjectSummary(leafCert) as String? else {
+            return .untrusted
+        }
+        
+        // Handle server certificate at specified depth
+        guard let serverCert = SecTrustGetCertificateAtIndex(serverTrust, depth) else {
+            return .untrusted
+        }
+        // Acquire certificate data in DER format
+        let certData = SecCertificateCopyData(serverCert) as Data
+        let fingerprint = cryptoProvider.hashSha256(data: certData)
+        
+        // Now validate commonName & certificate data & depth
+        return validateFingerprint(commonName: commonName, fingerprint: fingerprint, depth: depth)
+    }
+    
+    /// Validates whether provided certificate fingerprint at a specific chain depth is valid for given common name.
+    /// Method is private, it contains all logic of fingerprint validation.
+    ///
+    /// When `DomainsConfig` is available from a server update and the domain has `sslPinningRequired` set to `false`,
+    /// the validation returns `.trusted` immediately without checking the fingerprint.
+    ///
+    /// - Parameter commonName: A common name from the leaf server certificate
+    /// - Parameter fingerprint: A SHA-256 fingerprint calculated from certificate's data
+    /// - Parameter depth: The certificate depth in the TLS chain (0 = leaf, 1..N-1 = intermediate, N = root)
+    ///
+    /// - Returns: validation result
+    private func validateFingerprint(commonName: String, fingerprint: Data, depth: Int) -> ValidationResult {
         
         // Check expected common names
         if let expected = configuration.expectedCommonNames {
@@ -133,35 +209,5 @@ public extension CertStore {
         // That's basically means that we cannot determine validity of the certificate
         // and therefore the "empty" result is returned.
         return matchAttempts > 0 ? .untrusted : .empty
-    }
-    
-    /// Validates whether provided certificate data in DER format is valid for given common name.
-    ///
-    /// - Parameter commonName: A common name from server's certificate
-    /// - Parameter certificateData: Server certificate in DER format
-    ///
-    /// - Returns: validation result
-    func validate(commonName: String, certificateData: Data) -> ValidationResult {
-        let fingerprint = cryptoProvider.hashSha256(data: certificateData)
-        return validate(commonName: commonName, fingerprint: fingerprint)
-    }
-    
-    /// Validates whether provided authentication challenge contains server certificate and its fingerprint is known.
-    ///
-    /// - Parameter challenge: An authentication challenge to be validated
-    ///
-    /// - Returns: validation result
-    func validate(challenge: URLAuthenticationChallenge) -> ValidationResult {
-        // Acquire various nullable objects at first
-        guard let serverTrust = challenge.protectionSpace.serverTrust,
-            let serverCert = SecTrustGetCertificateAtIndex(serverTrust, 0),
-            let commonName = SecCertificateCopySubjectSummary(serverCert) as String? else {
-                return .untrusted
-        }
-        // Acquire certificate data in DER format
-        let certData = SecCertificateCopyData(serverCert) as Data
-        
-        // Now validate commonName & certificate data
-        return validate(commonName: commonName, certificateData: certData)
     }
 }
