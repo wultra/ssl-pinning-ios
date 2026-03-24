@@ -261,7 +261,7 @@ public extension CertStore {
             let nextUpdate = scheduler.scheduleNextUpdate(certificates: newCertificates, currentDate: currentDate)
             
             // Finally, construct a new cached data.
-            return CachedData(certificates: newCertificates, nextUpdate: nextUpdate)
+            return CachedData(certificates: newCertificates, nextUpdate: nextUpdate, domainsConfig: response.domainsConfig)
         }
         //
         return result
