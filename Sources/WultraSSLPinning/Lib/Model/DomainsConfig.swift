@@ -18,7 +18,7 @@ import Foundation
 
 ///
 /// The `DomainsConfig` structure holds domain-specific SSL pinning configuration
-/// received from the server or provided as fallback data.
+/// received from the server.
 ///
 /// When present, it can selectively bypass SSL pinning for specific domains or
 /// for all domains not explicitly listed.

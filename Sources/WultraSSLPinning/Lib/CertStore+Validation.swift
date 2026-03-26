@@ -87,6 +87,7 @@ public extension CertStore {
     }
     
     /// Validates whether provided certificate data in DER format is valid for given common name.
+    /// Call this method to validate leaf (depth: 0) certificate.
     ///
     /// - Parameter commonName: A common name from server's certificate
     /// - Parameter certificateData: Server certificate in DER format
