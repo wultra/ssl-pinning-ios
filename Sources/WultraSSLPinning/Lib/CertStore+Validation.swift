@@ -177,7 +177,7 @@ public extension CertStore {
         if let domainsConfig = getCachedData()?.domainsConfig {
             // Check if pinning is required for this domain
             if domainsConfig.isPinningRequired(for: commonName) == false {
-                print("[WultraSSLPinning] Pinning disabled by domainsConfig for domain '\(commonName)'; returning .trusted without fingerprint validation.")
+                WultraDebug.print("Pinning disabled by domainsConfig for domain '\(commonName)'; returning .trusted without fingerprint validation.")
                 return .trusted
             }
         }

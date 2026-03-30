@@ -98,7 +98,11 @@ class CertStoreTests_Network: XCTestCase {
     }()
     
     lazy var hostToPin: String = {
-        urlToPin.host() ?? ""
+        guard let host = urlToPin.host() else {
+            XCTFail("Failed to get host from URL to pin")
+            fatalError("Missing host in URL to pin in config")
+        }
+        return host
     }()
     
     lazy var testCredsBase64: String = { "\(testConfig.adminLogin):\(testConfig.adminPassword)".data(using: .utf8)?.base64EncodedString() ?? ""
