@@ -138,7 +138,7 @@ public extension CertStore {
         
         // Depth of certificate should be within chain length
         let count = SecTrustGetCertificateCount(serverTrust) // for example count = 3, valid depth values: 0,1,2
-        if depth >= count || depth < 0{
+        if depth >= count || depth < 0 {
             return .untrusted
         }
         
