@@ -407,7 +407,7 @@ All PowerAuth helpers are no longer available for Swift Package Manager integrat
 
 ### 1.8.x to 1.9.x
 
-The internal cache format was extended with a required `depth` field for each stored certificate entry. Caches written by version 1.8.x or earlier cannot be decoded by 1.9.x. On first launch after the upgrade the SDK will automatically discard the stale cache and fetch fresh fingerprints from the server — no action is required from the integrator.
+The internal cache format was extended with an optional `depth` field for each stored certificate entry. When the field is absent (e.g. in caches written by version 1.8.x), it defaults to `0` (leaf certificate). Existing caches are fully compatible with 1.9.x — no cache reset, server update, or integrator action is required.
 
 All existing `validate` calls continue to work unchanged; they now implicitly validate the leaf certificate (depth 0), which is identical to previous behaviour.
 
