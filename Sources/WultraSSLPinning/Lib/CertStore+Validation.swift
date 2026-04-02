@@ -167,6 +167,11 @@ public extension CertStore {
     /// - Returns: validation result
     private func validateFingerprint(commonName: String, fingerprint: Data, depth: Int) -> ValidationResult {
         
+        // depth should be 0+
+        guard depth >= 0 else {
+            return .untrusted
+        }
+        
         // Check expected common names
         if let expected = configuration.expectedCommonNames {
             guard expected.contains(commonName) else {
