@@ -14,6 +14,10 @@ echo "Current xcode:  ${CURRENT_PATH}"
 if [[ "${REQUIRED_PATH}" == "${CURRENT_PATH}" ]]; then
   echo "Required and selected xcode are the same."
 else
+  if [ ! -d "${REQUIRED_PATH}" ]; then
+    echo "Error: Required Xcode path '${REQUIRED_PATH}' does not exist on this runner."
+    exit 1
+  fi
   echo "Selecting ${REQUIRED_PATH}"
-  sudo xcode-select -s ${REQUIRED_PATH}
+  sudo xcode-select -s "${REQUIRED_PATH}"
 fi
