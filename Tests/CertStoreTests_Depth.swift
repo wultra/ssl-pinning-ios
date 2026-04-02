@@ -279,12 +279,8 @@ class CertStoreTests_Depth: XCTestCase {
         XCTAssertEqual(decoded?.certificates[2].depth, 2)
     }
     
-    /// Tests that legacy CachedData JSON without "d" (depth) key in certificates fails to
-    /// deserialise, because `CertificateInfo.depth` is a required (non-optional) field.
-    ///
-    /// This documents a known limitation: cached data written by a version of the library that
-    /// pre-dates the depth feature cannot be decoded by this version. On app upgrade the cache
-    /// will be cleared and fresh data fetched from the server.
+    /// Tests that legacy CachedData JSON without "d" (depth) key
+    /// successfully deserialises and sets depth to nil.
     func testCachedData_LegacyFormatWithoutDepthKey() {
         // Build legacy JSON manually — no "d" key in the certificate entry
         let expiresTimestamp = Expiration.valid.toDate.timeIntervalSince1970
@@ -301,9 +297,12 @@ class CertStoreTests_Depth: XCTestCase {
             "u": \(expiresTimestamp)
         }
         """.data(using: .utf8)!
-        
-        // depth is a required (non-optional) field → decoding fails when absent
+
         let decoded = try? JSON.decoder.decode(CachedData.self, from: legacyJSON)
-        XCTAssertNil(decoded, "Legacy cache without 'd' key should fail to decode since depth is a required field")
+
+        XCTAssertNotNil(decoded, "Legacy cache without 'd' key should decode")
+
+        let certificate = decoded?.certificates.first
+        XCTAssertNil(certificate?.depth, "Missing 'd' key should result in nil depth")
     }
 }

@@ -35,7 +35,7 @@ internal struct CertificateInfo: Codable {
     /// Certificate depth in the TLS chain. 0 is the leaf certificate,
     /// 1..N-1 are intermediate certificates, and N is the root certificate.
     /// Default is 0.
-    let depth: Int
+    let depth: Int?
     
     /// Minimized keys for (de)serialization
     enum CodingKeys: String, CodingKey {
