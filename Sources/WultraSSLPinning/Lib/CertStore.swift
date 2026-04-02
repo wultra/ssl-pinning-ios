@@ -89,7 +89,7 @@ public class CertStore {
     
     fileprivate var cacheIsLoaded = false
     fileprivate var cachedData: CachedData?
-    fileprivate var fallbackCertificates = [CertificateInfo]()
+    fileprivate var fallbackData: GetFingerprintsResponse?
 }
 
 
@@ -109,7 +109,7 @@ internal extension CertStore {
         restoreCache()
         
         var result = cachedData?.certificates ?? []
-        result.append(contentsOf: fallbackCertificates)
+        result.append(contentsOf: fallbackData?.certificates ?? [])
         return result
     }
     
@@ -148,7 +148,7 @@ internal extension CertStore {
     private func restoreCache() {
         if !cacheIsLoaded {
             cachedData = loadCachedData()
-            fallbackCertificates = loadFallbackCertificates()
+            fallbackData = loadFallbackData()
             cacheIsLoaded = true
         }
     }

@@ -38,15 +38,15 @@ internal extension CertStore {
         secureDataStore.save(data: encodedData, forKey: self.instanceIdentifier)
     }
     
-    /// Loads fallback certificate from configuration provided in CertStore initialization.
-    func loadFallbackCertificates() -> [CertificateInfo] {
+    /// Loads fallback data from configuration provided in CertStore initialization.
+    func loadFallbackData() -> GetFingerprintsResponse? {
         guard let fallbackData = configuration.fallbackCertificatesData else {
-            return []
+            return nil
         }
         guard let fallback = try? jsonDecoder().decode(GetFingerprintsResponse.self, from: fallbackData) else {
-            return []
+            return nil
         }
-        return fallback.fingerprints.map { CertificateInfo(from: $0) }
+        return fallback
     }
     
     /// Returns new instance of `JSONDecoder`, preconfigured for our data types deserialization.

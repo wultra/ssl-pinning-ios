@@ -65,3 +65,9 @@ extension GetFingerprintsResponse.Entry {
         return SignedData(data: signedBytes, signature: signature)
     }
 }
+
+extension GetFingerprintsResponse {
+    var certificates: [CertificateInfo] {
+        return fingerprints.map(CertificateInfo.init(from:))
+    }
+}
