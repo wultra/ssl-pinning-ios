@@ -145,7 +145,11 @@ The configuration has the following properties:
 
 The `CertStoreConfiguration` may contain optional data with predefined certificate fingerprints. This technique can speed up the first application's startup when the database of fingerprints is empty. You still need to update your application once the fallback fingerprints expire. 
 
-To configure the property, you need to provide JSON data with fallback fingerprints. The JSON should contain the same data as is usually received from the server, except that the "signature" property is not validated (but must be provided in JSON). The optional `depth` field specifies the certificate chain position (0 = leaf, the default). An optional `domainsConfig` object can also be included to pre-configure domain bypass rules. For example:
+To configure the property, you need to provide JSON data with fallback fingerprints. The JSON should contain the same data as is usually received from the server, except that the "signature" property is not validated (but must be provided in JSON). The optional `depth` field specifies the certificate chain position (0 = leaf, the default).
+
+> **Important:** Only fallback **certificates** (fingerprints) are supported in `fallbackCertificatesData`. The `domainsConfig` object is intentionally **not** supported in fallback data — domain bypass rules take effect only when received from the server. Any `domainsConfig` present in the fallback JSON is silently ignored.
+
+For example:
 
 ```swift
 {
@@ -157,16 +161,7 @@ To configure the property, you need to provide JSON data with fallback fingerpri
          "signature": "",
          "depth": 0
       }
-   ],
-   "domainsConfig": {
-      "sslPinningRequiredForUnlisted": true,
-      "domains": [
-         {
-            "name": "bypass.example.com",
-            "sslPinningRequired": false
-         }
-      ]
-   }
+   ]
 }
 """.data(using: .ascii)
 
@@ -355,6 +350,8 @@ The SDK applies the following rules on every call to `validate`:
    - `sslPinningRequiredForUnlisted: false` → returns `.trusted` immediately.
 
 The `domainsConfig` is cached locally alongside the fingerprints and cleared whenever the server sends a response without it.
+
+> **Important:** `domainsConfig` is supported **only** when received from the server. It is intentionally **not** supported in `fallbackCertificatesData` — there is no fallback mechanism for domain bypass rules.
 
 ## PowerAuth integration
 
