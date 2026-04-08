@@ -44,6 +44,13 @@ internal struct CertificateInfo: Codable {
         case expires = "e"
         case depth = "d"
     }
+    
+    init(commonName: String, fingerprint: Data, expires: Date, depth: Int? = 0) {
+        self.commonName = commonName
+        self.fingerprint = fingerprint
+        self.expires = expires
+        self.depth = depth ?? 0
+    }
 }
 
 extension CertificateInfo: Equatable {
@@ -58,11 +65,6 @@ extension CertificateInfo: Equatable {
 }
 
 extension CertificateInfo {
-    
-    /// Convenience initializer that defaults `depth` to 0 (leaf certificate).
-    init(commonName: String, fingerprint: Data, expires: Date) {
-        self.init(commonName: commonName, fingerprint: fingerprint, expires: expires, depth: 0)
-    }
     
     /// Helper constructor initializes `CertificateInfo` structure from object received from the server.
     init(from responseEntry: GetFingerprintsResponse.Entry) {
