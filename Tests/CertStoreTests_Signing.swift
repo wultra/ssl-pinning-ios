@@ -53,6 +53,29 @@ class CertStoreTests_Signing: XCTestCase {
         WultraDebug.verboseLevel = .all
     }
     
+    func testMissingSignatureHeader() {
+        // Arrange: valid response body, but no x-cert-pinning-signature header at all.
+        prepareStore()
+        
+        remoteDataProvider.reportData = responseGenerator
+            .append(commonName: .testCommonName_1, expiration: .never, fingerprint: .testFingerprint_1)
+            .data()
+        remoteDataProvider.omitSignatureHeader()
+        
+        // Act
+        let updateResult = AsyncHelper.wait { completion in
+            certStore.update { result, error in
+                completion.complete(with: result)
+            }
+        }
+        
+        // Assert: absent header must be treated as an invalid signature — security-critical.
+        XCTAssertEqual(updateResult.value, .invalidSignature)
+        
+        // The store must remain empty; no certificate should have been persisted.
+        XCTAssertEqual(certStore.validate(commonName: .testCommonName_1, fingerprint: .testFingerprint_1), .empty)
+    }
+    
     func testSigning() {
         
         prepareStore()
