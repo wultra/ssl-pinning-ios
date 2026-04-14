@@ -39,6 +39,11 @@ public extension CertStore {
         /// Update succeeded
         case ok
         
+        /// The update request succeeded, but the result is still an empty list of certificates.
+        /// This may happen when the loading & validating of remote data succeeded, but all loaded
+        /// certificates are already expired.
+        case storeIsEmpty
+        
         /// The update request failed on a network communication.
         case networkError
         
@@ -173,11 +178,11 @@ public extension CertStore {
         // The `updateCachedData` method guarantees atomicity of the operation.
         var result = UpdateResult.ok
         //
-        updateCachedData { (cachedData) -> CachedData? in
+        updateCachedData {
             //
             // This closure is called while internal thread lock is acquired.
             //
-            var newCertificates = (cachedData?.certificates ?? []).filter { !$0.isExpired(forDate: currentDate) }
+            var newCertificates = [CertificateInfo]()
             
             // Iterate over all entries in the response
             for entry in response.fingerprints {
@@ -188,9 +193,7 @@ public extension CertStore {
                     continue
                 }
                 if newCertificates.firstIndex(of: newCI) != nil {
-                    // This particular entry is already in the database, just skip it.
-                    // Due to fact, that we're using the same array for newly accepted certs,
-                    // then it will also filter duplicities received from the server.
+                    // Skip duplicate entries in new certificates
                     continue
                 }
                 if let expectedCN = self.configuration.expectedCommonNames {
@@ -202,6 +205,13 @@ public extension CertStore {
                 }
                 // Everything looks fine, just append newCI to the list of new certificates.
                 newCertificates.append(newCI)
+            }
+            
+            /// Check whether there's at least one certificate.
+            if result == .ok && newCertificates.isEmpty {
+                // Looks like it's time to update list of certificates stored on the server.
+                WultraDebug.warning("CertStore: New certificates list is empty.")
+                result = .storeIsEmpty
             }
             
             guard result == .ok else {
@@ -221,9 +231,13 @@ public extension CertStore {
             let nextUpdate = scheduler.scheduleNextUpdate(certificates: newCertificates, currentDate: currentDate)
             
             // Finally, construct a new cached data.
-            return CachedData(certificates: newCertificates, nextUpdate: nextUpdate, domainsConfig: response.domainsConfig)
+            return CachedData(
+                certificates: newCertificates,
+                nextUpdate: nextUpdate,
+                domainsConfig: response.domainsConfig
+            )
         }
-        //
+
         return result
     }
 }

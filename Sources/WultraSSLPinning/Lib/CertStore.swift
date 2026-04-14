@@ -128,7 +128,7 @@ internal extension CertStore {
     
     /// Internal function allows atomic update of `CachedData` structure.
     /// The provided update closure is called when exclusive access to data is guaranteed.
-    func updateCachedData(updateClosure: (CachedData?)->CachedData?) -> Void {
+    func updateCachedData(updateClosure: () -> CachedData?) -> Void {
         // Acquire semaphore
         semaphore.wait()
         defer { semaphore.signal() }
@@ -137,7 +137,7 @@ internal extension CertStore {
         restoreCache()
         
         // Call closure with cached data object
-        if let newData = updateClosure(cachedData) {
+        if let newData = updateClosure() {
             cachedData = newData
             saveDataToCache(data: newData)
         }
