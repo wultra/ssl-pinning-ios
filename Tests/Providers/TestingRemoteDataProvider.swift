@@ -101,7 +101,9 @@ class TestingRemoteDataProvider: RemoteDataProvider {
                 if let generator = self.dataGenerator {
                     response = generator(request.requestHeaders)
                 } else {
-                    response = (self.reportData, [:])
+                    // Provide a dummy signature header so that tests using TestingCryptoProvider
+                    // (which auto-approves all signatures) are not rejected at the header guard.
+                    response = (self.reportData, ["x-cert-pinning-signature": "QWxsIHlvdXIgbW9uZXkgYXJlIGJlbG9uZyB0byB1cw=="])
                 }
             } else {
                 response = (nil, [:])
