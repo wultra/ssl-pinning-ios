@@ -115,10 +115,9 @@ public extension CertStore {
 
     /// Private function implemens the update operation.
     private func doUpdate(currentDate: Date, completionQueue: DispatchQueue?, completion: ((UpdateResult, Error?)->Void)?) -> Void {
-        // Prepare challenge and request headers in case that challenge must be used
+        // Prepare challenge and request headers
         var requestHeaders = [String:String]()
         let requestChallenge = cryptoProvider.getRandomData(length: 16).base64EncodedString()
-        
         requestHeaders["X-Cert-Pinning-Challenge"] = requestChallenge
         
         // Fetch fingerprints data from the remote data provider
@@ -142,15 +141,12 @@ public extension CertStore {
     
     /// Private function processes the received data and returns update result.
     /// The function also updates list of cached certificates, when there's a change in the data.
-    private func processReceivedData(_ data: Data, challenge: String?, responseHeaders: [String:String], currentDate: Date) -> UpdateResult {
+    private func processReceivedData(_ data: Data, challenge: String, responseHeaders: [String:String], currentDate: Date) -> UpdateResult {
         
         // Import public key (may crash in fatalError for invalid configuration)
         let publicKey = cryptoProvider.importECPublicKey(publicKeyBase64: configuration.publicKey)
         
         // Validate signature
-        guard let challenge = challenge else {
-            WultraDebug.fatalError("Challenge must be set")
-        }
         guard let signature = responseHeaders["x-cert-pinning-signature"] else {
             WultraDebug.error("CertStore: Missing signature header.")
             return .invalidSignature
