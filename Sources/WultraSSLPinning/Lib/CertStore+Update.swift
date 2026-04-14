@@ -177,7 +177,7 @@ public extension CertStore {
         // Try to update cached data with the newly received objects.
         // The `updateCachedData` method guarantees atomicity of the operation.
         var result = UpdateResult.ok
-        //
+
         updateCachedData {
             //
             // This closure is called while internal thread lock is acquired.

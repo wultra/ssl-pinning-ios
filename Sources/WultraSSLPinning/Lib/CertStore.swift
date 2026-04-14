@@ -133,10 +133,7 @@ internal extension CertStore {
         semaphore.wait()
         defer { semaphore.signal() }
         
-        // At first, try to restore cache
-        restoreCache()
-        
-        // Call closure with cached data object
+        // Persist new data coming from update
         if let newData = updateClosure() {
             cachedData = newData
             saveDataToCache(data: newData)
