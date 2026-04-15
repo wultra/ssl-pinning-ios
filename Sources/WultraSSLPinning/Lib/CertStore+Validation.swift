@@ -97,17 +97,22 @@ public extension CertStore {
             return .untrusted
         }
         
-        // Depth of certificate should be within chain length
-        let count = SecTrustGetCertificateCount(serverTrust) // for example count = 3, valid depth values: 0,1,2
-        if depth >= count || depth < 0 {
-            WultraDebug.print("Requested certificate depth (\(depth)) is outside of the chain length (\(count)); returning .untrusted without fingerprint validation.")
-            return .untrusted
-        }
-        
         // Handle leaf certificate for common name, which should be fetched from leaf certificate
         guard let leafCert = SecTrustGetCertificateAtIndex(serverTrust, 0),
               let commonName = SecCertificateCopySubjectSummary(leafCert) as String? else {
             WultraDebug.print("Leaf certificate common name is nil; returning .untrusted without fingerprint validation.")
+            return .untrusted
+        }
+        
+        // Check domainsConfig as early as possible
+        if !isDomainsConfigPinningRequired(for: commonName) {
+            return .trusted
+        }
+        
+        // Depth of certificate should be within chain length
+        let count = SecTrustGetCertificateCount(serverTrust) // for example count = 3, valid depth values: 0,1,2
+        if depth >= count || depth < 0 {
+            WultraDebug.print("Requested certificate depth (\(depth)) is outside of the chain length (\(count)); returning .untrusted without fingerprint validation.")
             return .untrusted
         }
         
@@ -116,6 +121,7 @@ public extension CertStore {
             WultraDebug.print("Server certificate at depth \(depth) was not found in the certificate chain; returning .untrusted without fingerprint validation.")
             return .untrusted
         }
+        
         // Acquire certificate data in DER format
         let certData = SecCertificateCopyData(serverCert) as Data
         let fingerprint = cryptoProvider.hashSha256(data: certData)
@@ -136,19 +142,16 @@ public extension CertStore {
     ///
     /// - Returns: validation result
     private func validateFingerprint(commonName: String, fingerprint: Data, depth: Int) -> ValidationResult {
+        // Check domainsConfig first — if pinning is not required for this domain, trust immediately
+        if !isDomainsConfigPinningRequired(for: commonName) {
+            return .trusted
+        }
+        
         // Check expected common names
         if let expected = configuration.expectedCommonNames {
             guard expected.contains(commonName) else {
                 WultraDebug.print("Common name '\(commonName)' not found in expected list; returning .untrusted without fingerprint validation.")
                 return .untrusted
-            }
-        }
-        
-        if let domainsConfig = getCachedData()?.domainsConfig {
-            // Check if pinning is required for this domain
-            if domainsConfig.isPinningRequired(for: commonName) == false {
-                WultraDebug.print("Pinning disabled by domainsConfig for domain '\(commonName)'; returning .trusted without fingerprint validation.")
-                return .trusted
             }
         }
         
@@ -188,5 +191,23 @@ public extension CertStore {
         // That's basically means that we cannot determine validity of the certificate
         // and therefore the "empty" result is returned.
         return matchAttempts > 0 ? .untrusted : .empty
+    }
+    
+    /// Returns whether SSL pinning is required for the given domain name according to `DomainsConfig`.
+    ///
+    /// When no `DomainsConfig` is available (e.g. not yet fetched from the server), pinning is
+    /// considered required. When `DomainsConfig` is present, its per-domain or fallback value is used.
+    ///
+    /// - Parameter commonName: The domain name to check.
+    /// - Returns: `false` when `DomainsConfig` explicitly disables pinning for this domain; `true` otherwise.
+    private func isDomainsConfigPinningRequired(for commonName: String) -> Bool {
+        guard let domainsConfig = getCachedData()?.domainsConfig else {
+            return true
+        }
+        let required = domainsConfig.isPinningRequired(for: commonName)
+        if !required {
+            WultraDebug.print("Pinning disabled by domainsConfig for domain '\(commonName)'; returning .trusted without fingerprint validation.")
+        }
+        return required
     }
 }
