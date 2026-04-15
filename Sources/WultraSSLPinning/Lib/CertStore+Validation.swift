@@ -80,6 +80,10 @@ public extension CertStore {
     ///
     /// - Returns: validation result
     func validate(commonName: String, certificateData: Data, depth: Int = 0) -> ValidationResult {
+        // Check domainsConfig as early as possible
+        if !isDomainsConfigPinningRequired(for: commonName) {
+            return .trusted
+        }
         let fingerprint = cryptoProvider.hashSha256(data: certificateData)
         return validateFingerprint(commonName: commonName, fingerprint: fingerprint, depth: depth)
     }
