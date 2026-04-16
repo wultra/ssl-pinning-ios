@@ -420,7 +420,12 @@ class CertStoreTests_Network: XCTestCase {
         var phase1Result: CertStore.ValidationResult?
         let delegatePhase1 = TestingSessionDelegate { (challenge, callback) in
             phase1Result = self.certStore.validate(challenge: challenge)
-            callback(.cancelAuthenticationChallenge, nil)
+            switch phase1Result! {
+            case .trusted:
+                callback(.performDefaultHandling, nil)
+            case .untrusted, .empty:
+                callback(.cancelAuthenticationChallenge, nil)
+            }
         }
 
         _ = RemoteObject(
@@ -471,7 +476,12 @@ class CertStoreTests_Network: XCTestCase {
         var phase3Result: CertStore.ValidationResult?
         let delegatePhase3 = TestingSessionDelegate { (challenge, callback) in
             phase3Result = self.certStore.validate(challenge: challenge)
-            callback(.cancelAuthenticationChallenge, nil)
+            switch phase3Result! {
+            case .trusted:
+                callback(.performDefaultHandling, nil)
+            case .untrusted, .empty:
+                callback(.cancelAuthenticationChallenge, nil)
+            }
         }
         _ = RemoteObject(
             session: URLSession(delegate: delegatePhase3),
@@ -485,7 +495,7 @@ class CertStoreTests_Network: XCTestCase {
     ///
     /// The backend always sends `sslPinningRequiredForUnlisted: true`, meaning every domain that is
     /// **not** explicitly listed in `domainsConfig.domains` must satisfy normal fingerprint-based
-    /// pinning. The test covers three scenarios in sequence:
+    /// pinning. The test covers three phases in sequence:
     ///
     /// 1. **Listed domain, pinning bypassed** — the target host is added to the bypass list
     ///    (`sslPinningRequired: false`). A real HTTPS connection returns `.trusted` because the
@@ -516,7 +526,7 @@ class CertStoreTests_Network: XCTestCase {
         }
         XCTAssertTrue(updateResult.value == .ok)
         
-        // --- Scenario 1: listed domain, pinning not required → .trusted ---
+        // --- Phase 1: listed domain, pinning not required → .trusted ---
         let sessionDelegateListed = TestingSessionDelegate { (challenge, callback) in
             let validationResult = self.certStore.validate(challenge: challenge)
             switch validationResult {
@@ -534,7 +544,7 @@ class CertStoreTests_Network: XCTestCase {
         XCTAssertNotNil(listedResult)
         XCTAssertEqual(sessionDelegateListed.interceptor.called_didReceiveChallenge, 1)
         
-        // --- Scenario 2: unlisted domain, sslPinningRequiredForUnlisted=true → normal pinning (.empty) ---
+        // --- Phase 2: unlisted domain, sslPinningRequiredForUnlisted=true → normal pinning (.empty) ---
         // No real HTTPS connection is needed; the in-memory check is enough to confirm the policy.
         // testCommonName_Unknown is not in the bypass list and has no cert stored → .empty.
         let unlistedResult = certStore.validate(
@@ -543,7 +553,7 @@ class CertStoreTests_Network: XCTestCase {
         )
         XCTAssertEqual(unlistedResult, .empty, "Unlisted domain should require normal pinning (sslPinningRequiredForUnlisted=true) and return .empty when no cert is stored")
         
-        // --- Scenario 3: clear bypass list → host becomes unlisted, sslPinningRequiredForUnlisted=true applies ---
+        // --- Phase 3: clear bypass list → host becomes unlisted, sslPinningRequiredForUnlisted=true applies ---
         api_setDomainsConfigBypass([])
         
         let updateResult2 = AsyncHelper.wait { (completion) in
