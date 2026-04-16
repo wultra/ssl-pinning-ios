@@ -271,9 +271,9 @@ class CertStoreTests_Network: XCTestCase {
     
     /// Tests that depth-specific pinning works on a real-world TLS connection.
     ///
-    /// The test registers the leaf certificate (depth 0) via the `/auto` endpoint and
-    /// the intermediate certificate (depth 1) extracted live from the TLS chain via the `/pem`
-    /// endpoint. It then verifies that a real HTTPS request succeeds when validated at both depths.
+    /// The test registers both the leaf certificate (depth 0) and the intermediate certificate
+    /// (depth 1), then verifies that a single `validate(challenge:)` call returns `.trusted`
+    /// by finding a matching pinned entry at any depth in the chain.
     func testRealCertificateWithDepth() {
         
         // Register leaf certificate on MUS (depth 0)
@@ -295,41 +295,24 @@ class CertStoreTests_Network: XCTestCase {
         }
         XCTAssertTrue(updateResult.value == .ok)
         
-        // Validate at depth 0 (leaf certificate)
-        let sessionDelegate_d0 = TestingSessionDelegate { (challenge, callback) in
-            let validationResult = self.certStore.validate(challenge: challenge, depth: 0)
+        // Both leaf (depth 0) and intermediate (depth 1) are pinned. A single validate call
+        // iterates over all pinned depths and trusts on the first matching certificate.
+        let sessionDelegate = TestingSessionDelegate { (challenge, callback) in
+            let validationResult = self.certStore.validate(challenge: challenge)
             switch validationResult {
             case .trusted:
                 callback(.performDefaultHandling, nil)
             case .untrusted, .empty:
                 callback(.cancelAuthenticationChallenge, nil)
             }
-            XCTAssertEqual(validationResult, .trusted, "Expected leaf certificate (depth 0) to be trusted")
+            XCTAssertEqual(validationResult, .trusted, "Expected at least one pinned depth (0 or 1) to match")
         }
         
-        let session_d0 = URLSession(delegate: sessionDelegate_d0)
-        let resultDepth0: Data? = RemoteObject(session: session_d0, request: URLRequest(url: urlToPin)).get()
+        let session = URLSession(delegate: sessionDelegate)
+        let result: Data? = RemoteObject(session: session, request: URLRequest(url: urlToPin)).get()
         
-        XCTAssertNotNil(resultDepth0)
-        XCTAssertEqual(sessionDelegate_d0.interceptor.called_didReceiveChallenge, 1)
-        
-        // Validate at depth 1 (intermediate certificate)
-        let sessionDelegate_d1 = TestingSessionDelegate { (challenge, callback) in
-            let validationResult = self.certStore.validate(challenge: challenge, depth: 1)
-            switch validationResult {
-            case .trusted:
-                callback(.performDefaultHandling, nil)
-            case .untrusted, .empty:
-                callback(.cancelAuthenticationChallenge, nil)
-            }
-            XCTAssertEqual(validationResult, .trusted, "Expected intermediate certificate (depth 1) to be trusted")
-        }
-        
-        let session_d1 = URLSession(delegate: sessionDelegate_d1)
-        let resultDepth1: Data? = RemoteObject(session: session_d1, request: URLRequest(url: urlToPin)).get()
-        
-        XCTAssertNotNil(resultDepth1)
-        XCTAssertEqual(sessionDelegate_d1.interceptor.called_didReceiveChallenge, 1)
+        XCTAssertNotNil(result)
+        XCTAssertEqual(sessionDelegate.interceptor.called_didReceiveChallenge, 1)
     }
     
     /// Tests that DomainsConfig SSL pinning bypass works on a real-world TLS connection.
@@ -404,36 +387,6 @@ class CertStoreTests_Network: XCTestCase {
         XCTAssertEqual(sessionDelegatePinning.interceptor.called_didReceiveChallenge, 1)
     }
     
-    /// Tests that passing a depth value far beyond the real TLS chain length (e.g. 10) causes the
-    /// SDK to return `.untrusted` immediately — before any stored-fingerprint lookup even occurs.
-    ///
-    /// The chain for any public site is typically 3 certificates deep (leaf + intermediate + root),
-    /// so depth 10 is always out of range and the SDK's bounds check must catch it.
-    func testRealCertificateWithOutOfBoundsDepth() {
-        
-        // Register a valid leaf cert so the store is not empty
-        api_updateCertificate()
-        
-        let updateResult = AsyncHelper.wait { (completion) in
-            certStore.update { (result, error) in
-                completion.complete(with: result)
-            }
-        }
-        XCTAssertTrue(updateResult.value == .ok)
-        
-        var validationResult: CertStore.ValidationResult?
-        let sessionDelegate = TestingSessionDelegate { (challenge, callback) in
-            // depth 10 is way beyond any real TLS chain → SDK returns .untrusted immediately
-            validationResult = self.certStore.validate(challenge: challenge, depth: 10)
-            callback(.cancelAuthenticationChallenge, nil)
-        }
-        
-        let urlSession = URLSession(delegate: sessionDelegate)
-        _ = RemoteObject(session: urlSession, request: URLRequest(url: urlToPin)).get() as Data?
-        XCTAssertEqual(validationResult, .untrusted, "Expected .untrusted for depth 10 which exceeds the real TLS chain length")
-        XCTAssertEqual(sessionDelegate.interceptor.called_didReceiveChallenge, 1)
-    }
-    
     /// Tests the full bypass lifecycle when a deliberately wrong fingerprint is stored for a domain.
     ///
     /// The leaf (0) certificate PEM is registered at depth 1 (where the actual intermediate CA sits),
@@ -466,7 +419,7 @@ class CertStoreTests_Network: XCTestCase {
         // --- Phase 1: bad fingerprint at depth 1, no bypass → .untrusted ---
         var phase1Result: CertStore.ValidationResult?
         let delegatePhase1 = TestingSessionDelegate { (challenge, callback) in
-            phase1Result = self.certStore.validate(challenge: challenge, depth: 1)
+            phase1Result = self.certStore.validate(challenge: challenge)
             callback(.cancelAuthenticationChallenge, nil)
         }
         _ = RemoteObject(
@@ -488,7 +441,7 @@ class CertStoreTests_Network: XCTestCase {
         
         var phase2Result: CertStore.ValidationResult?
         let delegatePhase2 = TestingSessionDelegate { (challenge, callback) in
-            phase2Result = self.certStore.validate(challenge: challenge, depth: 1)
+            phase2Result = self.certStore.validate(challenge: challenge)
             switch phase2Result! {
             case .trusted:
                 callback(.performDefaultHandling, nil)
@@ -516,7 +469,7 @@ class CertStoreTests_Network: XCTestCase {
         
         var phase3Result: CertStore.ValidationResult?
         let delegatePhase3 = TestingSessionDelegate { (challenge, callback) in
-            phase3Result = self.certStore.validate(challenge: challenge, depth: 1)
+            phase3Result = self.certStore.validate(challenge: challenge)
             callback(.cancelAuthenticationChallenge, nil)
         }
         _ = RemoteObject(
