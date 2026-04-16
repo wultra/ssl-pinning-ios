@@ -217,7 +217,7 @@ public extension CertStore {
             if info.isExpired(forDate: now) {
                 continue
             }
-            if info.commonName == commonName && info.depth == depth {
+            if info.commonName == commonName && (info.depth ?? 0) == depth {
                 matchAttempts += 1
                 if info.fingerprint == fingerprint {
                     return .trusted
