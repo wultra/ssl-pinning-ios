@@ -274,46 +274,46 @@ class CertStoreTests_Network: XCTestCase {
     /// The test registers both the leaf certificate (depth 0) and the intermediate certificate
     /// (depth 1), then verifies that a single `validate(challenge:)` call returns `.trusted`
     /// by finding a matching pinned entry at any depth in the chain.
-//    func testRealCertificateWithDepth() {
-//        
-//        // Register leaf certificate on MUS (depth 0)
-//        api_updateCertificate()
-//        
-//        // Extract intermediate certificate (depth 1) from the live TLS chain and register it
-//        guard let intermediatePEM = fetchCertPEM(from: urlToPin, depth: 1) else {
-//            XCTFail("Failed to extract intermediate certificate (depth 1) from TLS chain of \(hostToPin)")
-//            return
-//        }
-//        // Update the MUS with intermediate PEM for hostToPin
-//        api_addCertificatePEM(intermediatePEM, domain: hostToPin, depth: 1)
-//        
-//        // Update the certificates from the MUS
-//        let updateResult = AsyncHelper.wait { (completion) in
-//            certStore.update { (result, error) in
-//                completion.complete(with: result)
-//            }
-//        }
-//        XCTAssertTrue(updateResult.value == .ok)
-//        
-//        // Both leaf (depth 0) and intermediate (depth 1) are pinned. A single validate call
-//        // iterates over all pinned depths and trusts on the first matching certificate.
-//        let sessionDelegate = TestingSessionDelegate { (challenge, callback) in
-//            let validationResult = self.certStore.validate(challenge: challenge)
-//            switch validationResult {
-//            case .trusted:
-//                callback(.performDefaultHandling, nil)
-//            case .untrusted, .empty:
-//                callback(.cancelAuthenticationChallenge, nil)
-//            }
-//            XCTAssertEqual(validationResult, .trusted, "Expected at least one pinned depth (0 or 1) to match")
-//        }
-//        
-//        let session = URLSession(delegate: sessionDelegate)
-//        let result: Data? = RemoteObject(session: session, request: URLRequest(url: urlToPin)).get()
-//        
-//        XCTAssertNotNil(result)
-//        XCTAssertEqual(sessionDelegate.interceptor.called_didReceiveChallenge, 1)
-//    }
+    func testRealCertificateWithDepth() {
+        
+        // Register leaf certificate on MUS (depth 0)
+        api_updateCertificate()
+        
+        // Extract intermediate certificate (depth 1) from the live TLS chain and register it
+        guard let intermediatePEM = fetchCertPEM(from: urlToPin, depth: 1) else {
+            XCTFail("Failed to extract intermediate certificate (depth 1) from TLS chain of \(hostToPin)")
+            return
+        }
+        // Update the MUS with intermediate PEM for hostToPin
+        api_addCertificatePEM(intermediatePEM, domain: hostToPin, depth: 1)
+        
+        // Update the certificates from the MUS
+        let updateResult = AsyncHelper.wait { (completion) in
+            certStore.update { (result, error) in
+                completion.complete(with: result)
+            }
+        }
+        XCTAssertTrue(updateResult.value == .ok)
+        
+        // Both leaf (depth 0) and intermediate (depth 1) are pinned. A single validate call
+        // iterates over all pinned depths and trusts on the first matching certificate.
+        let sessionDelegate = TestingSessionDelegate { (challenge, callback) in
+            let validationResult = self.certStore.validate(challenge: challenge)
+            switch validationResult {
+            case .trusted:
+                callback(.performDefaultHandling, nil)
+            case .untrusted, .empty:
+                callback(.cancelAuthenticationChallenge, nil)
+            }
+            XCTAssertEqual(validationResult, .trusted, "Expected at least one pinned depth (0 or 1) to match")
+        }
+        
+        let session = URLSession(delegate: sessionDelegate)
+        let result: Data? = RemoteObject(session: session, request: URLRequest(url: urlToPin)).get()
+        
+        XCTAssertNotNil(result)
+        XCTAssertEqual(sessionDelegate.interceptor.called_didReceiveChallenge, 1)
+    }
     
     /// Tests that DomainsConfig SSL pinning bypass works on a real-world TLS connection.
     ///
