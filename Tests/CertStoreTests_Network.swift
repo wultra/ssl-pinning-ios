@@ -395,90 +395,90 @@ class CertStoreTests_Network: XCTestCase {
     /// 1. **Before bypass** — the wrong fingerprint is detected and validation returns `.untrusted`.
     /// 2. **Bypass active** — `domainsConfig` marks the host as not requiring pinning → `.trusted`.
     /// 3. **Bypass cleared** — normal fingerprint-based pinning resumes → `.untrusted` again.
-//    func testRealCertificateWithDomainsConfigBadFingerprintAndBypass() {
-//        // Ensure clean bypass state before the test
-//        api_setDomainsConfigBypass([])
-//        
-//        // Fetch the leaf certificate PEM and register it at depth 1 as a deliberately wrong
-//        // fingerprint. The actual depth-1 certificate in the TLS chain is the intermediate CA —
-//        // its fingerprint will never match the leaf cert, guaranteeing .untrusted at depth 1.
-//        guard let leafPEM = fetchCertPEM(from: urlToPin, depth: 0) else {
-//            XCTFail("Failed to extract leaf certificate PEM for \(hostToPin)")
-//            return
-//        }
-//        // Stores the leaf (0) certificate as depth 1 in the MUS
-//        api_addCertificatePEM(leafPEM, domain: hostToPin, depth: 1)
-//        
-//        let updateResult = AsyncHelper.wait { (completion) in
-//            certStore.update { (result, error) in
-//                completion.complete(with: result)
-//            }
-//        }
-//        XCTAssertTrue(updateResult.value == .ok)
-//        
-//        // --- Phase 1: bad fingerprint at depth 1, no bypass → .untrusted ---
-//        var phase1Result: CertStore.ValidationResult?
-//        let delegatePhase1 = TestingSessionDelegate { (challenge, callback) in
-//            phase1Result = self.certStore.validate(challenge: challenge)
-//            callback(.cancelAuthenticationChallenge, nil)
-//        }
-//        _ = RemoteObject(
-//            session: URLSession(delegate: delegatePhase1),
-//            request: URLRequest(url: urlToPin)
-//        ).get() as Data?
-//        XCTAssertEqual(phase1Result, .untrusted, "Expected .untrusted for bad fingerprint at depth 1 before bypass")
-//        XCTAssertEqual(delegatePhase1.interceptor.called_didReceiveChallenge, 1)
-//        
-//        // --- Phase 2: enable bypass → .trusted despite bad fingerprint ---
-//        api_setDomainsConfigBypass([hostToPin])
-//        
-//        let updateResult2 = AsyncHelper.wait { (completion) in
-//            certStore.update(mode: .forced) { (result, error) in
-//                completion.complete(with: result)
-//            }
-//        }
-//        XCTAssertTrue(updateResult2.value == .ok)
-//        
-//        var phase2Result: CertStore.ValidationResult?
-//        let delegatePhase2 = TestingSessionDelegate { (challenge, callback) in
-//            phase2Result = self.certStore.validate(challenge: challenge)
-//            switch phase2Result! {
-//            case .trusted:
-//                callback(.performDefaultHandling, nil)
-//            case .untrusted, .empty:
-//                callback(.cancelAuthenticationChallenge, nil)
-//            }
-//        }
-//        let result2: Data? = RemoteObject(
-//            session: URLSession(delegate: delegatePhase2),
-//            request: URLRequest(url: urlToPin)
-//        ).get()
-//        XCTAssertEqual(phase2Result, .trusted, "Expected .trusted when bypass is active (bad fingerprint ignored)")
-//        XCTAssertNotNil(result2)
-//        XCTAssertEqual(delegatePhase2.interceptor.called_didReceiveChallenge, 1)
-//        
-//        // --- Phase 3: clear bypass → .untrusted again ---
-//        api_setDomainsConfigBypass([])
-//        
-//        let updateResult3 = AsyncHelper.wait { (completion) in
-//            certStore.update(mode: .forced) { (result, error) in
-//                completion.complete(with: result)
-//            }
-//        }
-//        XCTAssertTrue(updateResult3.value == .ok)
-//        
-//        var phase3Result: CertStore.ValidationResult?
-//        let delegatePhase3 = TestingSessionDelegate { (challenge, callback) in
-//            phase3Result = self.certStore.validate(challenge: challenge)
-//            callback(.cancelAuthenticationChallenge, nil)
-//        }
-//        _ = RemoteObject(
-//            session: URLSession(delegate: delegatePhase3),
-//            request: URLRequest(url: urlToPin)
-//        ).get() as Data?
-//        XCTAssertEqual(phase3Result, .untrusted, "Expected .untrusted after bypass is cleared (bad fingerprint still stored)")
-//        XCTAssertEqual(delegatePhase3.interceptor.called_didReceiveChallenge, 1)
-//    }
+    func testRealCertificateWithDomainsConfigBadFingerprintAndBypass() {
+        // Ensure clean bypass state before the test
+        api_setDomainsConfigBypass([])
+        
+        // Fetch the leaf certificate PEM and register it at depth 1 as a deliberately wrong
+        // fingerprint. The actual depth-1 certificate in the TLS chain is the intermediate CA —
+        // its fingerprint will never match the leaf cert, guaranteeing .untrusted at depth 1.
+        guard let leafPEM = fetchCertPEM(from: urlToPin, depth: 0) else {
+            XCTFail("Failed to extract leaf certificate PEM for \(hostToPin)")
+            return
+        }
+        // Stores the leaf (0) certificate as depth 1 in the MUS
+        api_addCertificatePEM(leafPEM, domain: hostToPin, depth: 1)
+        
+        let updateResult = AsyncHelper.wait { (completion) in
+            certStore.update { (result, error) in
+                completion.complete(with: result)
+            }
+        }
+        XCTAssertTrue(updateResult.value == .ok)
+        
+        // --- Phase 1: bad fingerprint at depth 1, no bypass → .untrusted ---
+        var phase1Result: CertStore.ValidationResult?
+        let delegatePhase1 = TestingSessionDelegate { (challenge, callback) in
+            phase1Result = self.certStore.validate(challenge: challenge)
+            callback(.cancelAuthenticationChallenge, nil)
+        }
+        _ = RemoteObject(
+            session: URLSession(delegate: delegatePhase1),
+            request: URLRequest(url: urlToPin)
+        ).get() as Data?
+        XCTAssertEqual(phase1Result, .untrusted, "Expected .untrusted for bad fingerprint at depth 1 before bypass")
+        XCTAssertEqual(delegatePhase1.interceptor.called_didReceiveChallenge, 1)
+        
+        // --- Phase 2: enable bypass → .trusted despite bad fingerprint ---
+        api_setDomainsConfigBypass([hostToPin])
+        
+        let updateResult2 = AsyncHelper.wait { (completion) in
+            certStore.update(mode: .forced) { (result, error) in
+                completion.complete(with: result)
+            }
+        }
+        XCTAssertTrue(updateResult2.value == .ok)
+        
+        var phase2Result: CertStore.ValidationResult?
+        let delegatePhase2 = TestingSessionDelegate { (challenge, callback) in
+            phase2Result = self.certStore.validate(challenge: challenge)
+            switch phase2Result! {
+            case .trusted:
+                callback(.performDefaultHandling, nil)
+            case .untrusted, .empty:
+                callback(.cancelAuthenticationChallenge, nil)
+            }
+        }
+        let result2: Data? = RemoteObject(
+            session: URLSession(delegate: delegatePhase2),
+            request: URLRequest(url: urlToPin)
+        ).get()
+        XCTAssertEqual(phase2Result, .trusted, "Expected .trusted when bypass is active (bad fingerprint ignored)")
+        XCTAssertNotNil(result2)
+        XCTAssertEqual(delegatePhase2.interceptor.called_didReceiveChallenge, 1)
+        
+        // --- Phase 3: clear bypass → .untrusted again ---
+        api_setDomainsConfigBypass([])
+        
+        let updateResult3 = AsyncHelper.wait { (completion) in
+            certStore.update(mode: .forced) { (result, error) in
+                completion.complete(with: result)
+            }
+        }
+        XCTAssertTrue(updateResult3.value == .ok)
+        
+        var phase3Result: CertStore.ValidationResult?
+        let delegatePhase3 = TestingSessionDelegate { (challenge, callback) in
+            phase3Result = self.certStore.validate(challenge: challenge)
+            callback(.cancelAuthenticationChallenge, nil)
+        }
+        _ = RemoteObject(
+            session: URLSession(delegate: delegatePhase3),
+            request: URLRequest(url: urlToPin)
+        ).get() as Data?
+        XCTAssertEqual(phase3Result, .untrusted, "Expected .untrusted after bypass is cleared (bad fingerprint still stored)")
+        XCTAssertEqual(delegatePhase3.interceptor.called_didReceiveChallenge, 1)
+    }
     
     /// Tests the `sslPinningRequiredForUnlisted` field in `domainsConfig` on a real-world server response.
     ///
