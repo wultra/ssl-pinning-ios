@@ -90,18 +90,20 @@ public extension CertStore {
     
     /// Validates whether provided authentication challenge contains server certificate and its fingerprint is known.
     ///
+    /// The common name is extracted from the leaf certificate (depth 0). All pinned entries for that common
+    /// name are then checked against the certificates in the chain at their respective stored depths. At least
+    /// one pinned entry must match for the challenge to be considered trusted.
+    ///
     /// - Parameter challenge: An authentication challenge to be validated
-    /// - Parameter depth: The certificate depth in the TLS chain (0 = leaf, 1..N-1 = intermediate, N = root). When no depth is provided, 0 is used as default.
     ///
     /// - Returns: validation result
-    func validate(challenge: URLAuthenticationChallenge, depth: Int = 0) -> ValidationResult {
-        // Acquire various nullable objects at first
+    func validate(challenge: URLAuthenticationChallenge) -> ValidationResult {
         guard let serverTrust = challenge.protectionSpace.serverTrust else {
             WultraDebug.print("Server trust from URLAuthenticationChallenge is nil; returning .untrusted without fingerprint validation.")
             return .untrusted
         }
         
-        // Handle leaf certificate for common name, which should be fetched from leaf certificate
+        // Common name is always taken from the leaf certificate (index 0).
         guard let leafCert = SecTrustGetCertificateAtIndex(serverTrust, 0),
               let commonName = SecCertificateCopySubjectSummary(leafCert) as String? else {
             WultraDebug.print("Leaf certificate common name is nil; returning .untrusted without fingerprint validation.")
@@ -113,25 +115,62 @@ public extension CertStore {
             return .trusted
         }
         
-        // Depth of certificate should be within chain length
-        let count = SecTrustGetCertificateCount(serverTrust) // for example count = 3, valid depth values: 0,1,2
-        if depth >= count || depth < 0 {
-            WultraDebug.print("Requested certificate depth (\(depth)) is outside of the chain length (\(count)); returning .untrusted without fingerprint validation.")
-            return .untrusted
+        // Check expected common names
+        if let expected = configuration.expectedCommonNames {
+            guard expected.contains(commonName) else {
+                WultraDebug.print("Common name '\(commonName)' not found in expected list; returning .untrusted without fingerprint validation.")
+                return .untrusted
+            }
         }
         
-        // Handle server certificate at specified depth
-        guard let serverCert = SecTrustGetCertificateAtIndex(serverTrust, depth) else {
-            WultraDebug.print("Server certificate at depth \(depth) was not found in the certificate chain; returning .untrusted without fingerprint validation.")
-            return .untrusted
+        // Gets list of fingerprint entries (thread safe)
+        let certificates = getCertificates()
+        guard certificates.count > 0 else {
+            WultraDebug.print("List of certificates is empty; returning .empty.")
+            return .empty
         }
         
-        // Acquire certificate data in DER format
-        let certData = SecCertificateCopyData(serverCert) as Data
-        let fingerprint = cryptoProvider.hashSha256(data: certData)
+        let now = Date()
+        // matchAttempts counts how many pinned entries for this CN were checked against the chain.
+        // A pinned depth that exceeds the actual chain length is silently skipped.
+        var matchAttempts = 0
         
-        // Now validate commonName & certificate data & depth
-        return validateFingerprint(commonName: commonName, fingerprint: fingerprint, depth: depth)
+        for info in certificates {
+            if info.isExpired(forDate: now) {
+                continue
+            }
+            
+            guard info.commonName == commonName else {
+                continue
+            }
+            
+            let pinnedDepth = info.depth ?? 0
+            guard pinnedDepth >= 0 && pinnedDepth < certificates.count else {
+                continue
+            }
+            
+            guard let chainCert = SecTrustGetCertificateAtIndex(serverTrust, pinnedDepth) else {
+                continue
+            }
+            
+            let certData = SecCertificateCopyData(chainCert) as Data
+            let fingerprint = cryptoProvider.hashSha256(data: certData)
+            
+            matchAttempts += 1
+            
+            if info.fingerprint == fingerprint {
+                return .trusted
+            }
+        }
+        
+        // If matchAttempts is greater than 0, then it means that we have certificate for
+        // a requested common name, but none matched. In this case, the result is "untrusted".
+        //
+        // On opposite to that, if no fingerprint comparison was performed, then it means
+        // that the database has some certificates, but none for requested common name.
+        // That's basically means that we cannot determine validity of the certificate
+        // and therefore the "empty" result is returned.
+        return matchAttempts > 0 ? .untrusted : .empty
     }
     
     /// Validates whether provided certificate fingerprint at a specific chain depth is valid for given common name.
@@ -146,7 +185,7 @@ public extension CertStore {
     ///
     /// - Returns: validation result
     private func validateFingerprint(commonName: String, fingerprint: Data, depth: Int) -> ValidationResult {
-        // Check domainsConfig first — if pinning is not required for this domain, trust immediately
+        // Check domainsConfig as early as possible
         if !isDomainsConfigPinningRequired(for: commonName) {
             return .trusted
         }
@@ -159,10 +198,8 @@ public extension CertStore {
             }
         }
         
-        // Gets list of fingerprint entries (which is thread safe operation)
+        // Gets list of fingerprint entries (thread safe)
         let certificates = getCertificates()
-        
-        // Check whether store is empty
         guard certificates.count > 0 else {
             WultraDebug.print("List of certificates is empty; returning .empty.")
             return .empty
@@ -180,10 +217,10 @@ public extension CertStore {
                 continue
             }
             if info.commonName == commonName && info.depth == depth {
+                matchAttempts += 1
                 if info.fingerprint == fingerprint {
                     return .trusted
                 }
-                matchAttempts += 1
             }
         }
         
