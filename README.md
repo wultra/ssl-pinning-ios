@@ -220,18 +220,17 @@ let commonName = "yourdomain.com"
 let certData = Data(...)
 let validationResult = certStore.validate(commonName: commonName, certificateData: certData)
 
-// [ 3 ]  You want to validate URLAuthenticationChallenge
+// [ 3 ]  You want to validate URLAuthenticationChallenge. `depth` parameter cannot be provide in this case. It is determined automatically from entries stored in `certStore`.
 
 let validationResult = certStore.validate(challenge: challenge)
 
-// [ 4 ]  Validate a certificate at a specific position in the TLS chain (see "Certificate depth pinning")
+// [ 4 ]  Validate a certificate at a specific depth (see "Certificate depth pinning")
 
-let validationResult = certStore.validate(challenge: challenge, depth: 1)         // intermediate CA
 let validationResult = certStore.validate(commonName: commonName, fingerprint: fingerprint, depth: 1)
 let validationResult = certStore.validate(commonName: commonName, certificateData: certData, depth: 1)
 ```
 
-All overloads without an explicit `depth` parameter validate the **leaf certificate** (depth 0), which is the original behaviour and is fully backward-compatible.
+The `validate(commonName:fingerprint:depth:)` and `validate(commonName:certificateData:depth:)` overloads accept an explicit `depth` and match only entries stored at that depth. `validate(challenge:)` does **not** accept a `depth` parameter — it automatically validates all pinned entries across every depth (see [Certificate depth pinning](#certificate-depth-pinning)).
 
 Each `validate` method returns `CertStore.ValidationResult` enumeration with the following options:
 
@@ -289,7 +288,7 @@ class YourUrlSessionDelegate: NSObject, URLSessionDelegate {
 
 By default the library pins the **leaf certificate** — the certificate the server presents directly. For stronger protection against a compromised leaf certificate you can instead pin an **intermediate CA** or the **root CA** in the certificate chain.
 
-The `depth` parameter refers to the position of the certificate in the TLS chain as seen by `SecTrustGetCertificateAtIndex`:
+The `depth` value refers to the position of the certificate in the TLS chain as seen by `SecTrustGetCertificateAtIndex`:
 
 | depth | certificate |
 |-------|-------------|
@@ -298,13 +297,13 @@ The `depth` parameter refers to the position of the certificate in the TLS chain
 | `2`   | Second intermediate CA (if present) |
 | `N`   | Root CA |
 
-The [Mobile Utility Server](https://github.com/wultra/mobile-utility-server) stores the `depth` for each registered fingerprint and includes it in the response. The SDK matches each fingerprint only against the certificate at the corresponding depth.
+The [Mobile Utility Server](https://github.com/wultra/mobile-utility-server) stores the `depth` for each registered fingerprint and includes it in the response. When you call `validate(challenge:)`, the SDK automatically iterates over **all** pinned entries for the domain and validates each one against the certificate at its stored depth in the live TLS chain. The challenge is trusted as soon as any entry matches.
 
 ```swift
-// Pin the intermediate CA (depth 1) during a URLSession challenge
+// No depth parameter needed — the SDK resolves depth automatically for each stored entry
 func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge,
                 completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
-    switch certStore.validate(challenge: challenge, depth: 1) {
+    switch certStore.validate(challenge: challenge) {
     case .trusted:
         completionHandler(.performDefaultHandling, nil)
     case .untrusted, .empty:
@@ -313,12 +312,15 @@ func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationCh
 }
 ```
 
+To pin an intermediate CA simply register its fingerprint at `depth: 1` in the Mobile Utility Server — no code change is needed in your app.
+
 **Important notes:**
 
-- If `depth` is greater than or equal to the actual certificate chain length, `validate` returns `.untrusted` immediately — no fingerprint lookup is performed.
+- Depth is **configured server-side** in the Mobile Utility Server and carried in the downloaded fingerprint list. There is no `depth` parameter on `validate(challenge:)`.
 - Fingerprints stored at depth 0 are only matched against the leaf certificate; fingerprints stored at depth 1 are only matched against the first intermediate, and so on. A fingerprint stored at one depth is never compared against a certificate at a different depth.
-- The leaf common name is always used to look up the stored fingerprint, regardless of depth.
-- Multiple fingerprints for the same domain at different depths are fully supported and validated independently.
+- The leaf common name is always used to look up stored fingerprints, regardless of depth.
+- If a stored depth value exceeds the actual TLS chain length, that entry is silently skipped. Other entries for the same domain are still evaluated.
+- Multiple fingerprints for the same domain at different depths are fully supported and validated together in a single `validate(challenge:)` call.
 
 ## Domain bypass configuration
 
@@ -406,7 +408,9 @@ All PowerAuth helpers are no longer available for Swift Package Manager integrat
 
 The internal cache format was extended with an optional `depth` field for each stored certificate entry. When the field is absent (e.g. in caches written by version 1.8.x), it defaults to `0` (leaf certificate). Existing caches are fully compatible with 1.9.x — no cache reset, server update, or integrator action is required.
 
-All existing `validate` calls continue to work unchanged; they now implicitly validate the leaf certificate (depth 0), which is identical to previous behaviour.
+`validate(challenge:)` automatically validates **all** pinned entries for the domain, each at its stored depth. The result is `.trusted` as soon as any entry matches, `.untrusted` if entries were found but none matched, and `.empty` if no applicable entries exist. All previously written `validate(challenge:)` call sites continue to compile and behave correctly.
+
+The `depth` parameter is still available on `validate(commonName:fingerprint:depth:)` and `validate(commonName:certificateData:depth:)` for cases where you supply the fingerprint or certificate data yourself.
 
 ## FAQ
 
