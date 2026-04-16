@@ -499,77 +499,77 @@ class CertStoreTests_Network: XCTestCase {
     ///    host itself becomes unlisted. With `sslPinningRequiredForUnlisted: true` in effect,
     ///    normal fingerprint-based pinning resumes. The registered leaf cert matches, so a real
     ///    HTTPS connection returns `.trusted`.
-//    func testRealCertificateWithDomainsConfigSslPinningRequiredForUnlisted() {
-//        // Register the leaf certificate so the host has a stored fingerprint
-//        api_updateCertificate()
-//        
-//        // Put the host in the bypass list.
-//        // Server will respond with domainsConfig:
-//        //   sslPinningRequiredForUnlisted: true  (always hardcoded by the server)
-//        //   domains: [{ name: hostToPin, sslPinningRequired: false }]
-//        api_setDomainsConfigBypass([hostToPin])
-//        
-//        let updateResult = AsyncHelper.wait { (completion) in
-//            certStore.update { (result, error) in
-//                completion.complete(with: result)
-//            }
-//        }
-//        XCTAssertTrue(updateResult.value == .ok)
-//        
-//        // --- Scenario 1: listed domain, pinning not required → .trusted ---
-//        let sessionDelegateListed = TestingSessionDelegate { (challenge, callback) in
-//            let validationResult = self.certStore.validate(challenge: challenge)
-//            switch validationResult {
-//            case .trusted:
-//                callback(.performDefaultHandling, nil)
-//            case .untrusted, .empty:
-//                callback(.cancelAuthenticationChallenge, nil)
-//            }
-//            XCTAssertEqual(validationResult, .trusted, "Listed domain with sslPinningRequired=false should be trusted regardless of fingerprint")
-//        }
-//        
-//        let listedSession = URLSession(delegate: sessionDelegateListed)
-//        let listedResult: Data? = RemoteObject(session: listedSession, request: URLRequest(url: urlToPin)).get()
-//        
-//        XCTAssertNotNil(listedResult)
-//        XCTAssertEqual(sessionDelegateListed.interceptor.called_didReceiveChallenge, 1)
-//        
-//        // --- Scenario 2: unlisted domain, sslPinningRequiredForUnlisted=true → normal pinning (.empty) ---
-//        // No real HTTPS connection is needed; the in-memory check is enough to confirm the policy.
-//        // testCommonName_Unknown is not in the bypass list and has no cert stored → .empty.
-//        let unlistedResult = certStore.validate(
-//            commonName: .testCommonName_Unknown,
-//            fingerprint: .testFingerprint_Unknown
-//        )
-//        XCTAssertEqual(unlistedResult, .empty, "Unlisted domain should require normal pinning (sslPinningRequiredForUnlisted=true) and return .empty when no cert is stored")
-//        
-//        // --- Scenario 3: clear bypass list → host becomes unlisted, sslPinningRequiredForUnlisted=true applies ---
-//        api_setDomainsConfigBypass([])
-//        
-//        let updateResult2 = AsyncHelper.wait { (completion) in
-//            certStore.update(mode: .forced) { (result, error) in
-//                completion.complete(with: result)
-//            }
-//        }
-//        XCTAssertTrue(updateResult2.value == .ok)
-//        
-//        // The host is now unlisted. sslPinningRequiredForUnlisted=true → normal fingerprint pinning.
-//        // The registered leaf cert must still match → .trusted.
-//        let sessionDelegateUnlisted = TestingSessionDelegate { (challenge, callback) in
-//            let validationResult = self.certStore.validate(challenge: challenge)
-//            switch validationResult {
-//            case .trusted:
-//                callback(.performDefaultHandling, nil)
-//            case .untrusted, .empty:
-//                callback(.cancelAuthenticationChallenge, nil)
-//            }
-//            XCTAssertEqual(validationResult, .trusted, "Unlisted host with sslPinningRequiredForUnlisted=true should fall back to normal pinning and trust the registered cert")
-//        }
-//        let unlistedSession = URLSession(delegate: sessionDelegateUnlisted)
-//        let unlistedHostResult: Data? = RemoteObject(session: unlistedSession, request: URLRequest(url: urlToPin)).get()
-//        XCTAssertNotNil(unlistedHostResult)
-//        XCTAssertEqual(sessionDelegateUnlisted.interceptor.called_didReceiveChallenge, 1)
-//    }
+    func testRealCertificateWithDomainsConfigSslPinningRequiredForUnlisted() {
+        // Register the leaf certificate so the host has a stored fingerprint
+        api_updateCertificate()
+        
+        // Put the host in the bypass list.
+        // Server will respond with domainsConfig:
+        //   sslPinningRequiredForUnlisted: true  (always hardcoded by the server)
+        //   domains: [{ name: hostToPin, sslPinningRequired: false }]
+        api_setDomainsConfigBypass([hostToPin])
+        
+        let updateResult = AsyncHelper.wait { (completion) in
+            certStore.update { (result, error) in
+                completion.complete(with: result)
+            }
+        }
+        XCTAssertTrue(updateResult.value == .ok)
+        
+        // --- Scenario 1: listed domain, pinning not required → .trusted ---
+        let sessionDelegateListed = TestingSessionDelegate { (challenge, callback) in
+            let validationResult = self.certStore.validate(challenge: challenge)
+            switch validationResult {
+            case .trusted:
+                callback(.performDefaultHandling, nil)
+            case .untrusted, .empty:
+                callback(.cancelAuthenticationChallenge, nil)
+            }
+            XCTAssertEqual(validationResult, .trusted, "Listed domain with sslPinningRequired=false should be trusted regardless of fingerprint")
+        }
+        
+        let listedSession = URLSession(delegate: sessionDelegateListed)
+        let listedResult: Data? = RemoteObject(session: listedSession, request: URLRequest(url: urlToPin)).get()
+        
+        XCTAssertNotNil(listedResult)
+        XCTAssertEqual(sessionDelegateListed.interceptor.called_didReceiveChallenge, 1)
+        
+        // --- Scenario 2: unlisted domain, sslPinningRequiredForUnlisted=true → normal pinning (.empty) ---
+        // No real HTTPS connection is needed; the in-memory check is enough to confirm the policy.
+        // testCommonName_Unknown is not in the bypass list and has no cert stored → .empty.
+        let unlistedResult = certStore.validate(
+            commonName: .testCommonName_Unknown,
+            fingerprint: .testFingerprint_Unknown
+        )
+        XCTAssertEqual(unlistedResult, .empty, "Unlisted domain should require normal pinning (sslPinningRequiredForUnlisted=true) and return .empty when no cert is stored")
+        
+        // --- Scenario 3: clear bypass list → host becomes unlisted, sslPinningRequiredForUnlisted=true applies ---
+        api_setDomainsConfigBypass([])
+        
+        let updateResult2 = AsyncHelper.wait { (completion) in
+            certStore.update(mode: .forced) { (result, error) in
+                completion.complete(with: result)
+            }
+        }
+        XCTAssertTrue(updateResult2.value == .ok)
+        
+        // The host is now unlisted. sslPinningRequiredForUnlisted=true → normal fingerprint pinning.
+        // The registered leaf cert must still match → .trusted.
+        let sessionDelegateUnlisted = TestingSessionDelegate { (challenge, callback) in
+            let validationResult = self.certStore.validate(challenge: challenge)
+            switch validationResult {
+            case .trusted:
+                callback(.performDefaultHandling, nil)
+            case .untrusted, .empty:
+                callback(.cancelAuthenticationChallenge, nil)
+            }
+            XCTAssertEqual(validationResult, .trusted, "Unlisted host with sslPinningRequiredForUnlisted=true should fall back to normal pinning and trust the registered cert")
+        }
+        let unlistedSession = URLSession(delegate: sessionDelegateUnlisted)
+        let unlistedHostResult: Data? = RemoteObject(session: unlistedSession, request: URLRequest(url: urlToPin)).get()
+        XCTAssertNotNil(unlistedHostResult)
+        XCTAssertEqual(sessionDelegateUnlisted.interceptor.called_didReceiveChallenge, 1)
+    }
 }
 
 extension URLSession {
