@@ -123,6 +123,7 @@ public extension CertStore {
             }
         }
         
+        let chainLength = SecTrustGetCertificateCount(serverTrust)
         // Gets list of fingerprint entries (thread safe)
         let certificates = getCertificates()
         guard certificates.count > 0 else {
@@ -145,7 +146,7 @@ public extension CertStore {
             }
             
             let pinnedDepth = info.depth ?? 0
-            guard pinnedDepth >= 0 && pinnedDepth < certificates.count else {
+            guard pinnedDepth >= 0 && pinnedDepth < chainLength else {
                 continue
             }
             

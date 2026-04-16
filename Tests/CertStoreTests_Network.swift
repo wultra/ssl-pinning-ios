@@ -422,6 +422,7 @@ class CertStoreTests_Network: XCTestCase {
             phase1Result = self.certStore.validate(challenge: challenge)
             callback(.cancelAuthenticationChallenge, nil)
         }
+
         _ = RemoteObject(
             session: URLSession(delegate: delegatePhase1),
             request: URLRequest(url: urlToPin)
