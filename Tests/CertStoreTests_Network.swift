@@ -321,71 +321,71 @@ class CertStoreTests_Network: XCTestCase {
     /// domain via `PUT /admin/apps/{name}/pinning-bypass-domains`. While the bypass is active,
     /// `validate(challenge:)` must return `.trusted` regardless of what certificate is presented.
     /// After clearing the bypass, the test confirms that normal fingerprint-based pinning is restored.
-//    func testRealCertificateWithDomainsConfigBypass() {
-//        // Ensure a clean bypass state before the test
-//        api_setDomainsConfigBypass([])
-//        
-//        // Register the leaf certificate so the domain is known to the server
-//        api_updateCertificate()
-//        
-//        // Configure SSL pinning bypass for the target host
-//        api_setDomainsConfigBypass([hostToPin])
-//        
-//        // Update certificates from remote server (picks up the new domainsConfig)
-//        let updateResult = AsyncHelper.wait { (completion) in
-//            certStore.update { (result, error) in
-//                completion.complete(with: result)
-//            }
-//        }
-//        XCTAssertTrue(updateResult.value == .ok)
-//        
-//        // With bypass active, validate must return .trusted regardless of the certificate
-//        let sessionDelegateBypass = TestingSessionDelegate { (challenge, callback) in
-//            let validationResult = self.certStore.validate(challenge: challenge)
-//            switch validationResult {
-//            case .trusted:
-//                callback(.performDefaultHandling, nil)
-//            case .untrusted, .empty:
-//                callback(.cancelAuthenticationChallenge, nil)
-//            }
-//            XCTAssertEqual(validationResult, .trusted, "Expected bypass domain to be trusted without fingerprint check")
-//        }
-//        
-//        let bypassSession = URLSession(delegate: sessionDelegateBypass)
-//        let bypassResult: Data? = RemoteObject(session: bypassSession, request: URLRequest(url: urlToPin)).get()
-//        
-//        XCTAssertNotNil(bypassResult)
-//        XCTAssertEqual(sessionDelegateBypass.interceptor.called_didReceiveChallenge, 1)
-//        
-//        // Clear bypass: restore normal SSL pinning for all domains
-//        api_setDomainsConfigBypass([])
-//        
-//        // Force update so the cleared DomainsConfig is reflected in the store
-//        let clearResult = AsyncHelper.wait { (completion) in
-//            certStore.update(mode: .forced) { (result, error) in
-//                completion.complete(with: result)
-//            }
-//        }
-//        XCTAssertTrue(clearResult.value == .ok)
-//        
-//        // With bypass cleared, normal pinning applies; the registered leaf cert should still match
-//        let sessionDelegatePinning = TestingSessionDelegate { (challenge, callback) in
-//            let validationResult = self.certStore.validate(challenge: challenge)
-//            switch validationResult {
-//            case .trusted:
-//                callback(.performDefaultHandling, nil)
-//            case .untrusted, .empty:
-//                callback(.cancelAuthenticationChallenge, nil)
-//            }
-//            XCTAssertEqual(validationResult, .trusted, "Expected leaf certificate to be trusted after bypass is cleared")
-//        }
-//        
-//        let pinningSession = URLSession(delegate: sessionDelegatePinning)
-//        let pinningResult: Data? = RemoteObject(session: pinningSession, request: URLRequest(url: urlToPin)).get()
-//        
-//        XCTAssertNotNil(pinningResult)
-//        XCTAssertEqual(sessionDelegatePinning.interceptor.called_didReceiveChallenge, 1)
-//    }
+    func testRealCertificateWithDomainsConfigBypass() {
+        // Ensure a clean bypass state before the test
+        api_setDomainsConfigBypass([])
+        
+        // Register the leaf certificate so the domain is known to the server
+        api_updateCertificate()
+        
+        // Configure SSL pinning bypass for the target host
+        api_setDomainsConfigBypass([hostToPin])
+        
+        // Update certificates from remote server (picks up the new domainsConfig)
+        let updateResult = AsyncHelper.wait { (completion) in
+            certStore.update { (result, error) in
+                completion.complete(with: result)
+            }
+        }
+        XCTAssertTrue(updateResult.value == .ok)
+        
+        // With bypass active, validate must return .trusted regardless of the certificate
+        let sessionDelegateBypass = TestingSessionDelegate { (challenge, callback) in
+            let validationResult = self.certStore.validate(challenge: challenge)
+            switch validationResult {
+            case .trusted:
+                callback(.performDefaultHandling, nil)
+            case .untrusted, .empty:
+                callback(.cancelAuthenticationChallenge, nil)
+            }
+            XCTAssertEqual(validationResult, .trusted, "Expected bypass domain to be trusted without fingerprint check")
+        }
+        
+        let bypassSession = URLSession(delegate: sessionDelegateBypass)
+        let bypassResult: Data? = RemoteObject(session: bypassSession, request: URLRequest(url: urlToPin)).get()
+        
+        XCTAssertNotNil(bypassResult)
+        XCTAssertEqual(sessionDelegateBypass.interceptor.called_didReceiveChallenge, 1)
+        
+        // Clear bypass: restore normal SSL pinning for all domains
+        api_setDomainsConfigBypass([])
+        
+        // Force update so the cleared DomainsConfig is reflected in the store
+        let clearResult = AsyncHelper.wait { (completion) in
+            certStore.update(mode: .forced) { (result, error) in
+                completion.complete(with: result)
+            }
+        }
+        XCTAssertTrue(clearResult.value == .ok)
+        
+        // With bypass cleared, normal pinning applies; the registered leaf cert should still match
+        let sessionDelegatePinning = TestingSessionDelegate { (challenge, callback) in
+            let validationResult = self.certStore.validate(challenge: challenge)
+            switch validationResult {
+            case .trusted:
+                callback(.performDefaultHandling, nil)
+            case .untrusted, .empty:
+                callback(.cancelAuthenticationChallenge, nil)
+            }
+            XCTAssertEqual(validationResult, .trusted, "Expected leaf certificate to be trusted after bypass is cleared")
+        }
+        
+        let pinningSession = URLSession(delegate: sessionDelegatePinning)
+        let pinningResult: Data? = RemoteObject(session: pinningSession, request: URLRequest(url: urlToPin)).get()
+        
+        XCTAssertNotNil(pinningResult)
+        XCTAssertEqual(sessionDelegatePinning.interceptor.called_didReceiveChallenge, 1)
+    }
     
     /// Tests the full bypass lifecycle when a deliberately wrong fingerprint is stored for a domain.
     ///
