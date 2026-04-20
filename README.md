@@ -185,10 +185,6 @@ certStore.update { result, error in
    if result == .ok {
        // everything's OK, 
        // No action is required, or a silent update was started
-   } else if result == .storeIsEmpty {
-       // Update succeeded, but it looks like the remote list contains
-       // already expired fingerprints. The certStore will probably not be able
-       // to validate the fingerprints.
    } else {
        // Other error. See `CertStore.UpdateResult` for details.
        // The "error" variable is set in case of a network error.

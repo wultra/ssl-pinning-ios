@@ -77,7 +77,7 @@ class CertStoreTests_Basics: XCTestCase {
                     completion.complete(with: result)
                 }
             }
-            XCTAssertTrue(updateResult.value == .storeIsEmpty)
+            XCTAssertTrue(updateResult.value == .ok)
             XCTAssertTrue(cryptoProvider.interceptor.called_importECPublicKey == 2)     // One import must be called + one for initial config validation
             XCTAssertTrue(dataStore.interceptor.called_loadData == 1)                   // One load from persistent store must be called
             XCTAssertTrue(remoteDataProvider.interceptor.called_getFingerprints == 1)   // One getFingerprints must be called
@@ -89,7 +89,7 @@ class CertStoreTests_Basics: XCTestCase {
                     completion.complete(with: result)
                 }
             }
-            XCTAssertTrue(updateResult.value == .storeIsEmpty)
+            XCTAssertTrue(updateResult.value == .ok)
             XCTAssertTrue(cryptoProvider.interceptor.called_importECPublicKey == 3)     // One more import
             XCTAssertTrue(dataStore.interceptor.called_loadData == 1)                   // No more load data
             XCTAssertTrue(remoteDataProvider.interceptor.called_getFingerprints == 2)   // Yet another getFigerprints
@@ -167,7 +167,7 @@ class CertStoreTests_Basics: XCTestCase {
                 }
             }
             // After update, result should be still "empty", because the loaded certificate is already expired
-            XCTAssertTrue(updateResult.value == .storeIsEmpty)
+            XCTAssertTrue(updateResult.value == .ok)
             validationResult = certStore.validate(commonName: .testCommonName_1, fingerprint: .testFingerprint_1)
             XCTAssertTrue(validationResult == .empty)
             
