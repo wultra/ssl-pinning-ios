@@ -80,10 +80,6 @@ public extension CertStore {
     ///
     /// - Returns: validation result
     func validate(commonName: String, certificateData: Data, depth: Int = 0) -> ValidationResult {
-        // Check domainsConfig as early as possible
-        if !isDomainsConfigPinningRequired(for: commonName) {
-            return .trusted
-        }
         let fingerprint = cryptoProvider.hashSha256(data: certificateData)
         return validateFingerprint(commonName: commonName, fingerprint: fingerprint, depth: depth)
     }
@@ -110,8 +106,10 @@ public extension CertStore {
             return .untrusted
         }
         
+        let cachedData = getCachedData()
+        
         // Check domainsConfig as early as possible
-        if !isDomainsConfigPinningRequired(for: commonName) {
+        if cachedData?.isDomainsConfigPinningRequired(for: commonName) == false {
             return .trusted
         }
         
@@ -124,9 +122,8 @@ public extension CertStore {
         }
         
         let chainLength = SecTrustGetCertificateCount(serverTrust)
-        // Gets list of fingerprint entries (thread safe)
-        let certificates = getCertificates()
-        guard certificates.count > 0 else {
+        
+        guard let certificates = cachedData?.certificates, !certificates.isEmpty else {
             WultraDebug.print("List of certificates is empty; returning .empty.")
             return .empty
         }
@@ -186,8 +183,10 @@ public extension CertStore {
     ///
     /// - Returns: validation result
     private func validateFingerprint(commonName: String, fingerprint: Data, depth: Int) -> ValidationResult {
+        let cachedData = getCachedData()
+        
         // Check domainsConfig as early as possible
-        if !isDomainsConfigPinningRequired(for: commonName) {
+        if cachedData?.isDomainsConfigPinningRequired(for: commonName) == false {
             return .trusted
         }
         
@@ -199,9 +198,7 @@ public extension CertStore {
             }
         }
         
-        // Gets list of fingerprint entries (thread safe)
-        let certificates = getCertificates()
-        guard certificates.count > 0 else {
+        guard let certificates = cachedData?.certificates, !certificates.isEmpty else {
             WultraDebug.print("List of certificates is empty; returning .empty.")
             return .empty
         }
@@ -235,21 +232,23 @@ public extension CertStore {
         return matchAttempts > 0 ? .untrusted : .empty
     }
     
-    /// Returns whether SSL pinning is required for the given domain name according to `DomainsConfig`.
-    ///
-    /// When no `DomainsConfig` is available (e.g. not yet fetched from the server), pinning is
-    /// considered required. When `DomainsConfig` is present, its per-domain or fallback value is used.
+}
+
+fileprivate extension CachedData {
+
+    /// Returns whether SSL pinning is required for the given domain name.
     ///
     /// - Parameter commonName: The domain name to check.
     /// - Returns: `false` when `DomainsConfig` explicitly disables pinning for this domain; `true` otherwise.
-    private func isDomainsConfigPinningRequired(for commonName: String) -> Bool {
-        guard let domainsConfig = getCachedData()?.domainsConfig else {
+    func isDomainsConfigPinningRequired(for commonName: String) -> Bool {
+        guard let domainsConfig else {
             return true
         }
-        let required = domainsConfig.isPinningRequired(for: commonName)
-        if !required {
-            WultraDebug.print("Pinning disabled by domainsConfig for domain '\(commonName)'; returning .trusted without fingerprint validation.")
+
+        let isRequired = domainsConfig.isPinningRequired(for: commonName)
+        if !isRequired {
+            WultraDebug.print("Pinning disabled by domainsConfig for '\(commonName)'; returning .trusted without fingerprint validation.")
         }
-        return required
+        return isRequired
     }
 }
