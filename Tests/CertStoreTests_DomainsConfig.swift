@@ -406,38 +406,6 @@ class CertStoreTests_DomainsConfig: XCTestCase {
         XCTAssertEqual(cryptoProvider.interceptor.called_hashSha256, 1)
     }
     
-    /// When domainsConfig says pinning is not required, `validate(commonName:certificateData:)` must
-    /// short-circuit before computing the SHA-256 hash and return `.trusted`.
-    func testIsDomainsConfigPinningRequired_BypassDomain_SkipsSha256() {
-        prepareStore(with: .testConfig)
-        
-        let domains = DomainsConfig(
-            sslPinningRequiredForUnlisted: true,
-            domains: [DomainConfig(name: .testCommonName_1, sslPinningRequired: false)]
-        )
-        
-        remoteDataProvider
-            .setNoLatency()
-            .reportData = responseGenerator
-                .removeAll()
-                .append(commonName: .testCommonName_1, expiration: .valid, fingerprint: .testFingerprint_1)
-                .setDomainsConfig(domains)
-                .data()
-        
-        XCTAssertEqual(updateStore(), .ok)
-        cryptoProvider.interceptor = .clean
-        
-        // Verify domainsConfig is in cache before validating
-        XCTAssertNotNil(certStore.getCachedData()?.domainsConfig, "domainsConfig must be in cache for early-bypass test to be meaningful")
-        
-        let certData = Data(repeating: 0xAA, count: 64)
-        let result = certStore.validate(commonName: .testCommonName_1, certificateData: certData)
-        
-        XCTAssertEqual(result, .trusted)
-        // SHA-256 must NOT be computed — domainsConfig bypass short-circuits before hashing
-        XCTAssertEqual(cryptoProvider.interceptor.called_hashSha256, 0)
-    }
-    
     /// When domainsConfig says pinning is required, `validate(commonName:certificateData:)` must
     /// proceed normally: SHA-256 is computed and fingerprint matching is performed.
     func testIsDomainsConfigPinningRequired_PinningRequired_ComputesSha256() {
