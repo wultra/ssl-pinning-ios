@@ -97,22 +97,6 @@ public class CertStore {
 
 internal extension CertStore {
     
-    /// Internal function returns array of `CertificateInfo` objects.
-    /// The array contains the fallback certificate, if provided, at the last position.
-    /// The operation is thread safe.
-    func getCertificates() -> [CertificateInfo] {
-        // Acquire semaphore
-        semaphore.wait()
-        defer { semaphore.signal() }
-        
-        // At first, try to restore cache
-        restoreCache()
-        
-        var result = cachedData?.certificates ?? []
-        result.append(contentsOf: fallbackCertificates)
-        return result
-    }
-    
     /// Internal function returns whole `CachedData` structure.
     /// The operation is thread safe.
     func getCachedData() -> CachedData? {
@@ -122,6 +106,11 @@ internal extension CertStore {
         
         // At first, try to restore cache
         restoreCache()
+        
+        // Append fallback certificates
+        var certs = cachedData?.certificates ?? []
+        certs.append(contentsOf: fallbackCertificates)
+        cachedData?.certificates = certs
         
         return cachedData
     }
@@ -148,8 +137,8 @@ internal extension CertStore {
     /// is performed only once per object's lifetime.
     private func restoreCache() {
         if !cacheIsLoaded {
-            cachedData = loadCachedData()
             fallbackCertificates = loadFallbackCertificates()
+            cachedData = loadCachedData()
             cacheIsLoaded = true
         }
     }
