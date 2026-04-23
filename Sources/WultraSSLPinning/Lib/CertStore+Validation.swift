@@ -106,7 +106,7 @@ public extension CertStore {
             return .untrusted
         }
         
-        let cachedData = getCachedData()
+        let (cachedData, certificates) = getValidationData()
         
         // Check domainsConfig as early as possible
         if cachedData?.isDomainsConfigPinningRequired(for: commonName) == false {
@@ -123,7 +123,7 @@ public extension CertStore {
         
         let chainLength = SecTrustGetCertificateCount(serverTrust)
         
-        guard let certificates = cachedData?.certificates, !certificates.isEmpty else {
+        guard !certificates.isEmpty else {
             WultraDebug.print("List of certificates is empty; returning .empty.")
             return .empty
         }
@@ -183,7 +183,7 @@ public extension CertStore {
     ///
     /// - Returns: validation result
     private func validateFingerprint(commonName: String, fingerprint: Data, depth: Int) -> ValidationResult {
-        let cachedData = getCachedData()
+        let (cachedData, certificates) = getValidationData()
         
         // Check domainsConfig as early as possible
         if cachedData?.isDomainsConfigPinningRequired(for: commonName) == false {
@@ -198,7 +198,7 @@ public extension CertStore {
             }
         }
         
-        guard let certificates = cachedData?.certificates, !certificates.isEmpty else {
+        guard !certificates.isEmpty else {
             WultraDebug.print("List of certificates is empty; returning .empty.")
             return .empty
         }

@@ -107,12 +107,23 @@ internal extension CertStore {
         // At first, try to restore cache
         restoreCache()
         
-        // Append fallback certificates
-        var certs = cachedData?.certificates ?? []
-        certs.append(contentsOf: fallbackCertificates)
-        cachedData?.certificates = certs
-        
         return cachedData
+    }
+    
+    /// Internal function returns whole `CachedData` and `[CertificateInfo]` necessary to perform validation.
+    /// The operation is thread safe.
+    func getValidationData() -> (CachedData?, [CertificateInfo]) {
+        // Acquire semaphore
+        semaphore.wait()
+        defer { semaphore.signal() }
+        
+        // At first, try to restore cache
+        restoreCache()
+        
+        // Append fallback certificates
+        let certificates = (cachedData?.certificates ?? []) + fallbackCertificates
+        
+        return (cachedData, certificates)
     }
     
     /// Internal function allows atomic update of `CachedData` structure.
