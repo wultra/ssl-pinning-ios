@@ -301,7 +301,7 @@ class CertStoreTests_Update: XCTestCase {
                     completion.complete(with: result)
                 }
             }
-            XCTAssertEqual(updateResult.value, .storeIsEmpty)
+            XCTAssertEqual(updateResult.value, .ok)
         }
         XCTAssertTrue(elapsed > .testLatency_ForFastUpdate)
         XCTAssertTrue(remoteDataProvider.interceptor.called_getFingerprints == 1)

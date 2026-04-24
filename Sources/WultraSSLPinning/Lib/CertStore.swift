@@ -97,23 +97,8 @@ public class CertStore {
 
 internal extension CertStore {
     
-    /// Internal function returns array of `CertificateInfo` objects. The array
-    /// contains the fallback certificate, if provided, at the last position.
+    /// Internal function returns whole `CachedData` structure.
     /// The operation is thread safe.
-    func getCertificates() -> [CertificateInfo] {
-        // Acquire semaphore
-        semaphore.wait()
-        defer { semaphore.signal() }
-        
-        // At first, try to restore cache
-        restoreCache()
-        
-        var result = cachedData?.certificates ?? []
-        result.append(contentsOf: fallbackCertificates)
-        return result
-    }
-    
-    /// Internal function returns whole `CachedData` structure. The operation is thread safe.
     func getCachedData() -> CachedData? {
         // Acquire semaphore
         semaphore.wait()
@@ -125,8 +110,24 @@ internal extension CertStore {
         return cachedData
     }
     
-    /// Internal function allows atomic update of `CachedData` structure. The provided
-    /// update closure is called when exclusive access to data is guaranteed.
+    /// Internal function returns whole `CachedData` and `[CertificateInfo]` necessary to perform validation.
+    /// The operation is thread safe.
+    func getValidationData() -> (CachedData?, [CertificateInfo]) {
+        // Acquire semaphore
+        semaphore.wait()
+        defer { semaphore.signal() }
+        
+        // At first, try to restore cache
+        restoreCache()
+        
+        // Append fallback certificates
+        let certificates = (cachedData?.certificates ?? []) + fallbackCertificates
+        
+        return (cachedData, certificates)
+    }
+    
+    /// Internal function allows atomic update of `CachedData` structure.
+    /// The provided update closure is called when exclusive access to data is guaranteed.
     func updateCachedData(updateClosure: (CachedData?)->CachedData?) -> Void {
         // Acquire semaphore
         semaphore.wait()
@@ -143,12 +144,12 @@ internal extension CertStore {
     }
     
     /// Private function tries to load cached data from secureDataStore
-    /// and fallback certificate from the configuration. This operation is performed
-    /// only once per object's lifetime.
+    /// and fallback certificate from the configuration. This operation
+    /// is performed only once per object's lifetime.
     private func restoreCache() {
         if !cacheIsLoaded {
-            cachedData = loadCachedData()
             fallbackCertificates = loadFallbackCertificates()
+            cachedData = loadCachedData()
             cacheIsLoaded = true
         }
     }

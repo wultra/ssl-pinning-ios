@@ -39,11 +39,6 @@ public extension CertStore {
         /// Update succeeded
         case ok
         
-        /// The update request succeeded, but the result is still an empty list of certificates.
-        /// This may happen when the loading & validating of remote data succeeded, but all loaded
-        /// certificates are already expired.
-        case storeIsEmpty
-        
         /// The update request failed on a network communication.
         case networkError
         
@@ -237,13 +232,6 @@ public extension CertStore {
                 newCertificates.append(newCI)
             }
             
-            /// Check whether there's at least one certificate.
-            if result == .ok && newCertificates.isEmpty {
-                // Looks like it's time to update list of certificates stored on the server.
-                WultraDebug.warning("CertStore: Database after update is still empty.")
-                result = .storeIsEmpty
-            }
-            
             guard result == .ok else {
                 // Returning nil here means that we're not modifying cached data. This typically means
                 // that next call to "update" will force the next data load.
@@ -261,7 +249,7 @@ public extension CertStore {
             let nextUpdate = scheduler.scheduleNextUpdate(certificates: newCertificates, currentDate: currentDate)
             
             // Finally, construct a new cached data.
-            return CachedData(certificates: newCertificates, nextUpdate: nextUpdate)
+            return CachedData(certificates: newCertificates, nextUpdate: nextUpdate, domainsConfig: response.domainsConfig)
         }
         //
         return result
