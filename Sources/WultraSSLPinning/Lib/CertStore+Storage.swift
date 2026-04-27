@@ -38,7 +38,9 @@ internal extension CertStore {
         secureDataStore.save(data: encodedData, forKey: self.instanceIdentifier)
     }
     
-    /// Loads fallback certificate from configuration provided in CertStore initialization.
+    /// Loads fallback certificates from the configuration provided during CertStore initialization.
+    /// In the current implementation, we deliberately do not allow fallback configuration for domains;
+    /// only the fallback certificates array is supported.
     func loadFallbackCertificates() -> [CertificateInfo] {
         guard let fallbackData = configuration.fallbackCertificatesData else {
             return []

@@ -31,11 +31,10 @@ class CertStoreTests_Signing: XCTestCase {
     let responseGenerator = ResponseGenerator()
     let keyPair = ECDSA.generateKeyPair()
     
-    func prepareStore(useChallenge: Bool) {
+    func prepareStore() {
         self.config = CertStoreConfiguration(
             serviceUrl: URL(string: "https://example.org/pinning-service")!,
-            publicKey: keyPair.publicKey.stringRepresentation,
-            useChallenge: useChallenge
+            publicKey: keyPair.publicKey.stringRepresentation
         )
         cryptoProvider = PowerAuthCryptoProvider()
         dataStore = TestingSecureDataStore()
@@ -54,33 +53,33 @@ class CertStoreTests_Signing: XCTestCase {
         WultraDebug.verboseLevel = .all
     }
     
-    
-    func testSigningWithoutChallenge() {
-        
-        prepareStore(useChallenge: false)
-        
+    func testMissingSignatureHeader() {
+        // Arrange: valid response body, but no x-cert-pinning-signature header at all.
+        prepareStore()
+            
         remoteDataProvider.reportData = responseGenerator
-            .signEntry(with: keyPair.privateKey)
             .append(commonName: .testCommonName_1, expiration: .never, fingerprint: .testFingerprint_1)
-            .append(commonName: .testCommonName_2, expiration: .never, fingerprint: .testFingerprint_2)
             .data()
-        
+        remoteDataProvider.omitSignatureHeader()
+            
+        // Act
         let updateResult = AsyncHelper.wait { completion in
             certStore.update { result, error in
                 completion.complete(with: result)
             }
         }
-        XCTAssertTrue(updateResult.value == .ok)
-        
-        var validateResult = certStore.validate(commonName: .testCommonName_1, fingerprint: .testFingerprint_1)
-        XCTAssertTrue(validateResult == .trusted)
-        validateResult = certStore.validate(commonName: .testCommonName_2, fingerprint: .testFingerprint_2)
-        XCTAssertTrue(validateResult == .trusted)
+            
+        // Assert: absent header must be treated as an invalid signature — security-critical.
+        XCTAssertEqual(updateResult.value, .invalidSignature)
+            
+        // The store must remain empty; no certificate should have been persisted.
+        XCTAssertEqual(certStore.validate(commonName: .testCommonName_1, fingerprint: .testFingerprint_1), .empty)
     }
+
     
-    func testSigningWithChallenge() {
+    func testSigning() {
         
-        prepareStore(useChallenge: true)
+        prepareStore()
         
         remoteDataProvider.signResponse(with: keyPair.privateKey)
         remoteDataProvider.reportData = responseGenerator

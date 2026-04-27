@@ -28,10 +28,14 @@ internal struct CachedData: Codable {
     /// Date of next scheduled silent update from the remote server
     var nextUpdate: Date
     
+    /// Optional domain-specific SSL pinning configuration received from the remote server.
+    var domainsConfig: DomainsConfig?
+    
     /// Minimized keys for (de)serialization
     enum CodingKeys: String, CodingKey {
         case certificates = "c"
         case nextUpdate = "u"
+        case domainsConfig = "dc"
     }
 }
 
