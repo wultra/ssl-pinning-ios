@@ -7,11 +7,10 @@ set -u # stop when undefined variable is used
 SCRIPT_FOLDER=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 echo "Parsing destination from available sim list:"
-xcrun simctl list
+xcrun simctl list devices available
 
-IOS_VERSION=$(xcrun simctl list | grep "\-\- iOS" | awk -F'-- iOS | --' '{num=$2} END {print num}')
-IPHONE_NAME=$(xcrun simctl list | awk "/-- iOS $IOS_VERSION/{pos=NR} /iPhone/ && pos && NR > pos {print; exit}" | awk -F' \\(' '{print $1}'  | awk '{$1=$1; print}')
-DESTINATION="platform=iOS Simulator,OS=${IOS_VERSION},name=${IPHONE_NAME}"
+SIM_ID=$(xcrun simctl list devices available | grep "iPhone" | grep -oE '[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}' | tail -1)
+DESTINATION="platform=iOS Simulator,id=${SIM_ID}"
 
 echo "Destination Resolved: ${DESTINATION}"
 
