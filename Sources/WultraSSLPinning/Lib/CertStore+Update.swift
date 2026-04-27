@@ -175,61 +175,53 @@ public extension CertStore {
         }
         
         // Try to update cached data with the newly received objects.
-        // The `updateCachedData` method guarantees atomicity of the operation.
-        var result = UpdateResult.ok
-        //
-        updateCachedData { (cachedData) -> CachedData? in
-            //
-            // This closure is called while internal thread lock is acquired.
-            //
-            var newCertificates = (cachedData?.certificates ?? []).filter { !$0.isExpired(forDate: currentDate) }
-            
-            // Iterate over all entries in the response
-            for entry in response.fingerprints {
-                // Convert entry to CI
-                let newCI = CertificateInfo(from: entry)
-                if newCI.isExpired(forDate: currentDate) {
-                    // Received entry is already expired, just skip it.
-                    continue
-                }
-                if newCertificates.firstIndex(of: newCI) != nil {
-                    // This particular entry is already in the database, just skip it.
-                    // Due to fact, that we're using the same array for newly accepted certs,
-                    // then it will also filter duplicities received from the server.
-                    continue
-                }
-                if let expectedCN = self.configuration.expectedCommonNames {
-                    if !expectedCN.contains(newCI.commonName) {
-                        // CertStore will store this CI, but validation will ignore this entry, due to fact, that it's not
-                        // in "expectedCommonNames" list.
-                        WultraDebug.warning("CertStore: Loaded data contains name, which will not be trusted. CN = '\(entry.name)'")
-                    }
-                }
-                // Everything looks fine, just append newCI to the list of new certificates.
-                newCertificates.append(newCI)
+        var newCertificates = [CertificateInfo]()
+        
+        // Iterate over all entries in the response
+        for entry in response.fingerprints {
+            // Convert entry to CI
+            let newCI = CertificateInfo(from: entry)
+            if newCI.isExpired(forDate: currentDate) {
+                // Received entry is already expired, just skip it.
+                continue
             }
-            
-            guard result == .ok else {
-                // Returning nil here means that we're not modifying cached data. This typically means
-                // that next call to "update" will force the next data load.
-                return nil
+            if newCertificates.firstIndex(of: newCI) != nil {
+                // Skip duplicate entries in new certificates
+                continue
             }
-            
-            // Sort new certificates by name & expiration date
-            newCertificates.sortCertificates()
-            
-            // Schedule the next update
-            let scheduler = UpdateScheduler(
-                periodicUpdateInterval: configuration.periodicUpdateInterval,
-                expirationUpdateTreshold: configuration.expirationUpdateTreshold,
-                thresholdMultiplier: 0.125)
-            let nextUpdate = scheduler.scheduleNextUpdate(certificates: newCertificates, currentDate: currentDate)
-            
-            // Finally, construct a new cached data.
-            return CachedData(certificates: newCertificates, nextUpdate: nextUpdate, domainsConfig: response.domainsConfig)
+            if let expectedCN = self.configuration.expectedCommonNames {
+                if !expectedCN.contains(newCI.commonName) {
+                    // CertStore will store this CI, but validation will ignore this entry, due to fact, that it's not
+                    // in "expectedCommonNames" list.
+                    WultraDebug.warning("CertStore: Loaded data contains name, which will not be trusted. CN = '\(entry.name)'")
+                }
+            }
+            // Everything looks fine, just append newCI to the list of new certificates.
+            newCertificates.append(newCI)
         }
-        //
-        return result
+        
+        // Sort new certificates by name & expiration date
+        newCertificates.sortCertificates()
+        
+        // Schedule the next update
+        let scheduler = UpdateScheduler(
+            periodicUpdateInterval: configuration.periodicUpdateInterval,
+            expirationUpdateTreshold: configuration.expirationUpdateTreshold,
+            thresholdMultiplier: 0.125)
+        
+        let nextUpdate = scheduler.scheduleNextUpdate(
+            certificates: newCertificates,
+            currentDate: currentDate)
+        
+        // Finally, construct and update a new cached data.
+        let cachedData = CachedData(
+            certificates: newCertificates,
+            nextUpdate: nextUpdate,
+            domainsConfig: response.domainsConfig)
+        
+        updateCachedData(newCacheData: cachedData)
+        
+        return UpdateResult.ok
     }
 }
 

@@ -59,7 +59,7 @@ class CertStoreTests_Update: XCTestCase {
      triggered in the test body may cause a false positive results.
      */
     func testUpdate_WholeCycle() {
-
+        
         var updateResult: Result<CertStore.UpdateResult, Error>
         var validationResult: CertStore.ValidationResult
         var elapsed: TimeInterval
@@ -75,9 +75,9 @@ class CertStoreTests_Update: XCTestCase {
         remoteDataProvider
             .setNoLatency()
             .reportData = responseGenerator
-                .removeAll()
-                .append(commonName: .testCommonName_1, expiration: .soon, fingerprint: .testFingerprint_1)
-                .data()
+            .removeAll()
+            .append(commonName: .testCommonName_1, expiration: .soon, fingerprint: .testFingerprint_1)
+            .data()
         
         updateResult = AsyncHelper.wait { completion in
             certStore.update { (result, error) in
@@ -312,8 +312,8 @@ class CertStoreTests_Update: XCTestCase {
         
         remoteDataProvider
             .reportData = responseGenerator
-                .append(commonName: .testCommonName_1, expiration: .valid, fingerprint: .testFingerprint_2)
-                .data()
+            .append(commonName: .testCommonName_1, expiration: .valid, fingerprint: .testFingerprint_2)
+            .data()
         
         //
         // [ 5.0 ] This update must be blocking. All certificates are expired.
@@ -333,6 +333,91 @@ class CertStoreTests_Update: XCTestCase {
         // Now try to validate
         validationResult = certStore.validate(commonName: .testCommonName_1, fingerprint: .testFingerprint_2)
         XCTAssertTrue(validationResult == .trusted)
+    }
+    
+    // MARK: - Replace cache tests
+    
+    /// Verifies that after an update the cache contains only the certificates from the new
+    /// server response, and previously cached certificates that are absent from the response
+    /// are discarded.
+    func testUpdate_ReplacesExistingCertificates() {
+        prepareStore(with: .testConfig)
+        remoteDataProvider.setNoLatency()
         
+        // First update: load cert1 + cert2
+        remoteDataProvider.reportData = responseGenerator
+            .removeAll()
+            .append(commonName: .testCommonName_1, expiration: .valid, fingerprint: .testFingerprint_1)
+            .append(commonName: .testCommonName_2, expiration: .valid, fingerprint: .testFingerprint_2)
+            .data()
+        
+        var updateResult: Result<CertStore.UpdateResult, Error> = AsyncHelper.wait { completion in
+            certStore.update(mode: .forced) { result, error in completion.complete(with: result) }
+        }
+        XCTAssertEqual(updateResult.value, .ok)
+        XCTAssertEqual(certStore.getCachedData()?.certificates.count, 2)
+        
+        // Second update: server returns only cert2 (cert1 is gone)
+        remoteDataProvider.reportData = responseGenerator
+            .removeAll()
+            .append(commonName: .testCommonName_2, expiration: .valid, fingerprint: .testFingerprint_2)
+            .data()
+        
+        updateResult = AsyncHelper.wait { completion in
+            certStore.update(mode: .forced) { result, error in completion.complete(with: result) }
+        }
+        XCTAssertEqual(updateResult.value, .ok)
+        
+        let cached = certStore.getCachedData()
+        XCTAssertEqual(cached?.certificates.count, 1, "Cache must contain only the certificate from the latest response")
+        
+        // cert1 must no longer be trusted
+        XCTAssertEqual(certStore.validate(commonName: .testCommonName_1, fingerprint: .testFingerprint_1), .empty)
+        // cert2 must still be trusted
+        XCTAssertEqual(certStore.validate(commonName: .testCommonName_2, fingerprint: .testFingerprint_2), .trusted)
+    }
+    
+    /// Verifies that expired certificates received in the server response are not stored in the cache.
+    func testUpdate_FiltersExpiredCertificatesInResponse() {
+        prepareStore(with: .testConfig)
+        remoteDataProvider.setNoLatency()
+        
+        // Response contains one valid and one already-expired certificate
+        remoteDataProvider.reportData = responseGenerator
+            .removeAll()
+            .append(commonName: .testCommonName_1, expiration: .valid,   fingerprint: .testFingerprint_1)
+            .append(commonName: .testCommonName_2, expiration: .expired, fingerprint: .testFingerprint_2)
+            .data()
+        
+        let updateResult: Result<CertStore.UpdateResult, Error> = AsyncHelper.wait { completion in
+            certStore.update { result, error in completion.complete(with: result) }
+        }
+        XCTAssertEqual(updateResult.value, .ok)
+        
+        let cached = certStore.getCachedData()
+        XCTAssertEqual(cached?.certificates.count, 1, "Expired certificate from response must not be stored")
+        XCTAssertEqual(certStore.validate(commonName: .testCommonName_1, fingerprint: .testFingerprint_1), .trusted)
+        XCTAssertEqual(certStore.validate(commonName: .testCommonName_2, fingerprint: .testFingerprint_2), .empty)
+    }
+    
+    /// Verifies that duplicate entries within a single server response are stored only once.
+    func testUpdate_DeduplicatesCertificatesInResponse() {
+        prepareStore(with: .testConfig)
+        remoteDataProvider.setNoLatency()
+        
+        // Response contains cert1 twice
+        remoteDataProvider.reportData = responseGenerator
+            .removeAll()
+            .append(commonName: .testCommonName_1, expiration: .valid, fingerprint: .testFingerprint_1)
+            .appendLast()
+            .data()
+        
+        let updateResult: Result<CertStore.UpdateResult, Error> = AsyncHelper.wait { completion in
+            certStore.update { result, error in completion.complete(with: result) }
+        }
+        XCTAssertEqual(updateResult.value, .ok)
+        
+        let cached = certStore.getCachedData()
+        XCTAssertEqual(cached?.certificates.count, 1, "Duplicate certificate from response must be stored only once")
     }
 }
