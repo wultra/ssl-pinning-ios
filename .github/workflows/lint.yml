@@ -1,0 +1,15 @@
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+
+jobs:
+  swiftlint:
+    name: SwiftLint
+    runs-on: macos-26
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v4
+      - name: Swiftlint
+        run: sh ./scripts/swiftlint.sh

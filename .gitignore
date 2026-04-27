@@ -73,3 +73,6 @@ fastlane/test_output
 
 # test config
 Tests/Configs/config.json
+
+# swiftlint
+swiftlint
