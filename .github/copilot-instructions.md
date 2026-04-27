@@ -31,6 +31,8 @@ Tests require a running [Mobile Utility Server](https://github.com/wultra/mobile
 
 These parameters are stored as GitHub Actions secrets. The test script auto-detects the latest iOS simulator.
 
+To run tests locally without a server, create `Tests/Configs/config.json` (see `Tests/Configs/Readme.md` for the format) and run with the `WultraSSLPinningTests` scheme. Most unit tests use mock providers and do not require a live server — only `CertStoreTests_Network` does.
+
 To run a single test class or method via xcodebuild:
 
 ```bash
@@ -81,4 +83,8 @@ Tests provide mock implementations (`TestingCryptoProvider`, `TestingSecureDataS
 - **Internal testing init**: `CertStore` has an `internal` initializer that accepts all dependencies directly (including `RemoteDataProvider`), used exclusively by tests.
 - **Debug logging**: Controlled via `WultraDebug.verboseLevel` — keep it configurable but default to minimal output.
 - **Minimum targets**: iOS 13.0+, tvOS 13.0+, Swift 5.9+.
-- **CI runs on macOS 15** with Xcode version selected by `Scripts/xcodeselect.sh`.
+- **CI runs on macOS 26** with Xcode version selected by `Scripts/xcodeselect.sh`.
+- **`CachedData` coding keys are minimized** (`"c"`, `"u"`, `"dc"`) for storage efficiency — never change them without a migration path, as this would break persisted data on existing installs.
+- **Signature format**: each fingerprint entry is signed over `"name&fingerprint_base64&ceil(expiry_unix_timestamp)"` encoded as UTF-8. The `ResponseGenerator` test helper in `Tests/Providers/` replicates this format for mock responses.
+- **`ValidationResult`** has three states: `.trusted`, `.untrusted` (fingerprint mismatch), and `.empty` (no data yet). Callers must handle `.empty` by triggering an update and cancelling the TLS handshake.
+- **`DomainsConfig`** is an optional server-side payload that can selectively bypass pinning per domain; it is stored inside `CachedData` and respected during validation.
