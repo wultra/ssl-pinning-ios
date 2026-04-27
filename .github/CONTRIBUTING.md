@@ -24,11 +24,11 @@ Don't forget to [link PR to issue](https://docs.github.com/en/issues/tracking-yo
 
 ## Continuous Integration
 
-PRs are verified by Continues Integration tools. All checks should pass.
+PRs are verified by Continuous Integration tools. All checks should pass.
 
 ## Copilot Instructions
 
-See the [Copilot Instructions](/.github/copilot-instructions.md)￼ for an AI-focused overview of the project, including its architecture and key classes. 
+See the [Copilot Instructions](/.github/copilot-instructions.md) for an AI-focused overview of the project, including its architecture and key classes. 
 
 
 ## Contributor License Agreement
