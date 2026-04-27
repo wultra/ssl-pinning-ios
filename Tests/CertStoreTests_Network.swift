@@ -64,8 +64,7 @@ class CertStoreTests_Network: XCTestCase {
         
         config = CertStoreConfiguration(
             serviceUrl: appUrl("/init?appName=\(testConfig.appName)"),
-            publicKey: publicKey,
-            useChallenge: true
+            publicKey: publicKey
         )
         cryptoProvider = CryptoKitCryptoProvider()
         dataStore = TestingSecureDataStore()

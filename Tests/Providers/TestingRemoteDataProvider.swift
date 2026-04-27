@@ -67,6 +67,16 @@ class TestingRemoteDataProvider: RemoteDataProvider {
         return self
     }
     
+    /// Configures the provider to return valid response data but without the
+    /// `x-cert-pinning-signature` header, simulating a server that omits signing.
+    @discardableResult
+    func omitSignatureHeader() -> TestingRemoteDataProvider {
+        self.dataGenerator = { _ in
+            return (self.reportData, [:])
+        }
+        return self
+    }
+    
     @discardableResult
     @available(iOS 13.0, macOS 10.15, watchOS 6.0, tvOS 13.0, *)
     func signResponse(with privateKey: ECDSA.PrivateKey) -> TestingRemoteDataProvider {
@@ -101,7 +111,9 @@ class TestingRemoteDataProvider: RemoteDataProvider {
                 if let generator = self.dataGenerator {
                     response = generator(request.requestHeaders)
                 } else {
-                    response = (self.reportData, [:])
+                    // Provide a dummy signature header so that tests using TestingCryptoProvider
+                    // (which auto-approves all signatures) are not rejected at the header guard.
+                    response = (self.reportData, ["x-cert-pinning-signature": "QWxsIHlvdXIgbW9uZXkgYXJlIGJlbG9uZyB0byB1cw=="])
                 }
             } else {
                 response = (nil, [:])
