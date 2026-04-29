@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e # stop sript when error occures
+set -e # stop script when error occurs
 set -u # stop when undefined variable is used
 #set -x # print all execution (good for debugging)
 
