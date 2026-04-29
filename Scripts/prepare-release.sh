@@ -18,17 +18,17 @@ set -o pipefail # stop when error occurs in pipe
 # 1. With a version (-v X.Y.Z) argument:
 #  - it will prepare the release with the current version
 #  - use it when you're preparing a new release pull-request
-#  - Example: sh scripts/prepare-release.sh -v 1.0.0
+#  - Example: ./Scripts/prepare-release.sh -v 1.0.0
 #
 # 2. With a version argument and --verify:
 #  - it will verify that the given release version is prepared.
 #  - use it to make sure that the release pull-request is properly prepared (also used on CI)
-#  - Example: sh scripts/prepare-release.sh -v 1.0.0 --verify
+#  - Example: ./Scripts/prepare-release.sh -v 1.0.0 --verify
 #
 # 3. Without arguments:
 #  - it will run the script in the root directory of the repository and verify that all files are prepared.
 #  - use it to make sure that the current state of the repository is ready for release
-#  - Example: sh scripts/prepare-release.sh
+#  - Example: ./Scripts/prepare-release.sh
 #
 # Note: you can add --ignore-git-clean to ignore "git clean" errors (useful when testing things locally)
 #

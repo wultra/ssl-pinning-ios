@@ -11,6 +11,6 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v6
       - name: Set proper xcode version
-        run: sh ./Scripts/xcodeselect.sh
+        run: ./Scripts/xcodeselect.sh
       - name: Build the SDK
-        run: sh ./Scripts/build.sh
+        run: ./Scripts/build.sh
