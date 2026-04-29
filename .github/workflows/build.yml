@@ -1,4 +1,4 @@
-name: build
+name: Build
 
 on:
   pull_request:
@@ -9,8 +9,8 @@ jobs:
     runs-on: macos-26
     steps:
       - name: Checkout the repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
       - name: Set proper xcode version
         run: sh ./Scripts/xcodeselect.sh
       - name: Build the SDK
-        run: ./scripts/build.sh
+        run: sh ./Scripts/build.sh
