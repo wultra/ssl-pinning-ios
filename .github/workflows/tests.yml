@@ -1,6 +1,10 @@
 name: tests
 
 on:
+  push:
+    branches:
+      - develop
+      - releases/*
   pull_request:
 
 jobs:
@@ -11,6 +15,6 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v6
       - name: Set proper xcode version
-        run: sh ./scripts/xcodeselect.sh
+        run: ./Scripts/xcodeselect.sh
       - name: Run Tests
-        run: ./Scripts/test.sh -url ${{ secrets.TESTS_URL }} -appname ${{ secrets.TESTS_APP_NAME }} -urltopin ${{ secrets.TESTS_URL_TO_PIN }} -login ${{ secrets.TESTS_LOGIN }} -password ${{ secrets.TESTS_PASSWORD }} 
+        run: ./Scripts/test.sh -url ${{ secrets.TESTS_URL }} -appname ${{ secrets.TESTS_APP_NAME }} -urltopin ${{ secrets.TESTS_URL_TO_PIN }} -login ${{ secrets.TESTS_LOGIN }} -password ${{ secrets.TESTS_PASSWORD }}

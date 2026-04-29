@@ -1,0 +1,24 @@
+{
+  "_purpose": "This file is used as a definition file for the prepare-release script.",
+  "_info": "It defines files that contains version number that should be updated during the release preparation.",
+  "library": {
+    "name": "ssl-pinning-ios",
+    "type": "ios-oss",
+    "podspec": "WultraSSLPinning.podspec"
+  },
+  "files": [
+    {
+      "description": "Cocoapods definition file.",
+      "path": "WultraSSLPinning.podspec",
+      "type": "version_replace",
+      "match": "\n  s.version = '%VERSION%'\n"
+    },
+    {
+      "description": "Framework Info.plist bundle version.",
+      "path": "Sources/Info.plist",
+      "type": "version_replace",
+      "match": "\n\t<string>%VERSION%</string>\n"
+    }
+  ],
+  "scripts": [ ]
+}

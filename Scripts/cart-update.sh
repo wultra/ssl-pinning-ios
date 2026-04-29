@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e # stop sript when error occures
+set -e # stop script when error occurs
 
 SCRIPT_FOLDER=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
