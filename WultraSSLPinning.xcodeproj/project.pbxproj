@@ -39,11 +39,8 @@
 		AA0000012600000000000003 /* CertStoreTests_DomainsConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000012600000000000004 /* CertStoreTests_DomainsConfig.swift */; };
 		BFCB8177213D9F8400615ADA /* CryptoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB8176213D9F8400615ADA /* CryptoProvider.swift */; };
 		BFCB8179213D9FEB00615ADA /* SecureDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB8178213D9FEB00615ADA /* SecureDataStore.swift */; };
-		BFCB817E213DA71100615ADA /* PowerAuthSecureDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB817D213DA71100615ADA /* PowerAuthSecureDataStore.swift */; };
-		BFCB8180213DAAC200615ADA /* PowerAuthCryptoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB817F213DAAC200615ADA /* PowerAuthCryptoProvider.swift */; };
 		BFCB8188213EAC1300615ADA /* CertStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB8187213EAC1300615ADA /* CertStore.swift */; };
 		BFCB818A213EAD1300615ADA /* CertStoreConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB8189213EAD1300615ADA /* CertStoreConfiguration.swift */; };
-		BFCB818C213EAE0900615ADA /* PowerAuthIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB818B213EAE0900615ADA /* PowerAuthIntegration.swift */; };
 		BFCB8191213EB4D100615ADA /* GetFingerprintsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB8190213EB4D100615ADA /* GetFingerprintsResponse.swift */; };
 		BFCB8193213EB59700615ADA /* CertificateInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCB8192213EB59700615ADA /* CertificateInfo.swift */; };
 		BFE92F46213EC6C00078E2A1 /* CertStore+Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFE92F45213EC6C00078E2A1 /* CertStore+Validation.swift */; };
@@ -51,19 +48,11 @@
 		BFEA9AEB2142C569008D9EE4 /* CertStoreTests_LoadSave.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFEA9AE92142C531008D9EE4 /* CertStoreTests_LoadSave.swift */; };
 		BFF51838251A16720061DAAF /* ECDSA.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFF51837251A16720061DAAF /* ECDSA.swift */; };
 		DC68CFD22D5B5ACA00D7468C /* Configs in Resources */ = {isa = PBXBuildFile; fileRef = DC68CFD12D5B5ACA00D7468C /* Configs */; };
-		DC68CFD32D5BA08300D7468C /* PowerAuth2.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC8664C5270B430E00FE2B3F /* PowerAuth2.xcframework */; };
-		DC68CFD52D5BA08300D7468C /* PowerAuthCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC8664C6270B430E00FE2B3F /* PowerAuthCore.xcframework */; };
 		DC68CFD82D5CAD0300D7468C /* CryptoKitCryptoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC68CFD72D5CACFF00D7468C /* CryptoKitCryptoProvider.swift */; };
 		DC68CFDC2D5CD59700D7468C /* KeychainSecureDataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC68CFDB2D5CD59400D7468C /* KeychainSecureDataStore.swift */; };
 		DC68CFDE2D5CE6E600D7468C /* ConcreteDataStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC68CFDD2D5CE6E600D7468C /* ConcreteDataStoreTests.swift */; };
-		DC68CFFA2D5CF89B00D7468C /* PowerAuth2.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC8664C5270B430E00FE2B3F /* PowerAuth2.xcframework */; };
-		DC68CFFB2D5CF89B00D7468C /* PowerAuth2.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DC8664C5270B430E00FE2B3F /* PowerAuth2.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		DC68CFFC2D5CF89B00D7468C /* PowerAuthCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC8664C6270B430E00FE2B3F /* PowerAuthCore.xcframework */; };
-		DC68CFFD2D5CF89B00D7468C /* PowerAuthCore.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DC8664C6270B430E00FE2B3F /* PowerAuthCore.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		DC68CFFE2D5CF89B00D7468C /* WultraSSLPinning.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BFCB8151213D917600615ADA /* WultraSSLPinning.framework */; };
 		DC68CFFF2D5CF89B00D7468C /* WultraSSLPinning.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = BFCB8151213D917600615ADA /* WultraSSLPinning.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		DC8664C7270B430E00FE2B3F /* PowerAuth2.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC8664C5270B430E00FE2B3F /* PowerAuth2.xcframework */; };
-		DC8664C9270B430E00FE2B3F /* PowerAuthCore.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = DC8664C6270B430E00FE2B3F /* PowerAuthCore.xcframework */; };
 		EA1A21D42F72BB2800554487 /* DomainsConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA1A21D32F72BB1800554487 /* DomainsConfig.swift */; };
 /* End PBXBuildFile section */
 
@@ -98,8 +87,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				DC68CFFD2D5CF89B00D7468C /* PowerAuthCore.xcframework in Embed Frameworks */,
-				DC68CFFB2D5CF89B00D7468C /* PowerAuth2.xcframework in Embed Frameworks */,
 				DC68CFFF2D5CF89B00D7468C /* WultraSSLPinning.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -149,11 +136,8 @@
 		BFCB816F213D96F300615ADA /* WultraSSLPinning.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = WultraSSLPinning.h; path = Sources/WultraSSLPinning.h; sourceTree = "<group>"; };
 		BFCB8176213D9F8400615ADA /* CryptoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoProvider.swift; sourceTree = "<group>"; };
 		BFCB8178213D9FEB00615ADA /* SecureDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureDataStore.swift; sourceTree = "<group>"; };
-		BFCB817D213DA71100615ADA /* PowerAuthSecureDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerAuthSecureDataStore.swift; sourceTree = "<group>"; usesTabs = 0; };
-		BFCB817F213DAAC200615ADA /* PowerAuthCryptoProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerAuthCryptoProvider.swift; sourceTree = "<group>"; };
 		BFCB8187213EAC1300615ADA /* CertStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertStore.swift; sourceTree = "<group>"; };
 		BFCB8189213EAD1300615ADA /* CertStoreConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertStoreConfiguration.swift; sourceTree = "<group>"; };
-		BFCB818B213EAE0900615ADA /* PowerAuthIntegration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerAuthIntegration.swift; sourceTree = "<group>"; };
 		BFCB8190213EB4D100615ADA /* GetFingerprintsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetFingerprintsResponse.swift; sourceTree = "<group>"; };
 		BFCB8192213EB59700615ADA /* CertificateInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CertificateInfo.swift; sourceTree = "<group>"; };
 		BFE92F45213EC6C00078E2A1 /* CertStore+Validation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CertStore+Validation.swift"; sourceTree = "<group>"; };
@@ -165,8 +149,6 @@
 		DC68CFDB2D5CD59400D7468C /* KeychainSecureDataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSecureDataStore.swift; sourceTree = "<group>"; };
 		DC68CFDD2D5CE6E600D7468C /* ConcreteDataStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcreteDataStoreTests.swift; sourceTree = "<group>"; };
 		DC68CFE32D5CF7B700D7468C /* TestHostApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestHostApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		DC8664C5270B430E00FE2B3F /* PowerAuth2.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = PowerAuth2.xcframework; path = Carthage/Build/PowerAuth2.xcframework; sourceTree = "<group>"; };
-		DC8664C6270B430E00FE2B3F /* PowerAuthCore.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = PowerAuthCore.xcframework; path = Carthage/Build/PowerAuthCore.xcframework; sourceTree = "<group>"; };
 		EA1A21D32F72BB1800554487 /* DomainsConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DomainsConfig.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -189,8 +171,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DC68CFD52D5BA08300D7468C /* PowerAuthCore.xcframework in Frameworks */,
-				DC68CFD32D5BA08300D7468C /* PowerAuth2.xcframework in Frameworks */,
 				BF8BB780214021EF0097315B /* WultraSSLPinning.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -199,8 +179,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DC8664C9270B430E00FE2B3F /* PowerAuthCore.xcframework in Frameworks */,
-				DC8664C7270B430E00FE2B3F /* PowerAuth2.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -208,8 +186,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				DC68CFFC2D5CF89B00D7468C /* PowerAuthCore.xcframework in Frameworks */,
-				DC68CFFA2D5CF89B00D7468C /* PowerAuth2.xcframework in Frameworks */,
 				DC68CFFE2D5CF89B00D7468C /* WultraSSLPinning.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -221,7 +197,6 @@
 			isa = PBXGroup;
 			children = (
 				BFCB816A213D954500615ADA /* Lib */,
-				DC68D0042D5E000E00D7468C /* Plugins */,
 			);
 			path = WultraSSLPinning;
 			sourceTree = "<group>";
@@ -229,8 +204,6 @@
 		BF7DD3D3214034CF00766D03 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				DC8664C5270B430E00FE2B3F /* PowerAuth2.xcframework */,
-				DC8664C6270B430E00FE2B3F /* PowerAuthCore.xcframework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -355,16 +328,6 @@
 			path = Lib;
 			sourceTree = "<group>";
 		};
-		BFCB8170213D9D5E00615ADA /* PowerAuth */ = {
-			isa = PBXGroup;
-			children = (
-				BFCB817D213DA71100615ADA /* PowerAuthSecureDataStore.swift */,
-				BFCB817F213DAAC200615ADA /* PowerAuthCryptoProvider.swift */,
-				BFCB818B213EAE0900615ADA /* PowerAuthIntegration.swift */,
-			);
-			path = PowerAuth;
-			sourceTree = "<group>";
-		};
 		BFCB817C213DA6C200615ADA /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
@@ -395,14 +358,6 @@
 				BF7DD40321428E9100766D03 /* ResponseGenerator.swift */,
 			);
 			path = Providers;
-			sourceTree = "<group>";
-		};
-		DC68D0042D5E000E00D7468C /* Plugins */ = {
-			isa = PBXGroup;
-			children = (
-				BFCB8170213D9D5E00615ADA /* PowerAuth */,
-			);
-			path = Plugins;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -588,11 +543,9 @@
 			files = (
 				BFABCD5A2149804A00A9221F /* UpdateScheduler.swift in Sources */,
 				BFCB8179213D9FEB00615ADA /* SecureDataStore.swift in Sources */,
-				BFCB818C213EAE0900615ADA /* PowerAuthIntegration.swift in Sources */,
 				EA1A21D42F72BB2800554487 /* DomainsConfig.swift in Sources */,
 				BF8BB774213F05B40097315B /* RestAPI.swift in Sources */,
 				BFCB8193213EB59700615ADA /* CertificateInfo.swift in Sources */,
-				BFCB817E213DA71100615ADA /* PowerAuthSecureDataStore.swift in Sources */,
 				DC68CFD82D5CAD0300D7468C /* CryptoKitCryptoProvider.swift in Sources */,
 				BFCB818A213EAD1300615ADA /* CertStoreConfiguration.swift in Sources */,
 				DC68CFDC2D5CD59700D7468C /* KeychainSecureDataStore.swift in Sources */,
@@ -603,7 +556,6 @@
 				BFCB8177213D9F8400615ADA /* CryptoProvider.swift in Sources */,
 				BF8BB76F213EFC100097315B /* CertStore+Storage.swift in Sources */,
 				BF8BB776213FDA420097315B /* CachedData.swift in Sources */,
-				BFCB8180213DAAC200615ADA /* PowerAuthCryptoProvider.swift in Sources */,
 				BFCB8191213EB4D100615ADA /* GetFingerprintsResponse.swift in Sources */,
 				BF8BB771213F03510097315B /* RemoteDataProvider.swift in Sources */,
 			);
@@ -644,7 +596,6 @@
 				DEVELOPMENT_TEAM = KTT9G859MR;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build",
 				);
 				INFOPLIST_FILE = Tests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
@@ -667,7 +618,6 @@
 				DEVELOPMENT_TEAM = KTT9G859MR;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/Carthage/Build",
 				);
 				INFOPLIST_FILE = Tests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 16.6;

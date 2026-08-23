@@ -6,10 +6,6 @@ set -u # stop when undefined variable is used
 
 SCRIPT_FOLDER=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
-pushd "${SCRIPT_FOLDER}"
-./cart-update.sh
-popd
-
 pushd "${SCRIPT_FOLDER}/.."
 
 xcrun xcodebuild \
