@@ -36,7 +36,7 @@ class CertStoreTests_Signing: XCTestCase {
             serviceUrl: URL(string: "https://example.org/pinning-service")!,
             publicKey: keyPair.publicKey.stringRepresentation
         )
-        cryptoProvider = PowerAuthCryptoProvider()
+        cryptoProvider = CryptoKitCryptoProvider()
         dataStore = TestingSecureDataStore()
         remoteDataProvider = TestingRemoteDataProvider()
         certStore = CertStore(

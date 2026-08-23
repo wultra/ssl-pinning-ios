@@ -72,13 +72,9 @@ Tests provide mock implementations (`TestingCryptoProvider`, `TestingSecureDataS
 - **Blocking mode** — first launch or expired fingerprints; the caller waits for the download
 - **Silent mode** — background periodic updates controlled by `periodicUpdateInterval` and `expirationUpdateTreshold` in the configuration
 
-### PowerAuth plugin (deprecated)
-
-`Sources/WultraSSLPinning/Plugins/PowerAuth/` contains a legacy integration with [PowerAuth SDK](https://github.com/wultra/powerauth-mobile-sdk). This is deprecated since v1.8 — the README shows how to implement the integration manually instead.
-
 ## Key Conventions
 
-- **Distribution**: Swift Package Manager (primary), CocoaPods (with subspecs `Lib` and `PowerAuthIntegration`), Carthage (experimental).
+- **Distribution**: Swift Package Manager (primary), CocoaPods (single `Lib` subspec).
 - **Thread safety**: `CertStore` uses a `DispatchSemaphore` for thread-safe access to cached data. All mutations go through `updateCachedData(updateClosure:)`.
 - **Internal testing init**: `CertStore` has an `internal` initializer that accepts all dependencies directly (including `RemoteDataProvider`), used exclusively by tests.
 - **Debug logging**: Controlled via `WultraDebug.verboseLevel` — keep it configurable but default to minimal output.
