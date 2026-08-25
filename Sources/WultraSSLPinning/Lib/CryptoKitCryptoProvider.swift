@@ -32,7 +32,7 @@ public class CryptoKitCryptoProvider: CryptoProvider {
     /// - Returns true if all signatures are correct
     public func ecdsaValidateSignatures(signedData: SignedData, publicKey: any ECPublicKey) -> Bool {
         
-        // Cast abstract interface to PowerAuthCoreECPublicKey
+        // Cast abstract interface to P256.Signing.PublicKey
         guard let ecKey = publicKey as? P256.Signing.PublicKey else {
             WultraDebug.fatalError("Invalid ECPublicKey object (P256.Signing.PublicKey expected).")
         }

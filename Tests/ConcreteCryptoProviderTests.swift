@@ -20,7 +20,7 @@ import XCTest
 class ConcreteCryptoProviderTests: XCTestCase {
     
     // concrete crypto provider implementation
-    private let providers: [CryptoProvider] = [ PowerAuthCryptoProvider(), CryptoKitCryptoProvider() ]
+    private let providers: [CryptoProvider] = [ CryptoKitCryptoProvider() ]
     
     func testSha256() {
         // Prepare test data

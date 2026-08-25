@@ -27,7 +27,6 @@ class ConcreteDataStoreTests: XCTestCase {
     private func createStores(timestampCreated: TimeInterval = Date().timeIntervalSince1970) {
         self.timestampCreated = timestampCreated
         stores = [
-            PowerAuthSecureDataStore(keychainIdentifier: "PowerAuthStore_\(timestampCreated)"),
             KeychainSecureDataStore(keychainIdentifier: "DefaultStore_\(timestampCreated)")
         ]
     }
@@ -88,43 +87,5 @@ class ConcreteDataStoreTests: XCTestCase {
             XCTAssertNotNil(dataRetrieved)
             XCTAssertEqual(dataRetrieved, dataToSave)
         }
-    }
-    
-    func testMigration() {
-        
-        let dataToSave = Data.random(count: 16)
-        let dataToUpdate = Data.random(count: 16)
-        let key = "dataKey"
-        let ksId = "MigrationKeychainTest_\(Date().timeIntervalSince1970)"
-        
-        // create data stores with the same keychain ids
-        let paDs = PowerAuthSecureDataStore(keychainIdentifier: ksId)
-        let kcDs = KeychainSecureDataStore(keychainIdentifier: ksId)
-        
-        // save the data in powerauth data store and verify that keychain data store can access it
-        XCTAssertTrue(paDs.save(data: dataToSave, forKey: key))
-        let dataRetrieved = paDs.loadData(forKey: key)
-        XCTAssertNotNil(dataRetrieved)
-        XCTAssertEqual(dataRetrieved, dataToSave)
-        let migratedDataRetrieved = kcDs.loadData(forKey: key)
-        XCTAssertNotNil(migratedDataRetrieved)
-        XCTAssertEqual(dataRetrieved, migratedDataRetrieved)
-        
-        // modify the data
-        XCTAssertTrue(paDs.save(data: dataToUpdate, forKey: key))
-        let updatedDataRetrieved = paDs.loadData(forKey: key)
-        XCTAssertNotNil(updatedDataRetrieved)
-        XCTAssertEqual(updatedDataRetrieved, dataToUpdate)
-        let migratedUpdatedDataRetrieved = kcDs.loadData(forKey: key)
-        XCTAssertNotNil(migratedUpdatedDataRetrieved)
-        XCTAssertEqual(updatedDataRetrieved, migratedUpdatedDataRetrieved)
-        
-        // remove the data from the powerauth data stores
-        paDs.removeData(forKey: key)
-        XCTAssertNil(paDs.loadData(forKey: key))
-        
-        // wereify that the data are removed
-        XCTAssertNil(kcDs.loadData(forKey: key))
-        
     }
 }

@@ -56,10 +56,6 @@ if [[ "${URL}" == "" || "${APP_NAME}" == "" || "${URL_TO_PIN}" == "" || "${LOGIN
   exit 1
 fi
 
-pushd "${SCRIPT_FOLDER}"
-sh cart-update.sh
-popd
-
 pushd "${SCRIPT_FOLDER}/.."
 
 echo """{

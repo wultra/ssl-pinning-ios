@@ -1,14 +1,5 @@
 {
   "pins" : [
-    {
-      "identity" : "powerauth-mobile-sdk-spm",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/wultra/powerauth-mobile-sdk-spm.git",
-      "state" : {
-        "revision" : "2aacf6135fe6985d9ad56178e6b3a6068b77f4f1",
-        "version" : "1.8.0"
-      }
-    }
   ],
   "version" : 2
 }
