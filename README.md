@@ -397,10 +397,6 @@ The `WultraSSLPinning/PowerAuthIntegration` CocoaPods subspec and its PowerAuth-
 - Replace `PowerAuthSecureDataStore` with `KeychainSecureDataStore` (using the same parameters).
 - Replace `PowerAuthSslPinningValidationStrategy` with your own implementation ([example](#powerauth-integration)).
 
-### TBA
-
-- TBA
-
 ## FAQ
 
 ### Why a different domain for `serviceUrl`?

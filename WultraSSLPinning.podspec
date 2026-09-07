@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name = 'WultraSSLPinning'
-  s.version = '1.9.0'
+  s.version = '2.0.0'
   # Metadata
   s.license = { :type => 'Apache License, Version 2.0', :file => 'LICENSE' }
   s.summary = 'Dynamic SSL pinning written in Swift'
