@@ -18,8 +18,6 @@
     - [PowerAuth integration](#powerauth-integration)
 - [Migration Guide](#migration-guide)
 - [FAQ](#faq)
-- [License](#license)
-- [Contact](#contact)
 
 <!-- end -->
 <!-- begin remove -->
