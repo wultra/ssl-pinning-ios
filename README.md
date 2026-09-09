@@ -18,8 +18,6 @@
     - [PowerAuth integration](#powerauth-integration)
 - [Migration Guide](#migration-guide)
 - [FAQ](#faq)
-- [License](#license)
-- [Contact](#contact)
 
 <!-- end -->
 <!-- begin remove -->
@@ -423,6 +421,7 @@ Yes, you can change how much information is printed to the debug console:
 WultraDebug.verboseLevel = .all
 ```
 
+<!-- begin remove -->
 ## License
 
 All sources are licensed using Apache 2.0 license. You can use them with no restrictions. If you are using this library, please let us know. We will be happy to share and promote your project.
@@ -434,3 +433,4 @@ If you need any assistance, do not hesitate to drop us a line at [hello@wultra.c
 ### Security Disclosure
 
 If you believe you have identified a security vulnerability with WultraSSLPinning, you should report it as soon as possible via email to [support@wultra.com](mailto:support@wultra.com). Please do not post it to a public issue tracker.
+<!-- end -->
