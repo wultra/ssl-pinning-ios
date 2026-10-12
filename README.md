@@ -256,7 +256,7 @@ class YourUrlSessionDelegate: NSObject, URLSessionDelegate {
 
 ## Certificate depth pinning
 
-By default the library pins the **leaf certificate** — the certificate the server presents directly. For stronger protection against a compromised leaf certificate you can instead pin an **intermediate CA** or the **root CA** in the certificate chain.
+By default, the library pins the **leaf certificate**—the certificate presented directly by the server. This is the approach recommended by OWASP because it limits trust to the intended endpoint. For resilience during certificate rotation or recovery, you can pin the issuing **intermediate CA**. Pinning an intermediate CA broadens the set of trusted certificates, while pinning a **root CA** is generally not recommended.
 
 The `depth` value refers to the position of the certificate in the TLS chain as seen by `SecTrustGetCertificateAtIndex`:
 
